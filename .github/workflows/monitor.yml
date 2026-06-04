@@ -1,4 +1,4 @@
-name: Monitor de Preços Automatizado
+name: Monitor de Preços Automatizado02 a cada 15min
 
 on:
   schedule:
