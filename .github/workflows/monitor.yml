@@ -1,9 +1,11 @@
-name: Monitor de Preços Automatizado02 a cada 2h
+name: Monitor de Preços AutomatizadoCloud
 
 on:
   schedule:
-    - cron: '15 */2 * * *'
-  workflow_dispatch:          # Permite rodar manualmente pelo painel do GitHub
+    - cron: '0 * * * *' # Corrigido: Roda de 1 em 1 hora (sujeito a atrasos do GitHub)
+  repository_dispatch:
+    types: [trigger_monitor] # Permite o disparo imediato via API da Cloudflare
+  workflow_dispatch:          # Permite rodar manualmente pelo painel
 
 jobs:
   check:
@@ -29,7 +31,7 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python centauro.py
-        continue-on-error: true # Se der erro, não para a execução das outras lojas
+        continue-on-error: true
 
       # ==========================================
       # NAGUMO
