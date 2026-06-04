@@ -1,8 +1,6 @@
 name: Monitor de Preços AutomatizadoCloud
 
 on:
-  schedule:
-    - cron: '0 * * * *' # Corrigido: Roda de 1 em 1 hora (sujeito a atrasos do GitHub)
   repository_dispatch:
     types: [trigger_monitor] # Permite o disparo imediato via API da Cloudflare
   workflow_dispatch:          # Permite rodar manualmente pelo painel
