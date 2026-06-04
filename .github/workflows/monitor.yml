@@ -1,8 +1,8 @@
-name: Monitor de Preços Automatizado02 a cada 15min
+name: Monitor de Preços Automatizado02 a cada 2h
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '15 */2 * * *'
   workflow_dispatch:          # Permite rodar manualmente pelo painel do GitHub
 
 jobs:
