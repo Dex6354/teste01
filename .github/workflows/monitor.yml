@@ -1,8 +1,6 @@
 name: Monitor de Preços Automatizado
 
 on:
-  repository_dispatch:
-    types: [trigger_monitor] # Permite o disparo imediato via API da Cloudflare
   workflow_dispatch:          # Permite rodar manualmente pelo painel do GitHub
     inputs:
       loja:
