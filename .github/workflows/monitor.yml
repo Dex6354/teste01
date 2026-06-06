@@ -29,28 +29,6 @@ jobs:
         run: pip install curl_cffi requests
 
       # ==========================================
-      # CENTAURO
-      # ==========================================
-      - name: Rodar Monitor Centauro
-        if: github.event_name != 'workflow_dispatch' || github.event.inputs.loja == 'todas' || github.event.inputs.loja == 'centauro'
-        env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          CHAT_ID: ${{ secrets.CHAT_ID }}
-        run: python centauro.py
-        continue-on-error: true # Se der erro, não para a execução das outras lojas
-
-      # ==========================================
-      # NAGUMO
-      # ==========================================
-      - name: Rodar Monitor Nagumo
-        if: github.event_name != 'workflow_dispatch' || github.event.inputs.loja == 'todas' || github.event.inputs.loja == 'nagumo'
-        env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          CHAT_ID: ${{ secrets.CHAT_ID }}
-        run: python nagumo.py
-        continue-on-error: true
-
-      # ==========================================
       # SHIBATA
       # ==========================================
       - name: Rodar Monitor Shibata
