@@ -10,8 +10,6 @@ on:
         default: 'todas'
         options:
           - todas
-          - centauro
-          - nagumo
           - shibata
 
 jobs:
