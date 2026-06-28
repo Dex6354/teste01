@@ -10,11 +10,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* Alterado de verde (#2ecc71) para amarelo (#f1c40f) */
       --yellow:       #f1c40f;
-      /* Alterado de verde-escuro (#27ae60) para amarelo-escuro/dourado (#f39c12) */
       --yellow-dark:  #f39c12;
-      /* Alterado rgba(46, 204, 113, 0.18) para rgba(241, 196, 15, 0.18) */
       --yellow-glow:  rgba(241, 196, 15, 0.18);
       --bg:           #0f1923;
       --bg-card:      #162230;
@@ -22,7 +19,6 @@
       --border:       rgba(255,255,255,0.07);
       --text:         #e8edf2;
       --text-muted:   #7a92a8;
-      /* Alterado rgba(46,204,113,0.13) para rgba(241,196,15,0.13) */
       --tag-bg:       rgba(241, 196, 15, 0.13);
       --radius-card:  14px;
       --font:         'Nunito', sans-serif;
@@ -138,7 +134,6 @@
     .hero {
       text-align: center;
       padding: 48px 24px 36px;
-      /* Alterado rgba(46,204,113,0.12) para rgba(241,196,15,0.12) */
       background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(241,196,15,0.12) 0%, transparent 70%);
     }
 
@@ -170,7 +165,6 @@
 
     .badge {
       background: var(--tag-bg);
-      /* Alterado rgba(46,204,113,0.3) para rgba(241,196,15,0.3) */
       border: 1px solid rgba(241,196,15,0.3);
       color: var(--yellow);
       border-radius: 20px;
@@ -209,16 +203,6 @@
       color: #0f1923;
     }
 
-    /* ── SECTION LABEL ──────────────────────────────────── */
-    .section-label {
-      padding: 0 24px 14px;
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--text-muted);
-    }
-
     /* ── GAME GRID ──────────────────────────────────────── */
     .grid {
       display: grid;
@@ -245,15 +229,6 @@
       border-color: var(--yellow);
     }
 
-    .card-thumb {
-      width: 100%;
-      aspect-ratio: 16/9;
-      object-fit: cover;
-      display: block;
-      background: #1a2635;
-    }
-
-    /* Fallback colorful thumbnail when no image */
     .card-thumb-fallback {
       width: 100%;
       aspect-ratio: 16/9;
@@ -296,7 +271,6 @@
 
     .tag {
       background: var(--tag-bg);
-      /* Alterado rgba(46,204,113,0.2) para rgba(241,196,15,0.2) */
       border: 1px solid rgba(241, 196, 15, 0.2);
       color: var(--yellow);
       border-radius: 5px;
@@ -350,19 +324,12 @@
       font-size: 12px;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    /* ── SEARCH HIGHLIGHT ────────────────────────────────── */
     .card.hidden { display: none; }
 
     /* ── RESPONSIVE ──────────────────────────────────────── */
     @media (max-width: 560px) {
       .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 14px 32px; }
       .filters { padding: 0 14px 16px; }
-      .section-label { padding: 0 14px 12px; }
       nav { padding: 0 14px; }
       .hero { padding: 32px 14px 24px; }
       .nav-center { display: none; }
@@ -377,7 +344,6 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav>
   <a class="nav-logo" href="#">
     <div class="nav-logo-icon">🎮</div>
@@ -394,8 +360,7 @@
   </div>
 </nav>
 
-<!-- HERO -->
-<div class="hero">
+<header class="hero">
   <h1>Jogue <span>Grátis</span> com Amigos</h1>
   <p>Jogos multiplayer no navegador, sem cadastro. Convide amigos e jogue agora!</p>
   <div class="hero-badges">
@@ -404,9 +369,8 @@
     <span class="badge">🤖 Bots Incluídos</span>
     <span class="badge">🆓 100% Grátis</span>
   </div>
-</div>
+</header>
   
-<!-- FILTERS -->
 <div class="filters">
   <button class="filter-btn active" onclick="filterGames('todos', this)">Todos</button>
   <button class="filter-btn" onclick="filterGames('palavras', this)">Palavras</button>
@@ -417,10 +381,8 @@
   <button class="filter-btn" onclick="filterGames('dados', this)">Dados</button>
 </div>
 
-<!-- GAME GRID -->
-<div class="grid" id="gameGrid">
+<main class="grid" id="gameGrid">
 
-  <!-- Wordrace -->
   <a class="card" href="https://bloob.io/pt/wordrace" target="_blank" data-category="palavras" data-name="wordrace corrida palavras">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#1a3a5c,#0d2137);">📝</div>
     <div class="card-body">
@@ -433,7 +395,6 @@
     </div>
   </a>
 
-  <!-- Blomber -->
   <a class="card" href="https://bloob.io/pt/blomber" target="_blank" data-category="acao" data-name="blomber bomba bomberman acao">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#3d1a00,#7a2800);">💣</div>
     <div class="card-body">
@@ -446,7 +407,6 @@
     </div>
   </a>
 
-  <!-- Batalha Naval -->
   <a class="card" href="https://bloob.io/pt/battleship" target="_blank" data-category="tabuleiro" data-name="batalha naval tabuleiro battleship">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#001a3d,#002966);">🚢</div>
     <div class="card-body">
@@ -459,7 +419,6 @@
     </div>
   </a>
 
-  <!-- 8 Ball Pool -->
   <a class="card" href="https://bloob.io/pt/8ballpool" target="_blank" data-category="sinuca" data-name="sinuca 8 bolas bilhar pool">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#0a1f0a,#0d3b0d);">🎱</div>
     <div class="card-body">
@@ -472,7 +431,6 @@
     </div>
   </a>
 
-  <!-- 9 Ball Pool -->
   <a class="card" href="https://bloob.io/pt/9ballpool" target="_blank" data-category="sinuca" data-name="sinuca 9 bolas bilhar pool">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#1a0f00,#3d2500);">🟡</div>
     <div class="card-body">
@@ -485,7 +443,6 @@
     </div>
   </a>
 
-  <!-- Cutthroat Pool -->
   <a class="card" href="https://bloob.io/pt/cutthroatpool" target="_blank" data-category="sinuca" data-name="sinuca cutthroat bilhar pool 3 jogadores">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#0d002e,#1e0052);">🎯</div>
     <div class="card-body">
@@ -498,7 +455,6 @@
     </div>
   </a>
 
-  <!-- Straight Pool -->
   <a class="card" href="https://bloob.io/pt/straightpool" target="_blank" data-category="sinuca" data-name="straight pool sinuca bilhar pontos">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#001a0d,#003320);">🟢</div>
     <div class="card-body">
@@ -511,7 +467,6 @@
     </div>
   </a>
 
-  <!-- Damas -->
   <a class="card" href="https://bloob.io/pt/checkers" target="_blank" data-category="tabuleiro" data-name="damas checkers tabuleiro clássico">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#1a0000,#3d0000);">⬛</div>
     <div class="card-body">
@@ -524,7 +479,6 @@
     </div>
   </a>
 
-  <!-- Damas Canadenses -->
   <a class="card" href="https://bloob.io/pt/canadiancheckers" target="_blank" data-category="tabuleiro" data-name="damas canadenses checkers tabuleiro variante">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#1a0000,#330014);">🍁</div>
     <div class="card-body">
@@ -537,7 +491,6 @@
     </div>
   </a>
 
-  <!-- Party Checkers -->
   <a class="card" href="https://bloob.io/pt/partycheckers" target="_blank" data-category="tabuleiro" data-name="party checkers damas festa 4 jogadores">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#1a001a,#33004d);">🎉</div>
     <div class="card-body">
@@ -550,7 +503,6 @@
     </div>
   </a>
 
-  <!-- Iate (Yacht) -->
   <a class="card" href="https://bloob.io/pt/yacht" target="_blank" data-category="dados" data-name="iate yacht dados yatzy">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#001a2e,#003352);">🎲</div>
     <div class="card-body">
@@ -563,7 +515,6 @@
     </div>
   </a>
 
-  <!-- Quiz Trivia Co-op -->
   <a class="card" href="https://bloob.io/pt/trivia-coop" target="_blank" data-category="quiz" data-name="quiz trivia cooperativo perguntas co-op">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#0d1a00,#1a3300);">🧠</div>
     <div class="card-body">
@@ -576,7 +527,6 @@
     </div>
   </a>
 
-  <!-- Wordbattle -->
   <a class="card" href="https://bloob.io/pt/wordbattle" target="_blank" data-category="palavras" data-name="wordbattle batalha palavras word">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#002233,#003d5c);">🔤</div>
     <div class="card-body">
@@ -589,9 +539,8 @@
     </div>
   </a>
 
-</div>
+</main>
 
-<!-- FOOTER -->
 <footer>
   <div class="footer-logo">Jogos<span>Da</span>Galera</div>
   <div class="footer-links">
@@ -602,36 +551,37 @@
 </footer>
 
 <script>
-  // ── Search ──────────────────────────────────────────────
   const searchInput = document.getElementById('searchInput');
   const cards = document.querySelectorAll('.card');
-
-  searchInput.addEventListener('input', () => {
-    const q = searchInput.value.toLowerCase().trim();
-    cards.forEach(card => {
-      const name = card.dataset.name || '';
-      card.classList.toggle('hidden', q.length > 0 && !name.includes(q));
-    });
-  });
-
-  // ── Filter ──────────────────────────────────────────────
   let activeCategory = 'todos';
 
+  // Lógica centralizada para atualizar a visibilidade baseado em Busca + Categoria ativa
+  function updateGames() {
+    const query = searchInput.value.toLowerCase().trim();
+
+    cards.forEach(card => {
+      const cardCategory = card.dataset.category || '';
+      const cardName = card.dataset.name || '';
+
+      const matchCategory = activeCategory === 'todos' || cardCategory === activeCategory;
+      const matchSearch = query.length === 0 || cardName.includes(query);
+
+      // Oculta o card se não passar em ambos os critérios simultaneamente
+      card.classList.toggle('hidden', !(matchCategory && matchSearch));
+    });
+  }
+
+  // Evento de digitação na busca
+  searchInput.addEventListener('input', updateGames);
+
+  // Evento de clique nos botões de filtro
   function filterGames(category, btn) {
     activeCategory = category;
 
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    const q = searchInput.value.toLowerCase().trim();
-
-    cards.forEach(card => {
-      const cat = card.dataset.category || '';
-      const name = card.dataset.name || '';
-      const catMatch = category === 'todos' || cat === category;
-      const searchMatch = q.length === 0 || name.includes(q);
-      card.classList.toggle('hidden', !(catMatch && searchMatch));
-    });
+    updateGames();
   }  
 </script>
 </body>
