@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Col P2P</title>
+    <title>Pontinhos P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
@@ -13,7 +13,7 @@
         <div class="max-w-md mx-auto">
             <div class="flex justify-between items-center relative">
                 <div class="flex flex-col">
-                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Col P2P</h1>
+                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Pontinhos P2P</h1>
                     <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
                         <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
                         <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">📋 Compartilhar</button>
@@ -29,13 +29,13 @@
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
                 <h2 class="text-xl font-extrabold mb-2">Aguardando Oponente</h2>
-                <p class="text-slate-400 text-xs">Partilhe o link com o adversário para iniciarem o duelo territorial.</p>
-                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Conectando ao servidor...</div>
+                <p class="text-slate-400 text-xs">Partilhe o link para fechar os quadrados na grelha.</p>
+                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Conectando ao P2P...</div>
                 <div id="loading-peer" class="hidden text-amber-400 text-xs font-medium animate-pulse">Configurando sala...</div>
             </div>
         </div>
 
-        <div id="game-scoreboard" class="w-full bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between mb-4">
+        <div id="game-scoreboard" class="w-full bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between mb-2">
             <div class="text-center">
                 <span class="text-red-400 font-black text-xs block">P1 (Vermelho)</span>
                 <div class="flex items-center space-x-1 mt-0.5 justify-center">
@@ -57,12 +57,18 @@
             </div>
         </div>
 
-        <div id="screen-game" class="w-full space-y-4">
+        <div class="w-full bg-slate-950/50 rounded-lg py-1.5 px-3 border border-slate-800 text-[11px] font-mono flex justify-between items-center mb-4">
+            <span class="text-red-400">Quadrados P1: <strong id="round-boxes-red">0</strong></span>
+            <span class="text-slate-400">Restam: <strong id="round-boxes-left">9</strong></span>
+            <span class="text-blue-400">Quadrados P2: <strong id="round-boxes-blue">0</strong></span>
+        </div>
+
+        <div id="screen-game" class="w-full space-y-4 flex flex-col items-center">
             <div id="btn-turn" class="w-full text-center font-bold py-2.5 rounded-xl text-xs border border-slate-700 bg-slate-800 transition">Carregando...</div>
 
-            <div id="board-grid" class="grid grid-cols-6 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 shadow-2xl aspect-square">
+            <div id="board-grid" class="grid grid-cols-[14px_1fr_14px_1fr_14px_1fr_14px] grid-rows-[14px_1fr_14px_1fr_14px_1fr_14px] bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-2xl aspect-square w-full max-w-sm">
                 </div>
-            <p class="text-[10px] text-center text-slate-500 italic">É proibido pintar ao lado (ortogonal) da sua própria cor.</p>
+            <p class="text-[10px] text-center text-slate-500 italic">Completar um quadrado garante uma jogada extra consecutiva.</p>
         </div>
 
         <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center">
@@ -76,15 +82,16 @@
         </div>
     </main>
 
-    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">⚡ Conexão P2P Direta • Col Graph Engine</footer>
+    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">⚡ Conexão P2P Direta • Dots & Boxes Engine</footer>
 
     <script>
         let peer = null, conn = null, myRole = '', isMyTurn = false;
         let score = { red: 0, blue: 0 };
         let localPlayerReadyForNext = false, opponentReadyForNext = false;
 
-        const SIZE = 6;
-        let boardState = Array(SIZE * SIZE).fill('empty'); // 'empty', 'red', 'blue'
+        // Grelha 7x7 mapeia: pontos (r par, c par), linhas horizontais (r par, c ímpar), linhas verticais (r ímpar, c par) e caixas (r ímpar, c ímpar)
+        const GRID_SIZE = 7;
+        let boardState = Array(GRID_SIZE * GRID_SIZE).fill(null);
 
         const screenLobby = document.getElementById('screen-lobby');
         const topbar = document.getElementById('topbar');
@@ -93,19 +100,19 @@
         let roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            const generatedCode = 'COL-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_room_col', generatedCode);
+            const generatedCode = 'DOTS-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_room_dots', generatedCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
             document.getElementById('topbar-room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('hosted_room_col')) ? 'red' : 'blue';
+            myRole = (roomCode === localStorage.getItem('hosted_room_dots')) ? 'red' : 'blue';
             loadGameState();
             setupTheme();
             if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
-        function saveGameState() { if (roomCode) localStorage.setItem(`col_score_${roomCode}`, JSON.stringify(score)); }
-        function loadGameState() { const s = localStorage.getItem(`col_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
+        function saveGameState() { if (roomCode) localStorage.setItem(`dots_score_${roomCode}`, JSON.stringify(score)); }
+        function loadGameState() { const s = localStorage.getItem(`dots_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
         function setupTheme() { topbar.className = myRole === 'red' ? "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white" : "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white"; }
         function updateScoreboardVisual() { document.getElementById('score-red').innerText = score.red; document.getElementById('score-blue').innerText = score.blue; }
 
@@ -123,14 +130,14 @@
             document.getElementById('loading-peer').classList.remove('hidden');
             updatePresenceUI(true, false);
             peer = new Peer(code);
-            peer.on('open', () => { document.getElementById('loading-peer').classList.add('hidden'); document.getElementById('connection-status').innerText = "Aguardando Jogador 2..."; });
+            peer.on('open', () => { document.getElementById('loading-peer').classList.add('hidden'); document.getElementById('connection-status').innerText = "Aguardando Oponente..."; });
             peer.on('connection', c => { conn = c; handleEvents(); });
         }
 
         function initGuest(code) {
             updatePresenceUI(false, true);
             peer = new Peer();
-            peer.on('open', () => { document.getElementById('connection-status').innerText = "Conectando ao Jogador 1..."; conn = peer.connect(code); handleEvents(); });
+            peer.on('open', () => { document.getElementById('connection-status').innerText = "Conectando ao Hospedeiro..."; conn = peer.connect(code); handleEvents(); });
         }
 
         function handleEvents() {
@@ -140,15 +147,12 @@
 
             cur.on('data', data => {
                 if (conn !== cur) return;
-                if (data.type === 'COL_SYNC') {
+                if (data.type === 'DOTS_SYNC') {
                     boardState = data.boardState;
+                    isMyTurn = data.nextTurnIsYours;
                     renderGrid();
-                    isMyTurn = true;
-                    if (!hasValidMoves(myRole)) {
-                        triggerGameOver(myRole === 'red' ? 'blue' : 'red'); // Eu não posso jogar, o oponente ganha
-                    } else {
-                        updateTurnUI();
-                    }
+                    updateTurnUI();
+                    checkGameEndCondition();
                 } else if (data.type === 'NEXT_GAME_READY') {
                     opponentReadyForNext = true;
                     document.getElementById('opponent-requested-rematch').classList.remove('hidden');
@@ -165,7 +169,7 @@
         }
 
         function resetBoard() {
-            boardState.fill('empty');
+            boardState.fill(null);
             localPlayerReadyForNext = false;
             opponentReadyForNext = false;
             isMyTurn = ((score.red + score.blue) % 2 === 0) ? (myRole === 'red') : (myRole === 'blue');
@@ -175,48 +179,67 @@
             updateTurnUI();
         }
 
-        function isValidMove(index, role) {
-            if (boardState[index] !== 'empty') return false;
-            
-            const r = Math.floor(index / SIZE);
-            const c = index % SIZE;
-            const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-
-            for (let d of directions) {
-                const nr = r + d[0];
-                const nc = c + d[1];
-                if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
-                    if (boardState[nr * SIZE + nc] === role) return false;
+        function countBoxes() {
+            let red = 0, blue = 0;
+            for (let i = 0; i < boardState.length; i++) {
+                const r = Math.floor(i / GRID_SIZE), c = i % GRID_SIZE;
+                if (r % 2 !== 0 && c % 2 !== 0) {
+                    if (boardState[i] === 'red') red++;
+                    else if (boardState[i] === 'blue') blue++;
                 }
             }
-            return true;
-        }
-
-        function hasValidMoves(role) {
-            for (let i = 0; i < boardState.length; i++) {
-                if (isValidMove(i, role)) return true;
-            }
-            return false;
+            return { red, blue, left: 9 - (red + blue) };
         }
 
         function renderGrid() {
             gridContainer.innerHTML = '';
+            const counts = countBoxes();
+            document.getElementById('round-boxes-red').innerText = counts.red;
+            document.getElementById('round-boxes-blue').innerText = counts.blue;
+            document.getElementById('round-boxes-left').innerText = counts.left;
+
             for (let i = 0; i < boardState.length; i++) {
-                const cell = document.createElement('button');
-                cell.onclick = () => claimCell(i);
-                
-                if (boardState[i] === 'empty') {
-                    if (isMyTurn && isValidMove(i, myRole)) {
-                        cell.className = "bg-slate-800 border border-slate-700 rounded-xl aspect-square transition hover:bg-slate-700 hover:scale-105 active:scale-95 cursor-pointer";
+                const r = Math.floor(i / GRID_SIZE);
+                const c = i % GRID_SIZE;
+                const el = document.createElement('div');
+
+                if (r % 2 === 0 && c % 2 === 0) {
+                    // PONTO
+                    el.className = "w-2 h-2 bg-slate-400 rounded-full m-auto shadow shadow-black";
+                } else if (r % 2 === 0 && c % 2 !== 0) {
+                    // LINHA HORIZONTAL
+                    const btn = document.createElement('button');
+                    btn.onclick = () => claimLine(i);
+                    if (boardState[i] === 'drawn') {
+                        btn.className = "h-1.5 w-full bg-indigo-400 rounded transition-all";
                     } else {
-                        cell.className = "bg-slate-900/60 border border-slate-800/40 rounded-xl aspect-square opacity-60";
+                        btn.className = isMyTurn ? "h-1.5 w-full bg-slate-800/80 rounded hover:bg-slate-500 transition cursor-pointer" : "h-1.5 w-full bg-slate-900/40 rounded pointer-events-none";
                     }
-                } else if (boardState[i] === 'red') {
-                    cell.className = "bg-red-600 border-2 border-red-400 rounded-xl aspect-square shadow-lg shadow-red-500/20";
-                } else if (boardState[i] === 'blue') {
-                    cell.className = "bg-blue-600 border-2 border-blue-400 rounded-xl aspect-square shadow-lg shadow-blue-500/20";
+                    el.className = "flex items-center justify-center p-0 w-full h-full";
+                    el.appendChild(btn);
+                } else if (r % 2 !== 0 && c % 2 === 0) {
+                    // LINHA VERTICAL
+                    const btn = document.createElement('button');
+                    btn.onclick = () => claimLine(i);
+                    if (boardState[i] === 'drawn') {
+                        btn.className = "w-1.5 h-full bg-indigo-400 rounded transition-all";
+                    } else {
+                        btn.className = isMyTurn ? "w-1.5 h-full bg-slate-800/80 rounded hover:bg-slate-500 transition cursor-pointer" : "w-1.5 h-full bg-slate-900/40 rounded pointer-events-none";
+                    }
+                    el.className = "flex items-center justify-center p-0 w-full h-full";
+                    el.appendChild(btn);
+                } else {
+                    // CAIXA QUADRADA
+                    el.className = "w-full h-full flex items-center justify-center text-[10px] font-black tracking-tighter transition-all duration-300 rounded-sm";
+                    if (boardState[i] === 'red') {
+                        el.className += " bg-red-600/20 text-red-400 border border-red-900/30";
+                        el.innerText = "P1";
+                    } else if (boardState[i] === 'blue') {
+                        el.className += " bg-blue-600/20 text-blue-400 border border-blue-900/30";
+                        el.innerText = "P2";
+                    }
                 }
-                gridContainer.appendChild(cell);
+                gridContainer.appendChild(el);
             }
         }
 
@@ -224,40 +247,100 @@
             const b = document.getElementById('btn-turn');
             if (isMyTurn) {
                 b.className = "w-full bg-emerald-600 text-white font-black py-2.5 rounded-xl text-xs shadow-lg animate-pulse text-center";
-                b.innerText = "🟢 SUA VEZ! Pinte uma casa válida estrategicamente";
+                b.innerText = "🟢 SUA VEZ! Clique num espaço vazio para traçar uma linha";
             } else {
                 b.className = "w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl text-xs border border-slate-700/50 text-center";
-                b.innerText = "⏳ VEZ DO OPONENTE... Bloqueando o território";
+                b.innerText = "⏳ VEZ DO OPONENTE... Planeando bloqueios";
             }
         }
 
-        function claimCell(index) {
-            if (!isMyTurn || !isValidMove(index, myRole)) return;
+        function claimLine(index) {
+            if (!isMyTurn || boardState[index] === 'drawn') return;
 
-            boardState[index] = myRole;
-            isMyTurn = false;
+            boardState[index] = 'drawn';
+            const extraTurn = checkAndScoreBoxes(index);
+            
+            if (!extraTurn) {
+                isMyTurn = false;
+            }
+
             renderGrid();
             updateTurnUI();
 
-            if (conn && conn.open) conn.send({ type: 'COL_SYNC', boardState: boardState });
+            if (conn && conn.open) {
+                conn.send({ 
+                    type: 'DOTS_SYNC', 
+                    boardState: boardState, 
+                    nextTurnIsYours: !isMyTurn 
+                });
+            }
+
+            checkGameEndCondition();
         }
 
-        function triggerGameOver(winner) {
+        function checkAndScoreBoxes(lineIdx) {
+            const r = Math.floor(lineIdx / GRID_SIZE);
+            const c = lineIdx % GRID_SIZE;
+            let boxesScored = 0;
+            let candidates = [];
+
+            if (r % 2 === 0) { // Linha Horizontal
+                if (r - 1 > 0) candidates.push({ br: r - 1, bc: c });
+                if (r + 1 < GRID_SIZE) candidates.push({ br: r + 1, bc: c });
+            } else { // Linha Vertical
+                if (c - 1 > 0) candidates.push({ br: r, bc: c - 1 });
+                if (c + 1 < GRID_SIZE) candidates.push({ br: r, bc: c + 1 });
+            }
+
+            for (let box of candidates) {
+                const { br, bc } = box;
+                const idx = br * GRID_SIZE + bc;
+                if (boardState[idx] !== null) continue;
+
+                // Valida as 4 fronteiras do quadrado
+                const topL = (br - 1) * GRID_SIZE + bc;
+                const botL = (br + 1) * GRID_SIZE + bc;
+                const leftL = br * GRID_SIZE + (bc - 1);
+                const rightL = br * GRID_SIZE + (bc + 1);
+
+                if (boardState[topL] === 'drawn' && boardState[botL] === 'drawn' && 
+                    boardState[leftL] === 'drawn' && boardState[rightL] === 'drawn') {
+                    boardState[idx] = myRole;
+                    boxesScored++;
+                }
+            }
+            return boxesScored > 0;
+        }
+
+        function checkGameEndCondition() {
+            const counts = countBoxes();
+            if (counts.left === 0) {
+                let winner = '';
+                if (counts.red > counts.blue) winner = 'red';
+                else if (counts.blue > counts.red) winner = 'blue';
+                triggerGameOver(winner, counts.red, counts.blue);
+            }
+        }
+
+        function triggerGameOver(winner, finalRed, finalBlue) {
             const box = document.getElementById('game-over-box');
             const title = document.getElementById('game-over-title');
             const msg = document.getElementById('game-over-msg');
             box.className = `${myRole === 'red' ? 'bg-red-950' : 'bg-blue-950'} border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl ` + (winner === myRole ? 'border-green-500' : 'border-red-500');
 
             if (!localPlayerReadyForNext && !opponentReadyForNext) {
-                if (winner === 'red') score.red++; else score.blue++;
+                if (winner === 'red') score.red++; else if (winner === 'blue') score.blue++;
                 updateScoreboardVisual(); saveGameState();
             }
 
             if (winner === myRole) {
-                title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce"; msg.innerText = "Deixou o adversário encurralado e sem espaço legal!";
+                title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce";
+            } else if (winner === '') {
+                title.innerText = "🤝 EMPATE"; title.className = "text-3xl font-black text-amber-400";
             } else {
-                title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500"; msg.innerText = "Ficou sem jogadas válidas no tabuleiro.";
+                title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500";
             }
+            msg.innerText = `Placar final da ronda: Vermelho ${finalRed} vs ${finalBlue} Azul.`;
 
             document.getElementById('btn-next-game').className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm cursor-pointer";
             document.getElementById('btn-next-game').disabled = false;
@@ -276,7 +359,7 @@
 
         function checkNextGameTransition() { if (localPlayerReadyForNext && opponentReadyForNext) resetBoard(); }
         function copyLink() { navigator.clipboard.writeText(window.location.origin + window.location.pathname + '?room=' + roomCode).then(() => alert('Link copiado!')); }
-        function leaveRoom() { if (roomCode) localStorage.removeItem(`col_score_${roomCode}`); localStorage.removeItem('hosted_room_col'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
+        function leaveRoom() { if (roomCode) localStorage.removeItem(`dots_score_${roomCode}`); localStorage.removeItem('hosted_room_dots'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
     </script>
 </body>
 </html>
