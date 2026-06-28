@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Genius P2P</title>
+    <title>Duelo de Digitação P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
@@ -13,7 +13,7 @@
         <div class="max-w-md mx-auto">
             <div class="flex justify-between items-center relative">
                 <div class="flex flex-col">
-                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Genius P2P</h1>
+                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Duelo de Digitação</h1>
                     <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
                         <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
                         <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">📋 Compartilhar</button>
@@ -26,16 +26,18 @@
 
     <main class="flex-grow flex flex-col items-center justify-center p-3 w-full max-w-md mx-auto mb-12">
         
+        <!-- LOBBY -->
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
                 <h2 class="text-xl font-extrabold mb-2">Aguardando Oponente</h2>
-                <p class="text-slate-400 text-xs">Envie o link para o adversário entrar no duelo de memória.</p>
+                <p class="text-slate-400 text-xs">Envie o link para o adversário entrar no confronto de velocidade.</p>
                 <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Conectando ao P2P...</div>
                 <div id="loading-peer" class="hidden text-amber-400 text-xs font-medium animate-pulse">Configurando sala...</div>
             </div>
         </div>
 
-        <div id="game-scoreboard" class="w-full bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between mb-4">
+        <!-- PLACAR DE PARTIDAS GERAIS -->
+        <div id="game-scoreboard" class="w-full bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between mb-2">
             <div class="text-center">
                 <span class="text-red-400 font-black text-xs block">P1 (Vermelho)</span>
                 <div class="flex items-center space-x-1 mt-0.5 justify-center">
@@ -57,25 +59,34 @@
             </div>
         </div>
 
-        <div id="screen-game" class="w-full space-y-4">
-            <div id="btn-turn" class="w-full text-center font-bold py-2.5 rounded-xl text-xs border border-slate-700 bg-slate-800 transition">Carregando...</div>
-
-            <div class="flex justify-center items-center w-full aspect-square max-w-sm mx-auto p-4 bg-slate-950 rounded-full border-4 border-slate-800 shadow-2xl relative">
-                <div class="grid grid-cols-2 gap-3 w-full h-full rounded-full overflow-hidden">
-                    <button id="pad-0" onclick="handlePadClick(0)" class="bg-emerald-900 border-2 border-emerald-950 rounded-tl-full transition duration-150 cursor-pointer opacity-60"></button>
-                    <button id="pad-1" onclick="handlePadClick(1)" class="bg-rose-900 border-2 border-rose-950 rounded-tr-full transition duration-150 cursor-pointer opacity-60"></button>
-                    <button id="pad-2" onclick="handlePadClick(2)" class="bg-amber-900 border-2 border-amber-950 rounded-bl-full transition duration-150 cursor-pointer opacity-60"></button>
-                    <button id="pad-3" onclick="handlePadClick(3)" class="bg-blue-900 border-2 border-blue-950 rounded-br-full transition duration-150 cursor-pointer opacity-60"></button>
-                </div>
-                <div class="absolute w-24 h-24 bg-slate-900 rounded-full border-4 border-slate-800 flex flex-col items-center justify-center shadow-xl">
-                    <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Passos</span>
-                    <span id="sequence-count" class="text-xl font-mono font-black text-amber-400">0</span>
-                </div>
-            </div>
-            
-            <p id="game-instruction" class="text-[10px] text-center text-slate-500 italic">Aguardando início...</p>
+        <!-- PONTOS DA RONDA ATUAL -->
+        <div class="w-full bg-slate-950/50 rounded-lg py-1.5 px-3 border border-slate-800 text-[11px] font-mono flex justify-between items-center mb-4">
+            <span class="text-red-400">Ronda P1: <strong id="round-p1" class="text-sm">0</strong>/10</span>
+            <span id="last-winner-feed" class="text-slate-500 italic text-[10px]">Prepare os dedos...</span>
+            <span class="text-blue-400">Ronda P2: <strong id="round-p2" class="text-sm">0</strong>/10</span>
         </div>
 
+        <!-- JOGO -->
+        <div id="screen-game" class="w-full space-y-6 flex flex-col items-center">
+            
+            <!-- ÁREA DA PALAVRA -->
+            <div class="w-full bg-slate-950 p-8 rounded-2xl border border-slate-800 shadow-2xl flex flex-col items-center justify-center min-h-[140px] relative overflow-hidden">
+                <div class="absolute top-2 left-3 text-[9px] uppercase tracking-wider font-bold text-slate-600 font-mono">Palavra Alvo</div>
+                <div id="word-display" class="text-3xl md:text-4xl font-black tracking-wide font-mono text-slate-300 select-none text-center drop-shadow-md">
+                    ---
+                </div>
+            </div>
+
+            <!-- CAMPO DE ENTRADA -->
+            <div class="w-full space-y-2">
+                <input type="text" id="type-input" autocomplete="off" spellcheck="false" disabled
+                    class="w-full bg-slate-800 border-2 border-slate-700 rounded-xl px-4 py-3.5 text-center font-mono text-lg font-bold focus:outline-none focus:border-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                    placeholder="Aguardando início...">
+                <p class="text-[10px] text-center text-slate-500 italic">Digite o mais rápido que puder. Erros mudam a cor do campo.</p>
+            </div>
+        </div>
+
+        <!-- FIM DE JOGO -->
         <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center">
             <div class="border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl" id="game-over-box">
                 <h2 id="game-over-title" class="text-3xl font-black tracking-wide"></h2>
@@ -87,43 +98,45 @@
         </div>
     </main>
 
-    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">⚡ Conexão P2P Direta • Genius Engine</footer>
+    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">⚡ Conexão P2P Direta • Typing Match Engine</footer>
 
     <script>
-        let peer = null, conn = null, myRole = '', isMyTurn = false;
+        let peer = null, conn = null, myRole = '';
         let score = { red: 0, blue: 0 };
+        let roundPoints = { red: 0, blue: 0 };
         let localPlayerReadyForNext = false, opponentReadyForNext = false;
-
-        let sequence = [];
-        let inputIndex = 0;
-        let isPlaybackActive = false;
-
-        const padStyles = {
-            0: { normal: 'bg-emerald-900 border-emerald-950 opacity-60', active: 'bg-emerald-400 border-white opacity-100 scale-[0.98]' },
-            1: { normal: 'bg-rose-900 border-rose-950 opacity-60', active: 'bg-rose-400 border-white opacity-100 scale-[0.98]' },
-            2: { normal: 'bg-amber-900 border-amber-950 opacity-60', active: 'bg-amber-400 border-white opacity-100 scale-[0.98]' },
-            3: { normal: 'bg-blue-900 border-blue-950 opacity-60', active: 'bg-blue-400 border-white opacity-100 scale-[0.98]' }
-        };
+        
+        let currentWord = '';
+        const wordPool = [
+            'ALGORITMO', 'TECLADO', 'VELOCIDADE', 'CONEXAO', 'DESAFIO', 'JAVASCRIPT', 'NAVEGADOR', 
+            'SERVIDOR', 'COMPUTADOR', 'INTERNET', 'SEGURANCA', 'DESENVOLVIMENTO', 'SINCRONO', 
+            'INTERFACE', 'DADOS', 'USUARIO', 'SISTEMA', 'AUTOMACAO', 'PERFORMANCE', 'SATECOSMO',
+            'PROGRAMACAO', 'PROCESSO', 'MEMORIA', 'ROTEADOR', 'DIGITACAO', 'OTIMIZACAO', 'EXECUCAO'
+        ];
 
         const screenLobby = document.getElementById('screen-lobby');
         const topbar = document.getElementById('topbar');
+        const wordDisplay = document.getElementById('word-display');
+        const typeInput = document.getElementById('type-input');
+        const feedText = document.getElementById('last-winner-feed');
+
         const urlParams = new URLSearchParams(window.location.search);
         let roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            const generatedCode = 'GENIUS-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_room_genius', generatedCode);
+            const generatedCode = 'TYPE-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_room_type', generatedCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
             document.getElementById('topbar-room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('hosted_room_genius')) ? 'red' : 'blue';
+            myRole = (roomCode === localStorage.getItem('hosted_room_type')) ? 'red' : 'blue';
             loadGameState();
             setupTheme();
             if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
-        function saveGameState() { if (roomCode) localStorage.setItem(`genius_score_${roomCode}`, JSON.stringify(score)); }
-        function loadGameState() { const s = localStorage.getItem(`genius_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
+        function saveGameState() { if (roomCode) localStorage.setItem(`type_score_${roomCode}`, JSON.stringify(score)); }
+        function loadGameState() { const s = localStorage.getItem(`type_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
         function setupTheme() { topbar.className = myRole === 'red' ? "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white" : "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white"; }
         function updateScoreboardVisual() { document.getElementById('score-red').innerText = score.red; document.getElementById('score-blue').innerText = score.blue; }
 
@@ -141,14 +154,14 @@
             document.getElementById('loading-peer').classList.remove('hidden');
             updatePresenceUI(true, false);
             peer = new Peer(code);
-            peer.on('open', () => { document.getElementById('loading-peer').classList.add('hidden'); document.getElementById('connection-status').innerText = "Aguardando Jogador 2..."; });
+            peer.on('open', () => { document.getElementById('loading-peer').classList.add('hidden'); document.getElementById('connection-status').innerText = "Aguardando Oponente..."; });
             peer.on('connection', c => { conn = c; handleEvents(); });
         }
 
         function initGuest(code) {
             updatePresenceUI(false, true);
             peer = new Peer();
-            peer.on('open', () => { document.getElementById('connection-status').innerText = "Conectando ao Jogador 1..."; conn = peer.connect(code); handleEvents(); });
+            peer.on('open', () => { document.getElementById('connection-status').innerText = "Conectando ao Hospedeiro..."; conn = peer.connect(code); handleEvents(); });
         }
 
         function handleEvents() {
@@ -158,14 +171,29 @@
 
             cur.on('data', data => {
                 if (conn !== cur) return;
-                if (data.type === 'GENIUS_SYNC') {
-                    sequence = data.sequence;
-                    isMyTurn = true;
-                    inputIndex = 0;
-                    document.getElementById('sequence-count').innerText = sequence.length;
-                    playSequence();
-                } else if (data.type === 'GENIUS_GAMEOVER') {
-                    triggerGameOver(data.winner);
+                
+                if (data.type === 'TYPE_NEXT_WORD') {
+                    currentWord = data.word;
+                    roundPoints = data.roundPoints;
+                    updateRoundUI();
+                    displayNewWord();
+                    if (data.lastWinner) {
+                        feedText.innerText = data.lastWinner === 'red' ? "🔴 P1 pontuou mais rápido!" : "🔵 P2 pontuou mais rápido!";
+                    }
+                } else if (data.type === 'CLAIM_WORD_WIN') {
+                    // O Concorrente alega ter terminado primeiro. O Host valida e gera a próxima.
+                    if (myRole === 'red' && data.targetWord === currentWord) {
+                        roundPoints.blue++;
+                        if (roundPoints.blue >= 10) {
+                            triggerMatchOver('blue');
+                        } else {
+                            nextWord('blue');
+                        }
+                    }
+                } else if (data.type === 'TYPE_MATCH_OVER') {
+                    roundPoints = data.roundPoints;
+                    updateRoundUI();
+                    triggerMatchOver(data.winner);
                 } else if (data.type === 'NEXT_GAME_READY') {
                     opponentReadyForNext = true;
                     document.getElementById('opponent-requested-rematch').classList.remove('hidden');
@@ -176,130 +204,113 @@
             cur.on('close', () => {
                 if (conn !== cur) return;
                 updatePresenceUI(myRole === 'red', myRole === 'blue');
-                document.getElementById('btn-turn').innerText = "⏳ OPONENTE DESCONECTADO...";
-                document.getElementById('btn-turn').className = "w-full bg-slate-800 text-rose-400 font-bold py-2.5 rounded-xl text-xs border border-rose-900/50 text-center";
+                typeInput.disabled = true;
+                typeInput.placeholder = "Oponente desconectado...";
             });
         }
 
         function resetBoard() {
-            sequence = [];
-            inputIndex = 0;
-            isPlaybackActive = false;
+            roundPoints = { red: 0, blue: 0 };
             localPlayerReadyForNext = false;
             opponentReadyForNext = false;
-            document.getElementById('sequence-count').innerText = "0";
-
-            isMyTurn = ((score.red + score.blue) % 2 === 0) ? (myRole === 'red') : (myRole === 'blue');
-            document.getElementById('game-over-screen').classList.add('hidden');
+            feedText.innerText = "Prepare os dedos...";
             
-            updateTurnUI();
+            document.getElementById('game-over-screen').classList.add('hidden');
+            updateRoundUI();
+
+            if (myRole === 'red') {
+                nextWord(null);
+            }
         }
 
-        const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-        async function flashPad(id) {
-            const pad = document.getElementById(`pad-${id}`);
-            pad.className = padStyles[id].active + " rounded-" + (id===0?'tl':id===1?'tr':id===2?'bl':'br') + "-full border-2 transition duration-75";
-            await sleep(300);
-            pad.className = padStyles[id].normal + " rounded-" + (id===0?'tl':id===1?'tr':id===2?'bl':'br') + "-full border-2 transition duration-150";
+        function updateRoundUI() {
+            document.getElementById('round-p1').innerText = roundPoints.red;
+            document.getElementById('round-p2').innerText = roundPoints.blue;
         }
 
-        async function playSequence() {
-            isPlaybackActive = true;
-            updateTurnUI();
-            await sleep(600);
-
-            for (let id of sequence) {
-                await flashPad(id);
-                await sleep(150);
+        function nextWord(lastWinner) {
+            if (myRole !== 'red') return;
+            const randWord = wordPool[Math.floor(Math.random() * wordPool.length)];
+            currentWord = randWord;
+            
+            displayNewWord();
+            if (lastWinner) {
+                feedText.innerText = lastWinner === 'red' ? "🔴 P1 pontuou mais rápido!" : "🔵 P2 pontuou mais rápido!";
             }
 
-            isPlaybackActive = false;
-            updateTurnUI();
+            if (conn && conn.open) {
+                conn.send({
+                    type: 'TYPE_NEXT_WORD',
+                    word: currentWord,
+                    roundPoints: roundPoints,
+                    lastWinner: lastWinner
+                });
+            }
         }
 
-        function updateTurnUI() {
-            const b = document.getElementById('btn-turn');
-            const inst = document.getElementById('game-instruction');
+        function displayNewWord() {
+            wordDisplay.innerText = currentWord;
+            wordDisplay.className = "text-3xl md:text-4xl font-black tracking-wide font-mono text-amber-400 select-none text-center drop-shadow-md";
+            typeInput.value = '';
+            typeInput.disabled = false;
+            typeInput.className = "w-full bg-slate-800 border-2 border-slate-700 rounded-xl px-4 py-3.5 text-center font-mono text-lg font-bold focus:outline-none focus:border-indigo-500 transition";
+            typeInput.placeholder = "Digite aqui!";
+            setTimeout(() => typeInput.focus(), 50);
+        }
 
-            if (isPlaybackActive) {
-                b.className = "w-full bg-slate-800 text-amber-400 font-bold py-2.5 rounded-xl text-xs border border-slate-700 text-center";
-                b.innerText = "👀 ATENÇÃO: Memorize a sequência piscando...";
-                inst.innerText = "Não clique em nada enquanto a sequência roda.";
-                return;
-            }
-
-            if (isMyTurn) {
-                b.className = "w-full bg-emerald-600 text-white font-black py-2.5 rounded-xl text-xs shadow-lg animate-pulse text-center";
-                if (sequence.length === 0) {
-                    b.innerText = "🟢 SUA VEZ! Clique em qualquer cor para começar o jogo";
-                    inst.innerText = "Dê o pontapé inicial escolhendo a primeira cor.";
-                } else if (inputIndex < sequence.length) {
-                    b.innerText = `🟢 SUA VEZ! Repita os ${sequence.length} passos anteriores`;
-                    inst.innerText = `Progresso da repetição: ${inputIndex} de ${sequence.length}`;
-                } else {
-                    b.className = "w-full bg-amber-500 text-slate-950 font-black py-2.5 rounded-xl text-xs shadow-lg text-center animate-bounce";
-                    b.innerText = "🔥 SUCESSO! Agora adicione 1 NOVA cor à sequência";
-                    inst.innerText = "Escolha qualquer botão para ampliar a sequência do rival.";
-                }
+        typeInput.addEventListener('input', (e) => {
+            const val = e.target.value.toUpperCase();
+            
+            // Highlight parcial/erro visual simples
+            if (currentWord.startsWith(val)) {
+                typeInput.className = "w-full bg-slate-800 border-2 border-emerald-500 rounded-xl px-4 py-3.5 text-center font-mono text-lg font-bold focus:outline-none transition text-emerald-400";
             } else {
-                b.className = "w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl text-xs border border-slate-700/50 text-center";
-                b.innerText = "⏳ VEZ DO OPONENTE... Concentre-se!";
-                inst.innerText = "O adversário está reproduzindo ou adicionando passos.";
+                typeInput.className = "w-full bg-slate-800 border-2 border-rose-600 rounded-xl px-4 py-3.5 text-center font-mono text-lg font-bold focus:outline-none transition text-rose-400";
             }
-        }
 
-        function handlePadClick(id) {
-            if (!isMyTurn || isPlaybackActive) return;
-            flashPad(id);
-
-            if (sequence.length === 0) {
-                // Primeiro passo do jogo direto
-                sequence.push(id);
-                endMyTurn();
-            } else if (inputIndex < sequence.length) {
-                // Validando a repetição
-                if (id === sequence[inputIndex]) {
-                    inputIndex++;
-                    updateTurnUI();
-                    if (inputIndex === sequence.length) {
-                        updateTurnUI(); // Atualiza para o estado de "Adicionar cor"
+            if (val === currentWord) {
+                typeInput.disabled = true; // Trava entrada temporariamente para evitar double-send
+                if (myRole === 'red') {
+                    roundPoints.red++;
+                    if (roundPoints.red >= 10) {
+                        triggerMatchOver('red');
+                    } else {
+                        nextWord('red');
                     }
                 } else {
-                    // Errou! Eu perco, oponente ganha
-                    const winnerRole = myRole === 'red' ? 'blue' : 'red';
-                    if (conn && conn.open) conn.send({ type: 'GENIUS_GAMEOVER', winner: winnerRole });
-                    triggerGameOver(winnerRole);
+                    if (conn && conn.open) {
+                        conn.send({
+                            type: 'CLAIM_WORD_WIN',
+                            targetWord: currentWord
+                        });
+                    }
                 }
-            } else if (inputIndex === sequence.length) {
-                // Adicionando a nova cor obrigatória no fim da rodada de sucesso
-                sequence.push(id);
-                endMyTurn();
             }
-        }
+        });
 
-        function endMyTurn() {
-            isMyTurn = false;
-            document.getElementById('sequence-count').innerText = sequence.length;
-            updateTurnUI();
-            if (conn && conn.open) conn.send({ type: 'GENIUS_SYNC', sequence: sequence });
-        }
+        function triggerMatchOver(winner) {
+            if (myRole === 'red' && conn && conn.open) {
+                conn.send({
+                    type: 'TYPE_MATCH_OVER',
+                    winner: winner,
+                    roundPoints: roundPoints
+                });
+            }
 
-        function triggerGameOver(winner) {
             const box = document.getElementById('game-over-box');
             const title = document.getElementById('game-over-title');
             const msg = document.getElementById('game-over-msg');
             box.className = `${myRole === 'red' ? 'bg-red-950' : 'bg-blue-950'} border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl ` + (winner === myRole ? 'border-green-500' : 'border-red-500');
 
             if (!localPlayerReadyForNext && !opponentReadyForNext) {
-                if (winner === 'red') score.red++; else score.blue++;
+                if (winner === 'red') score.red++; else if (winner === 'blue') score.blue++;
                 updateScoreboardVisual(); saveGameState();
             }
 
             if (winner === myRole) {
-                title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce"; msg.innerText = `O oponente errou a sequência na etapa de ${sequence.length} passos!`;
+                title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce"; msg.innerText = "Você tem os dedos mais rápidos do P2P!";
             } else {
-                title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500"; msg.innerText = `Você errou a ordem da sequência de botões.`;
+                title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500"; msg.innerText = "O oponente destruiu o teclado e digitou primeiro.";
             }
 
             document.getElementById('btn-next-game').className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm cursor-pointer";
@@ -319,7 +330,7 @@
 
         function checkNextGameTransition() { if (localPlayerReadyForNext && opponentReadyForNext) resetBoard(); }
         function copyLink() { navigator.clipboard.writeText(window.location.origin + window.location.pathname + '?room=' + roomCode).then(() => alert('Link copiado!')); }
-        function leaveRoom() { if (roomCode) localStorage.removeItem(`genius_score_${roomCode}`); localStorage.removeItem('hosted_room_genius'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
+        function leaveRoom() { if (roomCode) localStorage.removeItem(`type_score_${roomCode}`); localStorage.removeItem('hosted_room_type'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
     </script>
 </body>
 </html>
