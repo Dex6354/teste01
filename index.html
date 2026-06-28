@@ -7,128 +7,392 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
-<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between">
+<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between select-none">
 
-    <header class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Snake Versus</h1>
-                <div class="text-[11px] text-slate-400 font-mono">Sala: <strong id="room-id" class="text-indigo-400">...</strong></div>
+    <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-0 z-50">
+        <div class="max-w-md mx-auto">
+            <div class="flex justify-between items-center relative">
+                <div class="flex flex-col">
+                    <h1 class="font-extrabold text-base tracking-wider text-emerald-400">🐍 SNAKE VS (P2P)</h1>
+                    <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
+                        <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
+                        <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">
+                        📋 Compartilhar
+                        </button>
+                    </div>
+                </div>
+                <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow">
+                       ➡️ Sair
+                </button>
             </div>
-            <button onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-[11px] py-1 px-2 rounded">Sair</button>
         </div>
     </header>
 
     <main class="flex-grow flex flex-col items-center justify-center p-3 w-full max-w-md mx-auto mb-12">
-        <div id="lobby" class="fixed inset-0 bg-slate-950/90 z-40 flex flex-col items-center justify-center p-6 text-center">
-            <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-sm">
-                <h2 class="text-xl font-bold mb-2">Aguardando Adversário</h2>
-                <button onclick="copyLink()" class="bg-indigo-600 text-xs px-3 py-1.5 rounded font-bold">📋 Copiar Link de Convite</button>
+        
+        <!-- Tela de Lobby / Aguardando Conexão -->
+        <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
+            <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
+                <h2 class="text-xl font-extrabold mb-2">Aguardando Oponente</h2>
+                <p class="text-slate-400 text-xs">Envie o link da sala para seu amigo. O jogo começará assim que ele se conectar!</p>
+                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Procurando servidor P2P...</div>
+                <div id="loading-peer" class="hidden text-amber-400 text-xs font-medium animate-pulse">Configurando sala...</div>
             </div>
         </div>
 
-        <div id="turn-indicator" class="w-full text-center font-bold py-2 rounded-xl text-xs bg-slate-800 mb-3 border border-slate-700">Carregando...</div>
-
-        <!-- TABULEIRO SNEAK -->
-        <div id="board" class="grid grid-cols-12 gap-1 w-full aspect-square bg-slate-950 p-2 rounded-xl border-2 border-slate-800 shadow-2xl"></div>
-
-        <!-- CONTROLES MOBILE -->
-        <div class="grid grid-cols-3 gap-2 w-full max-w-[200px] mx-auto mt-4 text-center">
-            <div></div><button onclick="move('UP')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl font-bold">▲</button><div></div>
-            <button onclick="move('LEFT')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl font-bold">◀</button>
-            <div class="bg-slate-900 flex items-center justify-center text-[10px] font-mono text-slate-500">Mover</div>
-            <button onclick="move('RIGHT')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl font-bold">▶</button>
-            <div></div><button onclick="move('DOWN')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl font-bold">▼</button><div></div>
+        <!-- Placar -->
+        <div id="game-scoreboard" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between mb-3">
+            <div class="text-left">
+                <span class="text-red-400 font-black text-xs block">P1 (Você/Host)</span>
+                <span id="status-text-p1" class="text-[10px] text-rose-400 font-bold font-mono">Offline</span>
+            </div>
+            <div class="flex items-center space-x-3 bg-slate-950 px-3 py-1 rounded-lg">
+                <span id="score-red" class="text-red-400 font-mono font-bold text-lg">0</span>
+                <span class="text-slate-500 font-black text-xs">VS</span>
+                <span id="score-blue" class="text-blue-400 font-mono font-bold text-lg">0</span>
+            </div>
+            <div class="text-right">
+                <span class="text-blue-400 font-black text-xs block">P2 (Oponente)</span>
+                <span id="status-text-p2" class="text-[10px] text-rose-400 font-bold font-mono">Offline</span>
+            </div>
         </div>
+
+        <!-- Área do Jogo -->
+        <div id="screen-game" class="w-full space-y-4">
+            <div class="relative bg-slate-950 border-4 border-slate-700 rounded-xl overflow-hidden aspect-square w-full">
+                <canvas id="gameCanvas" class="w-full h-full"></canvas>
+            </div>
+
+            <!-- Controles Mobile -->
+            <div class="grid grid-cols-3 gap-2 max-w-[200px] mx-auto text-center">
+                <div></div>
+                <button onclick="changeDirection('UP')" class="bg-slate-700 hover:bg-slate-600 active:scale-95 p-3 rounded-xl font-bold">▲</button>
+                <div></div>
+                <button onclick="changeDirection('LEFT')" class="bg-slate-700 hover:bg-slate-600 active:scale-95 p-3 rounded-xl font-bold">◀</button>
+                <button onclick="changeDirection('DOWN')" class="bg-slate-700 hover:bg-slate-600 active:scale-95 p-3 rounded-xl font-bold">▼</button>
+                <button onclick="changeDirection('RIGHT')" class="bg-slate-700 hover:bg-slate-600 active:scale-95 p-3 rounded-xl font-bold">▶</button>
+            </div>
+        </div>
+
+        <!-- Tela de Game Over -->
+        <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex flex-col items-center justify-center p-6 text-center">
+            <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
+                <h2 id="game-over-title" class="text-2xl font-black tracking-wide text-amber-400">FIM DE JOGO</h2>
+                <p id="game-over-msg" class="text-sm text-slate-300"></p>
+                <button id="btn-next-game" onclick="requestNewGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">
+                    🔄 Jogar Novamente
+                </button>
+                <p id="waiting-opponent-next" class="hidden text-amber-400 text-xs animate-pulse font-medium">Aguardando oponente aceitar...</p>
+            </div>
+        </div>
+
     </main>
 
+    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">
+        🐍 Controle usando as Setas do Teclado ou Botões na Tela
+    </footer>
+
     <script>
-        let peer = null, conn = null, myRole = '', roomCode = new URLSearchParams(window.location.search).get('room');
-        let isMyTurn = false, size = 12;
-        let p1 = [{x:2, y:6}], p2 = [{x:9, y:6}], apple = {x:6, y:6};
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Configuração do Grid fixo interno
+        const GRID_SIZE = 20;
+        const TILE_COUNT = 20;
+        canvas.width = GRID_SIZE * TILE_COUNT;
+        canvas.height = GRID_SIZE * TILE_COUNT;
+
+        let peer = null;
+        let conn = null;
+        let myRole = ''; 
+        let gameInterval = null;
+        let score = { red: 0, blue: 0 };
+
+        // Estados das Cobras
+        let snake1 = [{x: 5, y: 10}];
+        let snake2 = [{x: 15, y: 10}];
+        let dir1 = 'RIGHT';
+        let dir2 = 'LEFT';
+        let food = {x: 10, y: 5};
+        let gameActive = false;
+
+        let localReady = false;
+        let oppReady = false;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            roomCode = 'SNAKE-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('host_snake', roomCode);
-            window.location.href = window.location.origin + window.location.pathname + '?room=' + roomCode;
+            const generatedCode = 'SNAKE-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('snake_hosted_room', generatedCode);
+            window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
-            document.getElementById('room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('host_snake')) ? 'red' : 'blue';
-            setupPeer();
+            document.getElementById('topbar-room-id').innerText = roomCode;
+            myRole = (roomCode === localStorage.getItem('snake_hosted_room')) ? 'red' : 'blue';
+            
+            loadScore();
+            if (myRole === 'red') initHost(roomCode);
+            else initGuest(roomCode);
         }
 
-        function setupPeer() {
-            if (myRole === 'red') {
-                peer = new Peer(roomCode);
-                peer.on('connection', c => { conn = c; handleEvents(); });
-            } else {
-                peer = new Peer();
-                peer.on('open', () => { conn = peer.connect(roomCode); handleEvents(); });
-            }
-        }
+        function initHost(code) {
+            document.getElementById('loading-peer').classList.remove('hidden');
+            updatePresenceUI(true, false);
+            peer = new Peer(code);
 
-        function handleEvents() {
-            conn.on('open', () => { document.getElementById('lobby').classList.add('hidden'); isMyTurn = (myRole === 'red'); render(); updateUI(); });
-            conn.on('data', data => {
-                if (data.type === 'MOVE') {
-                    p1 = data.p1; p2 = data.p2; apple = data.apple;
-                    if (data.lost) { alert(data.lost === myRole ? 'Você Perdeu!' : 'Você Ganhou!'); window.location.reload(); return; }
-                    isMyTurn = true; render(); updateUI();
-                }
+            peer.on('open', () => {
+                document.getElementById('loading-peer').classList.add('hidden');
+                document.getElementById('connection-status').innerText = "Aguardando entrada do Jogador 2...";
+            });
+
+            peer.on('connection', (connection) => {
+                conn = connection;
+                handleEvents();
             });
         }
 
-        function render() {
-            const board = document.getElementById('board'); board.innerHTML = '';
-            for(let y=0; y<size; y++) {
-                for(let x=0; x<size; x++) {
-                    let c = "bg-slate-900/40 rounded-sm";
-                    if (p1.some(b => b.x===x && b.y===y)) c = "bg-red-500 rounded-sm shadow-md shadow-red-500/20";
-                    else if (p2.some(b => b.x===x && b.y===y)) c = "bg-blue-500 rounded-sm shadow-md shadow-blue-500/20";
-                    else if (apple.x===x && apple.y===y) c = "bg-amber-400 animate-pulse rounded-full";
-                    board.innerHTML += `<div class="${c} aspect-square"></div>`;
+        function initGuest(code) {
+            updatePresenceUI(false, true);
+            peer = new Peer();
+            peer.on('open', () => {
+                document.getElementById('connection-status').innerText = "Conectando ao Jogador 1...";
+                conn = peer.connect(code);
+                handleEvents();
+            });
+        }
+
+        function handleEvents() {
+            conn.on('open', () => {
+                updatePresenceUI(true, true);
+                document.getElementById('screen-lobby').classList.add('hidden');
+                if(myRole === 'red') {
+                    generateFood();
+                    startGame();
                 }
+            });
+
+            conn.on('data', (data) => {
+                if (data.type === 'DIR') {
+                    if (myRole === 'red') dir2 = data.dir;
+                    else dir1 = data.dir;
+                } else if (data.type === 'SYNC') {
+                    snake1 = data.snake1;
+                    snake2 = data.snake2;
+                    food = data.food;
+                    drawGame();
+                } else if (data.type === 'GAME_OVER') {
+                    applyGameOver(data.winner, data.msg);
+                } else if (data.type === 'READY') {
+                    oppReady = true;
+                    checkNextGame();
+                }
+            });
+
+            conn.on('close', () => {
+                updatePresenceUI(myRole === 'red', myRole === 'blue');
+                clearInterval(gameInterval);
+            });
+        }
+
+        function startGame() {
+            if (gameInterval) clearInterval(gameInterval);
+            resetPositions();
+            gameActive = true;
+            document.getElementById('game-over-screen').classList.add('hidden');
+            
+            if (myRole === 'red') {
+                gameInterval = setInterval(updateGameLoop, 150);
             }
         }
 
-        function updateUI() {
-            const ind = document.getElementById('turn-indicator');
-            ind.innerText = isMyTurn ? "🟢 SEU TURNO! Faça sua jogada" : "⏳ VEZ DO RIVAL... Aguarde";
-            ind.className = isMyTurn ? "w-full text-center font-black py-2 rounded-xl text-xs bg-emerald-950 text-emerald-400 border border-emerald-800" : "w-full text-center font-bold py-2 rounded-xl text-xs bg-slate-800 text-slate-500 border border-slate-700";
+        function resetPositions() {
+            snake1 = [{x: 4, y: 10}, {x: 3, y: 10}];
+            snake2 = [{x: 15, y: 10}, {x: 16, y: 10}];
+            dir1 = 'RIGHT';
+            dir2 = 'LEFT';
         }
 
-        function move(dir) {
-            if (!isMyTurn) return;
-            let head = Object.assign({}, myRole === 'red' ? p1[0] : p2[0]);
-            if (dir === 'UP') head.y--; if (dir === 'DOWN') head.y++;
-            if (dir === 'LEFT') head.x--; if (dir === 'RIGHT') head.x++;
+        function updateGameLoop() {
+            if (!gameActive) return;
 
-            let currentSnake = myRole === 'red' ? p1 : p2;
-            currentSnake.unshift(head);
+            moveSnake(snake1, dir1);
+            moveSnake(snake2, dir2);
 
-            if (head.x === apple.x && head.y === apple.y) {
-                apple = { x: Math.floor(Math.random()*size), y: Math.floor(Math.random()*size) };
+            // Verificação de comida P1
+            if (snake1[0].x === food.x && snake1[0].y === food.y) {
+                snake1.push({});
+                generateFood();
+            }
+            // Verificação de comida P2
+            if (snake2[0].x === food.x && snake2[0].y === food.y) {
+                snake2.push({});
+                generateFood();
+            }
+
+            // Colisões e Regras de derrota
+            let p1Dead = checkCollision(snake1) || checkWall(snake1[0]);
+            let p2Dead = checkCollision(snake2) || checkWall(snake2[0]);
+
+            // Colisão Cruzada (Cabeça com corpo alheio)
+            if (snake1.slice(1).some(s => s.x === snake2[0].x && s.y === snake2[0].y)) p2Dead = true;
+            if (snake2.slice(1).some(s => s.x === snake1[0].x && s.y === snake1[0].y)) p1Dead = true;
+
+            if (p1Dead && p2Dead) {
+                endGame('draw', 'Empate! Ambos colidiram simultaneamente.');
+            } else if (p1Dead) {
+                endGame('blue', 'Jogador 2 venceu! Você bateu.');
+            } else if (p2Dead) {
+                endGame('red', 'Jogador 1 venceu! Oponente bateu.');
+            }
+
+            // Envia sincronização para o Cliente
+            if (conn && conn.open) {
+                conn.send({ type: 'SYNC', snake1, snake2, food });
+            }
+            drawGame();
+        }
+
+        function moveSnake(snake, dir) {
+            const head = { x: snake[0].x, y: snake[0].y };
+            if (dir === 'UP') head.y--;
+            if (dir === 'DOWN') head.y++;
+            if (dir === 'LEFT') head.x--;
+            if (dir === 'RIGHT') head.x++;
+            snake.unshift(head);
+            snake.pop();
+        }
+
+        function checkCollision(snake) {
+            const head = snake[0];
+            return snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y);
+        }
+
+        function checkWall(head) {
+            return head.x < 0 || head.x >= TILE_COUNT || head.y < 0 || head.y >= TILE_COUNT;
+        }
+
+        function generateFood() {
+            food = {
+                x: Math.floor(Math.random() * TILE_COUNT),
+                y: Math.floor(Math.random() * TILE_COUNT)
+            };
+        }
+
+        function drawGame() {
+            ctx.fillStyle = '#020617';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Desenha P1 (Vermelho)
+            ctx.fillStyle = '#f43f5e';
+            snake1.forEach(s => ctx.fillRect(s.x * GRID_SIZE, s.y * GRID_SIZE, GRID_SIZE - 2, GRID_SIZE - 2));
+
+            // Desenha P2 (Azul)
+            ctx.fillStyle = '#3b82f6';
+            snake2.forEach(s => ctx.fillRect(s.x * GRID_SIZE, s.y * GRID_SIZE, GRID_SIZE - 2, GRID_SIZE - 2));
+
+            // Desenha Comida
+            ctx.fillStyle = '#22c55e';
+            ctx.fillRect(food.x * GRID_SIZE, food.y * GRID_SIZE, GRID_SIZE - 2, GRID_SIZE - 2);
+        }
+
+        function changeDirection(newDir) {
+            if (myRole === 'red') {
+                if (newDir === 'UP' && dir1 !== 'DOWN') dir1 = newDir;
+                if (newDir === 'DOWN' && dir1 !== 'UP') dir1 = newDir;
+                if (newDir === 'LEFT' && dir1 !== 'RIGHT') dir1 = newDir;
+                if (newDir === 'RIGHT' && dir1 !== 'LEFT') dir1 = newDir;
             } else {
-                currentSnake.pop();
+                if (newDir === 'UP' && dir2 !== 'DOWN') dir2 = newDir;
+                if (newDir === 'DOWN' && dir2 !== 'UP') dir2 = newDir;
+                if (newDir === 'LEFT' && dir2 !== 'RIGHT') dir2 = newDir;
+                if (newDir === 'RIGHT' && dir2 !== 'LEFT') dir2 = newDir;
             }
-
-            let lost = null;
-            if (head.x<0 || head.x>=size || head.y<0 || head.y>=size || p1.slice(1).some(b=>b.x===head.x && b.y===head.y) || p2.slice(1).some(b=>b.x===head.x && b.y===head.y)) {
-                lost = myRole;
+            if (conn && conn.open) {
+                conn.send({ type: 'DIR', dir: newDir });
             }
-
-            isMyTurn = false; render(); updateUI();
-            conn.send({ type: 'MOVE', p1: p1, p2: p2, apple: apple, lost: lost });
-            if (lost) { alert('Você bateu e perdeu!'); window.location.reload(); }
         }
 
-        window.addEventListener('keydown', e => {
-            if(e.key === 'ArrowUp') move('UP'); if(e.key === 'ArrowDown') move('DOWN');
-            if(e.key === 'ArrowLeft') move('LEFT'); if(e.key === 'ArrowRight') move('RIGHT');
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') changeDirection('UP');
+            if (e.key === 'ArrowDown') changeDirection('DOWN');
+            if (e.key === 'ArrowLeft') changeDirection('LEFT');
+            if (e.key === 'ArrowRight') changeDirection('RIGHT');
         });
 
-        function copyLink() { navigator.clipboard.writeText(window.location.href).then(() => alert('Link copiado!')); }
-        function leaveRoom() { localStorage.clear(); window.location.href = window.location.origin + window.location.pathname; }
+        function endGame(winner, msg) {
+            gameActive = false;
+            clearInterval(gameInterval);
+            
+            const payload = { type: 'GAME_OVER', winner, msg };
+            if (conn && conn.open) conn.send(payload);
+            
+            applyGameOver(winner, msg);
+        }
+
+        function applyGameOver(winner, msg) {
+            if (winner === 'red') score.red++;
+            if (winner === 'blue') score.blue++;
+            saveScore();
+            updateScoreboardUI();
+
+            const title = document.getElementById('game-over-title');
+            if(winner === 'draw') title.innerText = "EMPATE!";
+            else title.innerText = (winner === myRole) ? "🏆 VITÓRIA!" : "💀 DERROTA";
+
+            document.getElementById('game-over-msg').innerText = msg;
+            document.getElementById('game-over-screen').classList.remove('hidden');
+        }
+
+        function requestNewGame() {
+            localReady = true;
+            document.getElementById('btn-next-game').disabled = true;
+            document.getElementById('waiting-opponent-next').classList.remove('hidden');
+            if (conn && conn.open) conn.send({ type: 'READY' });
+            checkNextGame();
+        }
+
+        function checkNextGame() {
+            if (localReady && oppReady) {
+                localReady = false;
+                oppReady = false;
+                document.getElementById('btn-next-game').disabled = false;
+                document.getElementById('waiting-opponent-next').classList.add('hidden');
+                startGame();
+            }
+        }
+
+        function updatePresenceUI(p1, p2) {
+            document.getElementById('status-text-p1').innerText = p1 ? "Online" : "Offline";
+            document.getElementById('status-text-p1').className = p1 ? "text-green-400 font-mono text-[10px]" : "text-rose-400 font-mono text-[10px]";
+            document.getElementById('status-text-p2').innerText = p2 ? "Online" : "Offline";
+            document.getElementById('status-text-p2').className = p2 ? "text-green-400 font-mono text-[10px]" : "text-rose-400 font-mono text-[10px]";
+        }
+
+        function saveScore() {
+            if (roomCode) localStorage.setItem(`snake_score_${roomCode}`, JSON.stringify(score));
+        }
+
+        function loadScore() {
+            const saved = localStorage.getItem(`snake_score_${roomCode}`);
+            if (saved) score = JSON.parse(saved);
+            updateScoreboardUI();
+        }
+
+        function updateScoreboardUI() {
+            document.getElementById('score-red').innerText = score.red;
+            document.getElementById('score-blue').innerText = score.blue;
+        }
+
+        function copyLink() {
+            const link = window.location.origin + window.location.pathname + '?room=' + roomCode;
+            navigator.clipboard.writeText(link).then(() => alert('Link copiado!'));
+        }
+
+        function leaveRoom() {
+            if(roomCode) localStorage.removeItem(`snake_score_${roomCode}`);
+            localStorage.removeItem('snake_hosted_room');
+            window.location.href = window.location.origin + window.location.pathname;
+        }
     </script>
 </body>
 </html>
