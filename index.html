@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Obstruction P2P</title>
+    <title>Col P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
@@ -13,7 +13,7 @@
         <div class="max-w-md mx-auto">
             <div class="flex justify-between items-center relative">
                 <div class="flex flex-col">
-                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Obstruction P2P</h1>
+                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Col P2P</h1>
                     <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
                         <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
                         <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">📋 Compartilhar</button>
@@ -29,7 +29,7 @@
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
                 <h2 class="text-xl font-extrabold mb-2">Aguardando Oponente</h2>
-                <p class="text-slate-400 text-xs">Envie o link para o adversário para iniciar o bloqueio estratégico.</p>
+                <p class="text-slate-400 text-xs">Partilhe o link com o adversário para iniciarem o duelo territorial.</p>
                 <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Conectando ao servidor...</div>
                 <div id="loading-peer" class="hidden text-amber-400 text-xs font-medium animate-pulse">Configurando sala...</div>
             </div>
@@ -62,7 +62,7 @@
 
             <div id="board-grid" class="grid grid-cols-6 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 shadow-2xl aspect-square">
                 </div>
-            <p class="text-[10px] text-center text-slate-500 italic">Cada clique bloqueia permanentemente todas as casas ao redor.</p>
+            <p class="text-[10px] text-center text-slate-500 italic">É proibido pintar ao lado (ortogonal) da sua própria cor.</p>
         </div>
 
         <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center">
@@ -76,7 +76,7 @@
         </div>
     </main>
 
-    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">⚡ Conexão P2P Direta • Obstruction Engine</footer>
+    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">⚡ Conexão P2P Direta • Col Graph Engine</footer>
 
     <script>
         let peer = null, conn = null, myRole = '', isMyTurn = false;
@@ -84,7 +84,7 @@
         let localPlayerReadyForNext = false, opponentReadyForNext = false;
 
         const SIZE = 6;
-        let boardState = Array(SIZE * SIZE).fill('empty'); // 'empty', 'red', 'blue', 'blocked'
+        let boardState = Array(SIZE * SIZE).fill('empty'); // 'empty', 'red', 'blue'
 
         const screenLobby = document.getElementById('screen-lobby');
         const topbar = document.getElementById('topbar');
@@ -93,19 +93,19 @@
         let roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            const generatedCode = 'OBST-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_room_obst', generatedCode);
+            const generatedCode = 'COL-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_room_col', generatedCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
             document.getElementById('topbar-room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('hosted_room_obst')) ? 'red' : 'blue';
+            myRole = (roomCode === localStorage.getItem('hosted_room_col')) ? 'red' : 'blue';
             loadGameState();
             setupTheme();
             if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
-        function saveGameState() { if (roomCode) localStorage.setItem(`obst_score_${roomCode}`, JSON.stringify(score)); }
-        function loadGameState() { const s = localStorage.getItem(`obst_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
+        function saveGameState() { if (roomCode) localStorage.setItem(`col_score_${roomCode}`, JSON.stringify(score)); }
+        function loadGameState() { const s = localStorage.getItem(`col_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
         function setupTheme() { topbar.className = myRole === 'red' ? "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white" : "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white"; }
         function updateScoreboardVisual() { document.getElementById('score-red').innerText = score.red; document.getElementById('score-blue').innerText = score.blue; }
 
@@ -140,12 +140,12 @@
 
             cur.on('data', data => {
                 if (conn !== cur) return;
-                if (data.type === 'OBST_SYNC') {
+                if (data.type === 'COL_SYNC') {
                     boardState = data.boardState;
                     renderGrid();
                     isMyTurn = true;
-                    if (!boardState.includes('empty')) {
-                        triggerGameOver(myRole === 'red' ? 'blue' : 'red'); // Se não há jogadas, eu perco (oponente ganha)
+                    if (!hasValidMoves(myRole)) {
+                        triggerGameOver(myRole === 'red' ? 'blue' : 'red'); // Eu não posso jogar, o oponente ganha
                     } else {
                         updateTurnUI();
                     }
@@ -175,6 +175,30 @@
             updateTurnUI();
         }
 
+        function isValidMove(index, role) {
+            if (boardState[index] !== 'empty') return false;
+            
+            const r = Math.floor(index / SIZE);
+            const c = index % SIZE;
+            const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+            for (let d of directions) {
+                const nr = r + d[0];
+                const nc = c + d[1];
+                if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
+                    if (boardState[nr * SIZE + nc] === role) return false;
+                }
+            }
+            return true;
+        }
+
+        function hasValidMoves(role) {
+            for (let i = 0; i < boardState.length; i++) {
+                if (isValidMove(i, role)) return true;
+            }
+            return false;
+        }
+
         function renderGrid() {
             gridContainer.innerHTML = '';
             for (let i = 0; i < boardState.length; i++) {
@@ -182,17 +206,15 @@
                 cell.onclick = () => claimCell(i);
                 
                 if (boardState[i] === 'empty') {
-                    cell.className = "bg-slate-800 border border-slate-700/60 rounded-xl transition duration-150 aspect-square hover:bg-slate-700 active:scale-95";
-                } else if (boardState[i] === 'blocked') {
-                    cell.className = "bg-slate-950 border border-slate-900 rounded-xl aspect-square cursor-not-allowed opacity-20 text-slate-700 text-xs font-bold flex items-center justify-center";
-                    cell.innerText = "✖";
-                    cell.disabled = true;
+                    if (isMyTurn && isValidMove(i, myRole)) {
+                        cell.className = "bg-slate-800 border border-slate-700 rounded-xl aspect-square transition hover:bg-slate-700 hover:scale-105 active:scale-95 cursor-pointer";
+                    } else {
+                        cell.className = "bg-slate-900/60 border border-slate-800/40 rounded-xl aspect-square opacity-60";
+                    }
                 } else if (boardState[i] === 'red') {
-                    cell.className = "bg-red-600 border-2 border-red-400 rounded-xl aspect-square flex items-center justify-center font-black text-white shadow-lg shadow-red-500/20";
-                    cell.innerText = "🛑";
+                    cell.className = "bg-red-600 border-2 border-red-400 rounded-xl aspect-square shadow-lg shadow-red-500/20";
                 } else if (boardState[i] === 'blue') {
-                    cell.className = "bg-blue-600 border-2 border-blue-400 rounded-xl aspect-square flex items-center justify-center font-black text-white shadow-lg shadow-blue-500/20";
-                    cell.innerText = "🔷";
+                    cell.className = "bg-blue-600 border-2 border-blue-400 rounded-xl aspect-square shadow-lg shadow-blue-500/20";
                 }
                 gridContainer.appendChild(cell);
             }
@@ -202,43 +224,22 @@
             const b = document.getElementById('btn-turn');
             if (isMyTurn) {
                 b.className = "w-full bg-emerald-600 text-white font-black py-2.5 rounded-xl text-xs shadow-lg animate-pulse text-center";
-                b.innerText = "🟢 SUA VEZ! Clique numa casa livre para bloquear o redor";
+                b.innerText = "🟢 SUA VEZ! Pinte uma casa válida estrategicamente";
             } else {
                 b.className = "w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl text-xs border border-slate-700/50 text-center";
-                b.innerText = "⏳ VEZ DO OPONENTE... Encurralando o tabuleiro";
+                b.innerText = "⏳ VEZ DO OPONENTE... Bloqueando o território";
             }
         }
 
         function claimCell(index) {
-            if (!isMyTurn || boardState[index] !== 'empty') return;
+            if (!isMyTurn || !isValidMove(index, myRole)) return;
 
             boardState[index] = myRole;
-
-            // Bloquear vizinhos (8 direções)
-            const r = Math.floor(index / SIZE);
-            const c = index % SIZE;
-            for (let dr = -1; dr <= 1; dr++) {
-                for (let dc = -1; dc <= 1; dc++) {
-                    const nr = r + dr;
-                    const nc = c + dc;
-                    if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
-                        const nIdx = nr * SIZE + nc;
-                        if (boardState[nIdx] === 'empty') {
-                            boardState[nIdx] = 'blocked';
-                        }
-                    }
-                }
-            }
-
             isMyTurn = false;
             renderGrid();
             updateTurnUI();
 
-            if (conn && conn.open) conn.send({ type: 'OBST_SYNC', boardState: boardState });
-            
-            if (!boardState.includes('empty')) {
-                triggerGameOver(myRole); // Se não há mais jogadas após o meu clique, eu ganho
-            }
+            if (conn && conn.open) conn.send({ type: 'COL_SYNC', boardState: boardState });
         }
 
         function triggerGameOver(winner) {
@@ -253,9 +254,9 @@
             }
 
             if (winner === myRole) {
-                title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce"; msg.innerText = "Deixou o seu oponente completamente sem espaço!";
+                title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce"; msg.innerText = "Deixou o adversário encurralado e sem espaço legal!";
             } else {
-                title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500"; msg.innerText = "Ficou encurralado e sem nenhuma casa livre.";
+                title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500"; msg.innerText = "Ficou sem jogadas válidas no tabuleiro.";
             }
 
             document.getElementById('btn-next-game').className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm cursor-pointer";
@@ -275,7 +276,7 @@
 
         function checkNextGameTransition() { if (localPlayerReadyForNext && opponentReadyForNext) resetBoard(); }
         function copyLink() { navigator.clipboard.writeText(window.location.origin + window.location.pathname + '?room=' + roomCode).then(() => alert('Link copiado!')); }
-        function leaveRoom() { if (roomCode) localStorage.removeItem(`obst_score_${roomCode}`); localStorage.removeItem('hosted_room_obst'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
+        function leaveRoom() { if (roomCode) localStorage.removeItem(`col_score_${roomCode}`); localStorage.removeItem('hosted_room_col'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
     </script>
 </body>
 </html>
