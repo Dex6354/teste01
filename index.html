@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monopoly P2P</title>
+    <title>Super Trunfo P2P Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
@@ -12,7 +12,7 @@
     <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-0 z-50">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex flex-col">
-                <h1 class="font-extrabold text-base tracking-wider text-red-500">🎩 MONOPOLY P2P</h1>
+                <h1 class="font-extrabold text-base tracking-wider text-amber-500">🏎️ SUPER TRUNFO</h1>
                 <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
                     <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
                     <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">📋 Copiar</button>
@@ -22,103 +22,120 @@
         </div>
     </header>
 
-    <main class="flex-grow flex flex-col items-center justify-start p-2 w-full max-w-md mx-auto mb-12 space-y-3">
+    <main class="flex-grow flex flex-col items-center justify-start p-3 w-full max-w-md mx-auto mb-12 space-y-3">
         
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
-                <h2 class="text-xl font-extrabold">Aguardando Jogador</h2>
-                <p class="text-slate-400 text-xs">Envie o link para o oponente entrar no Tabuleiro de Monopoly!</p>
-                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Buscando o servidor...</div>
+                <h2 class="text-xl font-extrabold">Aguardando Desafiante</h2>
+                <p class="text-slate-400 text-xs">Compartilhe o link para disputar quem tem as melhores cartas!</p>
+                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Conectando...</div>
             </div>
         </div>
 
         <div class="w-full bg-slate-800 p-2.5 rounded-xl border border-slate-700 shadow-xl flex items-center justify-between text-center text-xs">
             <div class="flex-1">
-                <span class="font-bold text-red-400 block">Seu Saldo</span>
-                <span id="cash-me" class="text-base font-mono font-black text-white">$ 1500</span>
+                <span class="font-bold text-emerald-400 block">Suas Cartas</span>
+                <span id="cards-me" class="text-xl font-mono font-black">0</span>
             </div>
-            <div class="px-2 border-x border-slate-700 min-w-[110px]">
-                <span id="turn-text" class="font-black text-amber-400 uppercase tracking-wider block">Aguardando...</span>
-                <span id="log-text" class="text-[9px] text-slate-300 block truncate mt-0.5">Let's Play!</span>
+            <div class="px-3 border-x border-slate-700 min-w-[130px] flex flex-col items-center justify-center">
+                <span id="turn-text" class="font-black text-amber-400 uppercase tracking-wider text-[11px]">Carregando...</span>
+                <span id="round-log" class="text-[9px] text-slate-300 mt-0.5 block truncate max-w-[120px]">Preparando baralho</span>
             </div>
             <div class="flex-1">
                 <span class="font-bold text-blue-400 block">Oponente</span>
-                <span id="cash-opp" class="text-base font-mono font-black text-white">$ 1500</span>
+                <span id="cards-opp" class="text-xl font-mono font-black">0</span>
             </div>
         </div>
 
-        <div id="board" class="w-full aspect-square bg-emerald-950 rounded-2xl p-1 border-2 border-slate-800 grid grid-cols-5 grid-rows-5 gap-1 relative shadow-2xl">
+        <div id="screen-game" class="w-full hidden flex flex-col space-y-4">
             
-            <div class="row-start-2 row-end-5 col-start-2 col-end-5 bg-slate-900/95 rounded-xl p-2 flex flex-col items-center justify-center space-y-2 text-center border border-slate-800 z-10">
-                <div id="dice-display" class="w-10 h-10 bg-white text-slate-900 rounded-lg flex items-center justify-center text-xl font-black shadow-md border-b-4 border-slate-300">🎲</div>
+            <div class="grid grid-cols-2 gap-3 items-start">
                 
-                <div id="action-panel" class="w-full space-y-1">
-                    <button id="btn-roll" onclick="rollDice()" class="w-full bg-red-600 hover:bg-red-500 font-bold py-1.5 px-2 rounded-lg text-xs uppercase tracking-wider transition disabled:opacity-40">Lançar Dado</button>
-                    
-                    <div id="buy-controls" class="hidden grid grid-cols-2 gap-1">
-                        <button onclick="buyProperty(true)" class="bg-emerald-600 hover:bg-emerald-500 font-bold py-1 rounded text-[10px] uppercase">Comprar</button>
-                        <button onclick="buyProperty(false)" class="bg-slate-700 hover:bg-slate-600 font-bold py-1 rounded text-[10px] uppercase">Passar</button>
+                <div class="bg-gradient-to-b from-slate-800 to-slate-850 rounded-2xl border-2 border-emerald-500 shadow-xl overflow-hidden p-2 flex flex-col space-y-2 relative">
+                    <div class="bg-emerald-600 text-center py-1 rounded-lg">
+                        <span id="card-me-name" class="text-xs font-black tracking-wide block truncate">---</span>
                     </div>
+                    <div class="bg-slate-950/80 rounded-xl aspect-[4/3] flex items-center justify-center text-3xl shadow-inner border border-slate-800">🏎️</div>
+                    
+                    <div id="attrs-container-me" class="space-y-1 text-[11px]">
+                        </div>
                 </div>
-            </div>
+
+                <div id="card-opponent" class="bg-gradient-to-b from-slate-800 to-slate-850 rounded-2xl border-2 border-slate-700 shadow-xl overflow-hidden p-2 flex flex-col space-y-2 relative min-h-[220px]">
+                    <div id="card-opp-back" class="absolute inset-0 bg-indigo-950 flex flex-col items-center justify-center p-4 text-center z-10 rounded-2xl border-2 border-slate-700">
+                        <span class="text-3xl animate-bounce mb-1">🎴</span>
+                        <span class="text-[10px] font-bold text-indigo-300 uppercase tracking-wider">Carta do Oponente</span>
+                    </div>
+
+                    <div class="bg-blue-600 text-center py-1 rounded-lg">
+                        <span id="card-opp-name" class="text-xs font-black tracking-wide block truncate">---</span>
+                    </div>
+                    <div class="bg-slate-950/80 rounded-xl aspect-[4/3] flex items-center justify-center text-3xl border border-slate-800">🏎️</div>
+                    
+                    <div id="attrs-container-opp" class="space-y-1 text-[11px] pointer-events-none">
+                        </div>
+                </div>
 
             </div>
+
+            <button id="btn-next-round" onclick="advanceNextRound()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-lg transition hidden">
+                Próxima Rodada ➡️
+            </button>
+
+        </div>
 
         <div id="screen-game-over" class="w-full bg-slate-800 p-6 rounded-2xl border-2 border-amber-500 text-center space-y-4 hidden">
             <h2 id="game-over-title" class="text-3xl font-black text-green-400">🏆 VITÓRIA!</h2>
-            <p id="game-over-msg" class="text-sm text-slate-300">O oponente faliu!</p>
-            <button onclick="window.location.reload()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg transition">🔄 Nova Partida</button>
+            <p id="game-over-msg" class="text-sm text-slate-300">Você conquistou todo o baralho!</p>
+            <button onclick="window.location.reload()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                🔄 Jogar Novamente
+            </button>
         </div>
 
     </main>
 
     <script>
         let peer = null, conn = null, myRole = '', roomCode = '';
-        let isMyTurn = false, diceValue = 1;
+        let myDeck = [], oppCardCount = 0;
+        let isMyTurn = false;
+        
+        // Estado temporário da rodada para revelação
+        let currentRoundChosenAttr = null;
+        let localTopCard = null;
+        let receivedOppCard = null;
 
-        let gameState = {
-            players: { red: { pos: 0, cash: 1500 }, blue: { pos: 0, cash: 1500 } },
-            owner: Array(16).fill(null),
-            currentTurn: 'red',
-            lastLog: "Jogo iniciado"
+        const baseDeck = [
+            { name: "Bugatti Chiron", vel: 420, pot: 1500, acc: 2.4, price: 3000000 },
+            { name: "Koenigsegg Jesko", vel: 480, pot: 1600, acc: 2.5, price: 2800000 },
+            { name: "Ferrari SF90", vel: 340, pot: 1000, acc: 2.5, price: 500000 },
+            { name: "Tesla Model S Plaid", vel: 322, pot: 1020, acc: 2.1, price: 130000 },
+            { name: "McLaren 765LT", vel: 330, pot: 765, acc: 2.8, price: 380000 },
+            { name: "Porsche 911 Turbo S", vel: 330, pot: 650, acc: 2.7, price: 220000 },
+            { name: "Lamborghini Revuelto", vel: 350, pot: 1015, acc: 2.5, price: 600000 },
+            { name: "Aston Martin Valkyrie", vel: 355, pot: 1160, acc: 2.6, price: 3500000 },
+            { name: "Pagani Huayra R", vel: 380, pot: 850, acc: 2.8, price: 3100000 },
+            { name: "Nissan GT-R Nismo", vel: 315, pot: 600, acc: 2.8, price: 210000 },
+            { name: "Audi R8 V10 Performance", vel: 331, pot: 620, acc: 3.1, price: 170000 },
+            { name: "Chevrolet Corvette Z06", vel: 312, pot: 670, acc: 2.6, price: 110000 }
+        ];
+
+        const attrNames = {
+            vel: { label: "Vel. Máxima", unit: "km/h", lowWins: false },
+            pot: { label: "Potência", unit: "cv", lowWins: false },
+            acc: { label: "0-100 km/h", unit: "s", lowWins: true }, // Atenção: Menor tempo ganha!
+            price: { label: "Preço", unit: "$", lowWins: false }
         };
-
-        const boardSpaces = [
-            { name: "GO", type: "start", color: "bg-slate-700 text-white" },
-            { name: "Mediter. Av", type: "property", price: 60, rent: 6, color: "bg-amber-800" },
-            { name: "Baltic Av", type: "property", price: 80, rent: 8, color: "bg-amber-800" },
-            { name: "Reading RR", type: "property", price: 200, rent: 25, color: "bg-slate-600" },
-            { name: "JAIL", type: "jail", color: "bg-slate-800 text-slate-400 text-[9px]" },
-            { name: "Oriental Av", type: "property", price: 100, rent: 10, color: "bg-cyan-600" },
-            { name: "Vermont Av", type: "property", price: 120, rent: 12, color: "bg-cyan-600" },
-            { name: "Connect. Av", type: "property", price: 140, rent: 14, color: "bg-cyan-600" },
-            { name: "CHANCE", type: "luck", color: "bg-orange-500 text-slate-950 font-bold" },
-            { name: "St. Charles", type: "property", price: 160, rent: 16, color: "bg-purple-600" },
-            { name: "States Av", type: "property", price: 180, rent: 18, color: "bg-purple-600" },
-            { name: "Virginia Av", type: "property", price: 200, rent: 20, color: "bg-purple-600" },
-            { name: "LUXURY TAX", type: "tax", color: "bg-red-700 text-white font-bold text-[8px]" },
-            { name: "Park Place", type: "property", price: 350, rent: 35, color: "bg-blue-800" },
-            { name: "Boardwalk", type: "property", price: 400, rent: 50, color: "bg-blue-800" },
-            { name: "Short Line", type: "property", price: 200, rent: 25, color: "bg-slate-600" }
-        ];
-
-        const gridCoords = [
-            "row-start-1 col-start-1", "row-start-1 col-start-2", "row-start-1 col-start-3", "row-start-1 col-start-4", "row-start-1 col-start-5",
-            "row-start-2 col-start-5", "row-start-3 col-start-5", "row-start-4 col-start-5", "row-start-5 col-start-5",
-            "row-start-5 col-start-4", "row-start-5 col-start-3", "row-start-5 col-start-2", "row-start-5 col-start-1",
-            "row-start-4 col-start-1", "row-start-3 col-start-1", "row-start-2 col-start-1"
-        ];
 
         const urlParams = new URLSearchParams(window.location.search);
         roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            const generatedCode = 'MONO-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_monopoly_room', generatedCode);
+            const generatedCode = 'TRUNFO-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_trunfo_room', generatedCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
             document.getElementById('topbar-room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('hosted_monopoly_room')) ? 'red' : 'blue';
+            myRole = (roomCode === localStorage.getItem('hosted_trunfo_room')) ? 'red' : 'blue';
             if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
@@ -140,196 +157,207 @@
         function handleEvents() {
             conn.on('open', () => {
                 document.getElementById('screen-lobby').classList.add('hidden');
-                isMyTurn = (myRole === 'red');
-                if (myRole === 'red') sendState();
-                buildBoardDOM();
-                updateUI();
+                document.getElementById('screen-game').classList.remove('hidden');
+                if (myRole === 'red') setupNewGame();
             });
 
             conn.on('data', (data) => {
-                if (data.type === 'SYNC_STATE') {
-                    gameState = data.state;
-                    diceValue = data.dice || 1;
-                    isMyTurn = (gameState.currentTurn === myRole);
-                    checkBankruptcy();
+                if (data.type === 'START_GAME') {
+                    myDeck = data.guestDeck;
+                    oppCardCount = data.hostCardCount;
+                    isMyTurn = data.yourTurn;
                     updateUI();
+                } else if (data.type === 'PICK_ATTR') {
+                    currentRoundChosenAttr = data.attr;
+                    receivedOppCard = data.card;
+                    resolveBattle();
+                } else if (data.type === 'REPLY_CARD') {
+                    receivedOppCard = data.card;
+                    resolveBattle();
                 }
             });
         }
 
-        function buildBoardDOM() {
-            const boardEl = document.getElementById('board');
-            boardEl.querySelectorAll('.board-space').forEach(e => e.remove());
+        function setupNewGame() {
+            let deck = [...baseDeck].sort(() => Math.random() - 0.5);
+            myDeck = deck.splice(0, 6);
+            let guestDeck = deck; 
 
-            boardSpaces.forEach((space, index) => {
-                const div = document.createElement('div');
-                div.id = `space-${index}`;
-                div.className = `board-space ${gridCoords[index]} bg-slate-800 rounded-md p-1 flex flex-col justify-between items-center text-center border border-slate-700/60 relative overflow-hidden`;
-                
-                let innerHTML = '';
-                if (space.type === 'property') {
-                    innerHTML = `
-                        <div class="w-full h-2 ${space.color} rounded-sm mb-0.5"></div>
-                        <span class="text-[8px] font-bold leading-none truncate w-full">${space.name}</span>
-                        <span class="text-[7px] text-slate-400 font-mono">$${space.price}</span>
-                        <div id="owner-mark-${index}" class="absolute bottom-0.5 right-0.5 w-2 h-2 rounded-full hidden"></div>
-                    `;
-                } else {
-                    innerHTML = `
-                        <div class="w-full h-full flex items-center justify-center rounded p-0.5 ${space.color || 'bg-slate-700'}">
-                            <span class="text-[9px] font-black leading-tight uppercase">${space.name}</span>
-                        </div>
-                    `;
-                }
-                
-                innerHTML += `<div id="tokens-${index}" class="absolute bottom-1 left-1 flex space-x-0.5 z-20"></div>`;
-                div.innerHTML = innerHTML;
-                boardEl.appendChild(div);
+            isMyTurn = true;
+            oppCardCount = guestDeck.length;
+
+            conn.send({
+                type: 'START_GAME',
+                guestDeck: guestDeck,
+                hostCardCount: myDeck.length,
+                yourTurn: false
             });
+
+            updateUI();
         }
 
         function updateUI() {
-            const meCash = myRole === 'red' ? gameState.players.red.cash : gameState.players.blue.cash;
-            const oppCash = myRole === 'red' ? gameState.players.blue.cash : gameState.players.red.cash;
-            document.getElementById('cash-me').innerText = `$ ${meCash}`;
-            document.getElementById('cash-opp').innerText = `$ ${oppCash}`;
+            document.getElementById('cards-me').innerText = myDeck.length;
+            document.getElementById('cards-opp').innerText = oppCardCount;
 
             const turnText = document.getElementById('turn-text');
             if (isMyTurn) {
                 turnText.innerText = "Sua Vez!";
-                turnText.className = "font-black text-emerald-400 uppercase tracking-wider block animate-pulse";
-                document.getElementById('btn-roll').disabled = false;
+                turnText.className = "font-black text-emerald-400 uppercase tracking-wider text-[11px] animate-pulse";
+                document.getElementById('round-log').innerText = "Escolha um atributo";
             } else {
                 turnText.innerText = "Oponente...";
-                turnText.className = "font-black text-slate-400 uppercase tracking-wider block";
-                document.getElementById('btn-roll').disabled = true;
+                turnText.className = "font-black text-slate-400 uppercase tracking-wider text-[11px]";
+                document.getElementById('round-log').innerText = "Aguardando escolha";
             }
-            document.getElementById('log-text').innerText = gameState.lastLog;
-            document.getElementById('dice-display').innerText = diceValue;
 
-            boardSpaces.forEach((space, index) => {
-                const tokenContainer = document.getElementById(`tokens-${index}`);
-                if (tokenContainer) {
-                    tokenContainer.innerHTML = '';
-                    if (gameState.players.red.pos === index) tokenContainer.innerHTML += `<div class="w-2.5 h-2.5 bg-red-500 rounded-full border border-white"></div>`;
-                    if (gameState.players.blue.pos === index) tokenContainer.innerHTML += `<div class="w-2.5 h-2.5 bg-blue-500 rounded-full border border-white"></div>`;
-                }
+            // Oculta visualmente a carta do oponente
+            document.getElementById('card-opp-back').classList.remove('hidden');
+            document.getElementById('btn-next-round').classList.add('hidden');
 
-                const ownerMark = document.getElementById(`owner-mark-${index}`);
-                if (ownerMark && space.type === 'property') {
-                    const owner = gameState.owner[index];
-                    if (owner) {
-                        ownerMark.className = `absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full border border-white ${owner === 'red' ? 'bg-red-500' : 'bg-blue-500'}`;
-                        ownerMark.classList.remove('hidden');
-                    } else {
-                        ownerMark.classList.add('hidden');
-                    }
-                }
+            if (myDeck.length > 0) {
+                localTopCard = myDeck[0];
+                renderLocalCard();
+            }
+        }
+
+        function renderLocalCard() {
+            document.getElementById('card-me-name').innerText = localTopCard.name;
+            const container = document.getElementById('attrs-container-me');
+            container.innerHTML = '';
+
+            Object.keys(attrNames).forEach(key => {
+                const attr = attrNames[key];
+                const btn = document.createElement('button');
+                btn.disabled = !isMyTurn;
+                btn.className = `w-full flex justify-between items-center p-2 rounded-lg font-mono transition text-left border ${isMyTurn ? 'bg-slate-800 border-slate-700 hover:bg-emerald-950 hover:border-emerald-500' : 'bg-slate-800/50 border-slate-800'}`;
+                
+                btn.innerHTML = `
+                    <span class="text-slate-400 font-sans">${attr.label}:</span>
+                    <span class="font-bold text-white">${localTopCard[key]}${attr.unit}</span>
+                `;
+
+                btn.onclick = () => selectAttribute(key);
+                container.appendChild(btn);
             });
         }
 
-        function rollDice() {
+        function selectAttribute(key) {
             if (!isMyTurn) return;
-            document.getElementById('btn-roll').disabled = true;
+            currentRoundChosenAttr = key;
 
-            diceValue = Math.floor(Math.random() * 6) + 1;
-            let player = gameState.players[myRole];
-            let oldPos = player.pos;
-            let newPos = (oldPos + diceValue) % 16;
-
-            player.pos = newPos;
-
-            if (newPos < oldPos) {
-                player.cash += 200;
-                gameState.lastLog = `Passou por GO! Coletou $200.`;
-            }
-
-            evaluateSpace(newPos);
-        }
-
-        function evaluateSpace(pos) {
-            const space = boardSpaces[pos];
-            let oppRole = myRole === 'red' ? 'blue' : 'red';
-
-            if (space.type === 'property') {
-                const owner = gameState.owner[pos];
-                if (!owner) {
-                    if (gameState.players[myRole].cash >= space.price) {
-                        gameState.lastLog = `Caiu em ${space.name}. Comprar por $${space.price}?`;
-                        document.getElementById('buy-controls').classList.remove('hidden');
-                        updateUI();
-                        return;
-                    } else {
-                        gameState.lastLog = `Sem saldo para comprar ${space.name}.`;
-                    }
-                } else if (owner === oppRole) {
-                    gameState.players[myRole].cash -= space.rent;
-                    gameState.players[oppRole].cash += space.rent;
-                    gameState.lastLog = `Pagou $${space.rent} de aluguel em ${space.name}.`;
-                } else {
-                    gameState.lastLog = `Parou na sua propriedade.`;
-                }
-            } else if (space.type === 'tax') {
-                gameState.players[myRole].cash -= 150;
-                gameState.lastLog = `Pagou $150 de taxas ao Banco.`;
-            } else if (space.type === 'luck') {
-                const bonus = Math.random() > 0.5 ? 100 : -100;
-                gameState.players[myRole].cash += bonus;
-                gameState.lastLog = bonus > 0 ? `Chance: Recebeu prêmio de $100.` : `Chance: Pagou multa de $100.`;
-            } else {
-                gameState.lastLog = `Visitando a ${space.name}.`;
-            }
-
-            endTurn();
-        }
-
-        function buyProperty(wantsToBuy) {
-            document.getElementById('buy-controls').classList.add('hidden');
-            const pos = gameState.players[myRole].pos;
-            const space = boardSpaces[pos];
-
-            if (wantsToBuy) {
-                gameState.players[myRole].cash -= space.price;
-                gameState.owner[pos] = myRole;
-                gameState.lastLog = `Comprou ${space.name} por $${space.price}!`;
-            } else {
-                gameState.lastLog = `Passou a compra de ${space.name}.`;
-            }
-
-            endTurn();
-        }
-
-        function endTurn() {
-            checkBankruptcy();
-            gameState.currentTurn = myRole === 'red' ? 'blue' : 'red';
+            // Desabilita cliques extras imediatos travando a interface
             isMyTurn = false;
-            sendState();
-            updateUI();
+            document.getElementById('turn-text').innerText = "Analisando...";
+
+            conn.send({
+                type: 'PICK_ATTR',
+                attr: key,
+                card: localTopCard
+            });
         }
 
-        function sendState() {
-            if (conn && conn.open) {
-                conn.send({ type: 'SYNC_STATE', state: gameState, dice: diceValue });
+        function resolveBattle() {
+            // Se eu escolhi o atributo, avisei o oponente e ele me respondeu com a carta dele via REPLY_CARD.
+            // Se o oponente escolheu o atributo, ele me mandou PICK_ATTR contendo o atributo e a carta dele.
+            if (myRole !== roomCode && receivedOppCard && !isMyTurn && myDeck.length > 0 && !document.getElementById('btn-next-round').classList.contains('hidden')) {
+                // Prevenção de loop ou chamadas duplicadas tardias
+            }
+
+            // Se fui eu que escolhi e ainda não recebi a resposta do oponente, solicito a carta dele
+            if (!receivedOppCard) {
+                conn.send({
+                    type: 'REPLY_CARD',
+                    card: localTopCard
+                });
+                return;
+            }
+
+            // Mostrar a carta do oponente na tela
+            document.getElementById('card-opp-back').classList.add('hidden');
+            document.getElementById('card-opp-name').innerText = receivedOppCard.name;
+            
+            const containerOpp = document.getElementById('attrs-container-opp');
+            containerOpp.innerHTML = '';
+
+            Object.keys(attrNames).forEach(key => {
+                const attr = attrNames[key];
+                const isTarget = (key === currentRoundChosenAttr);
+                const div = document.createElement('div');
+                div.className = `w-full flex justify-between items-center p-2 rounded-lg font-mono border ${isTarget ? 'bg-indigo-950 border-indigo-500 font-bold ring-1 ring-indigo-400' : 'bg-slate-800/40 border-slate-800/80'}`;
+                div.innerHTML = `
+                    <span class="text-slate-400 font-sans">${attr.label}:</span>
+                    <span class="text-white">${receivedOppCard[key]}${attr.unit}</span>
+                `;
+                containerOpp.appendChild(div);
+            });
+
+            // Lógica de Comparação
+            const config = attrNames[currentRoundChosenAttr];
+            let myValue = localTopCard[currentRoundChosenAttr];
+            let oppValue = receivedOppCard[currentRoundChosenAttr];
+
+            let iWon = false;
+            let tie = false;
+
+            if (myValue === oppValue) {
+                tie = true;
+            } else if (config.lowWins) {
+                iWon = (myValue < oppValue);
+            } else {
+                iWon = (myValue > oppValue);
+            }
+
+            // Remover do topo
+            myDeck.shift();
+
+            if (tie) {
+                document.getElementById('round-log').innerText = "Empate!";
+                // Volta para o fundo do próprio deck
+                myDeck.push(localTopCard);
+            } else if (iWon) {
+                document.getElementById('round-log').innerText = "Você Venceu!";
+                myDeck.push(localTopCard);
+                myDeck.push(receivedOppCard);
+                isMyTurn = true; // Mantém ou ganha o turno
+            } else {
+                document.getElementById('round-log').innerText = "Você Perdeu!";
+                isMyTurn = false;
+            }
+
+            oppCardCount = baseDeck.length - myDeck.length; // Ajusta contagem baseada no baralho global estável
+            if (tie) oppCardCount = baseDeck.length / 2; // Correção aproximada rápida visual se empatar antes de syncs completos
+
+            // Exibir botão de avançar de fase de forma limpa
+            document.getElementById('btn-next-round').classList.remove('hidden');
+        }
+
+        function advanceNextRound() {
+            receivedOppCard = null;
+            currentRoundChosenAttr = null;
+
+            if (myDeck.length === 0 || myDeck.length === baseDeck.length) {
+                checkGameOver();
+            } else {
+                updateUI();
             }
         }
 
-        function checkBankruptcy() {
-            if (gameState.players.red.cash <= 0 || gameState.players.blue.cash <= 0) {
-                document.getElementById('board').classList.add('hidden');
-                document.getElementById('screen-game-over').classList.remove('hidden');
+        function checkGameOver() {
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-game-over').classList.remove('hidden');
 
-                const title = document.getElementById('game-over-title');
-                const msg = document.getElementById('game-over-msg');
+            const title = document.getElementById('game-over-title');
+            const msg = document.getElementById('game-over-msg');
 
-                if (gameState.players[myRole].cash <= 0) {
-                    title.innerText = "💀 FALÊNCIA!";
-                    title.className = "text-3xl font-black text-red-500";
-                    msg.innerText = "Você faliu e perdeu o jogo!";
-                } else {
-                    title.innerText = "🏆 VITÓRIA!";
-                    title.className = "text-3xl font-black text-green-400";
-                    msg.innerText = "O oponente faliu! Você venceu!";
-                }
+            if (myDeck.length === baseDeck.length) {
+                title.innerText = "🏆 VITÓRIA!";
+                title.className = "text-3xl font-black text-green-400";
+                msg.innerText = "Incrível! Você tomou todas as cartas do oponente.";
+            } else {
+                title.innerText = "💀 DERROTA!";
+                title.className = "text-3xl font-black text-red-500";
+                msg.innerText = "Você ficou sem cartas no baralho.";
             }
         }
 
@@ -339,7 +367,7 @@
         }
 
         function leaveRoom() {
-            localStorage.removeItem('hosted_monopoly_room');
+            localStorage.removeItem('hosted_trunfo_room');
             if (conn) conn.close();
             if (peer) peer.destroy();
             window.location.href = window.location.origin + window.location.pathname;
