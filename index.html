@@ -3,135 +3,423 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adivinha a Coordenada P2P</title>
+    <title>Stop Online P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
-<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between">
+<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
-    <header class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Quente ou Frio P2P</h1>
-                <div class="text-[11px] text-slate-400 font-mono">Sala: <strong id="room-id" class="text-indigo-400">...</strong></div>
+    <!-- Topbar -->
+    <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-0 z-50">
+        <div class="max-w-md mx-auto">
+            <div class="flex justify-between items-center relative">
+                <div class="flex flex-col">
+                    <h1 class="font-extrabold text-base tracking-wider text-amber-400">🛑 STOP! P2P</h1>
+                    <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
+                        <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
+                        <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">
+                        📋Compartilhar
+                        </button>
+                    </div>
+                </div>
+                <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow">
+                       ➡️ Sair
+                </button>
             </div>
-            <button onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-[11px] py-1 px-2 rounded">Sair</button>
         </div>
     </header>
 
-    <main class="flex-grow flex flex-col items-center justify-center p-3 w-full max-w-md mx-auto mb-12">
-        <div id="lobby" class="fixed inset-0 bg-slate-950/90 z-40 flex flex-col items-center justify-center p-6 text-center">
-            <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-sm">
-                <h2 class="text-xl font-bold mb-2">Aguardando Rival</h2>
-                <button onclick="copyLink()" class="bg-indigo-600 text-xs px-3 py-1.5 rounded font-bold">📋 Copiar Link</button>
+    <!-- Main Container -->
+    <main class="flex-grow flex flex-col items-center justify-start p-3 w-full max-w-md mx-auto mb-12 space-y-4">
+        
+        <!-- Lobby / Waiting Connection Overlay -->
+        <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
+            <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
+                <h2 class="text-xl font-extrabold mb-2">Aguardando Oponente</h2>
+                <p class="text-slate-400 text-xs">Envie o link da sala para seu amigo. O jogo começará assim que ele entrar!</p>
+                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">
+                    Procurando sinal do servidor P2P...
+                </div>
             </div>
         </div>
 
-        <div id="turn-indicator" class="w-full text-center font-bold py-2 rounded-xl text-xs bg-slate-800 mb-3 border border-slate-700">Conectando...</div>
-        <div id="distance-feed" class="text-[11px] text-amber-400 font-mono mb-2 h-4 text-center">Clique no mapa para rastrear o tesouro.</div>
+        <!-- Scoreboard -->
+        <div id="game-scoreboard" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between text-center">
+            <div class="flex-1">
+                <span id="label-p1" class="text-xs font-bold text-red-400 block">Você (P1)</span>
+                <span id="score-p1" class="text-xl font-mono font-black">0</span>
+            </div>
+            <div class="px-4 border-x border-slate-700">
+                <span class="text-xs font-bold text-slate-400 block">LETRA</span>
+                <span id="current-letter" class="text-2xl font-black text-amber-400 font-mono">-</span>
+            </div>
+            <div class="flex-1">
+                <span id="label-p2" class="text-xs font-bold text-blue-400 block">Oponente (P2)</span>
+                <span id="score-p2" class="text-xl font-mono font-black">0</span>
+            </div>
+        </div>
 
-        <!-- MAPA TÁTIL 10x10 -->
-        <div id="grid" class="grid grid-cols-10 gap-1 w-full aspect-square bg-slate-950 p-2 rounded-xl border-2 border-slate-800 shadow-2xl"></div>
+        <!-- Gameplay Screen (Inputs) -->
+        <div id="screen-game" class="w-full space-y-3 hidden">
+            <div class="bg-slate-800/50 p-2 rounded-xl border border-slate-700 text-center text-xs text-slate-400">
+                Preencha as categorias rápido e clique em Stop!
+            </div>
+            
+            <div id="categories-container" class="space-y-3 w-full">
+                <!-- Inputs gerados dinamicamente via JS -->
+            </div>
+
+            <button id="btn-stop" onclick="triggerStop()" class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-3 rounded-xl text-sm transition shadow-lg shadow-red-600/20 uppercase tracking-wider mt-4">
+                🛑 STOP!
+            </button>
+        </div>
+
+        <!-- Validation / Correction Screen -->
+        <div id="screen-validation" class="w-full space-y-3 hidden">
+            <div class="bg-amber-950/40 p-3 rounded-xl border border-amber-900/50 text-center">
+                <h3 class="text-sm font-bold text-amber-400">Avaliação de Respostas</h3>
+                <p class="text-[11px] text-slate-400">Desmarque as respostas do oponente que estiverem erradas ou vazias.</p>
+            </div>
+
+            <div id="validation-list" class="space-y-3">
+                <!-- Itens para validação mútua gerados via JS -->
+            </div>
+
+            <button id="btn-confirm-validation" onclick="sendValidationReady()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl text-sm transition shadow-lg uppercase tracking-wider">
+                Pronto, Confirmar Pontos 👍
+            </button>
+            <p id="waiting-validation-msg" class="hidden text-amber-400 text-xs text-center animate-pulse font-medium">Aguardando oponente terminar a validação...</p>
+        </div>
+
+        <!-- Round Result Screen -->
+        <div id="screen-result" class="w-full bg-slate-800 p-4 rounded-xl border border-slate-700 text-center space-y-4 hidden">
+            <h2 class="text-lg font-black text-emerald-400">Fim da Rodada!</h2>
+            <div class="text-sm space-y-1 text-slate-300">
+                <p>Pontos ganhos por você nesta rodada: <span id="round-points-p1" class="font-bold text-white">0</span></p>
+                <p>Pontos ganhos pelo oponente nesta rodada: <span id="round-points-p2" class="font-bold text-white">0</span></p>
+            </div>
+            <button id="btn-next-round" onclick="requestNextRound()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">
+                🔄 Próxima Rodada
+            </button>
+            <p id="waiting-next-round-msg" class="hidden text-amber-400 text-xs animate-pulse font-medium">Aguardando oponente aceitar próxima rodada...</p>
+        </div>
+
     </main>
 
+    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">
+        ⚡ Conexão direta via PeerJS • Digite rápido e não perca tempo!
+    </footer>
+
     <script>
-        let peer = null, conn = null, myRole = '', roomCode = new URLSearchParams(window.location.search).get('room');
-        let isMyTurn = false, size = 10, target = {x: 0, y: 0};
+        const categories = ["Nome", "Animal", "Fruta", "Objeto", "Cor"];
+        const alphabet = "ABCDEFGHJKLMNOPRSTUV"; // Letras selecionáveis comuns
+
+        let peer = null;
+        let conn = null;
+        let myRole = ''; 
+        let roomCode = '';
+        
+        let globalScores = { p1: 0, p2: 0 };
+        let myAnswers = {};
+        let opponentAnswers = {};
+        
+        let currentLetter = '';
+        let localReadyForNext = false;
+        let opponentReadyForNext = false;
+
+        // Elementos de tela
+        const screenLobby = document.getElementById('screen-lobby');
+        const screenGame = document.getElementById('screen-game');
+        const screenValidation = document.getElementById('screen-validation');
+        const screenResult = document.getElementById('screen-result');
+
+        // Configuração Inicial de Sala e URL
+        const urlParams = new URLSearchParams(window.location.search);
+        roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            roomCode = 'GRID-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('host_grid', roomCode);
-            window.location.href = window.location.origin + window.location.pathname + '?room=' + roomCode;
+            const generatedCode = 'STOP-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_stop_room', generatedCode);
+            window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
-            document.getElementById('room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('host_grid')) ? 'red' : 'blue';
-            setupPeer();
+            document.getElementById('topbar-room-id').innerText = roomCode;
+            myRole = (roomCode === localStorage.getItem('hosted_stop_room')) ? 'red' : 'blue';
+            setupLabels();
+            if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
-        function setupPeer() {
+        function setupLabels() {
+            const p1Label = document.getElementById('label-p1');
+            const p2Label = document.getElementById('label-p2');
             if (myRole === 'red') {
-                peer = new Peer(roomCode);
-                peer.on('connection', c => { conn = c; handleEvents(); });
+                p1Label.innerText = "Você (Vermelho)";
+                p2Label.innerText = "Oponente (Azul)";
             } else {
-                peer = new Peer();
-                peer.on('open', () => { conn = peer.connect(roomCode); handleEvents(); });
+                p1Label.innerText = "Oponente (Vermelho)";
+                p2Label.innerText = "Você (Azul)";
             }
         }
 
+        // Inicialização Red P2P (Host)
+        function initHost(code) {
+            peer = new Peer(code);
+            peer.on('open', () => {
+                document.getElementById('connection-status').innerText = "Aguardando entrada do Jogador 2...";
+            });
+            peer.on('connection', (connection) => {
+                conn = connection;
+                handleEvents();
+            });
+        }
+
+        // Inicialização Blue P2P (Guest)
+        function initGuest(code) {
+            peer = new Peer();
+            peer.on('open', () => {
+                document.getElementById('connection-status').innerText = "Conectando ao Jogador 1...";
+                conn = peer.connect(code);
+                handleEvents();
+            });
+        }
+
+        // Eventos de comunicação de dados de Rede
         function handleEvents() {
             conn.on('open', () => {
-                document.getElementById('lobby').classList.add('hidden');
+                screenLobby.classList.add('hidden');
                 if (myRole === 'red') {
-                    target = { x: Math.floor(Math.random()*size), y: Math.floor(Math.random()*size) };
-                    conn.send({ type: 'SYNC_TARGET', target: target });
-                }
-                isMyTurn = (myRole === 'red');
-                buildGrid(); updateUI();
-            });
-            conn.on('data', data => {
-                if (data.type === 'SYNC_TARGET') { target = data.target; }
-                else if (data.type === 'CLICK') {
-                    markCell(data.x, data.y, data.status, false);
-                    isMyTurn = true; updateUI();
-                } else if (data.type === 'WIN') {
-                    alert('O oponente encontrou o tesouro! Fim de jogo.'); window.location.reload();
+                    startNewRound();
                 }
             });
-        }
 
-        function buildGrid() {
-            const grid = document.getElementById('grid'); grid.innerHTML = '';
-            for(let y=0; y<size; y++) {
-                for(let x=0; x<size; x++) {
-                    grid.innerHTML += `<button id="cell-${x}-${y}" onclick="tileClick(${x},${y})" class="bg-slate-800 hover:bg-slate-700 aspect-square rounded transition font-mono text-[9px] text-slate-500 flex items-center justify-center"></button>`;
+            conn.on('data', (data) => {
+                if (data.type === 'START_ROUND') {
+                    currentLetter = data.letter;
+                    setupGameLayout();
+                } else if (data.type === 'STOP_FORCED') {
+                    opponentAnswers = data.answers;
+                    freezeAndSubmitInputs();
+                } else if (data.type === 'SEND_ANSWERS_BACK') {
+                    opponentAnswers = data.answers;
+                    goToValidationStage();
+                } else if (data.type === 'VALIDATION_DONE') {
+                    processScores(data.approvedKeys);
+                } else if (data.type === 'NEXT_ROUND_READY') {
+                    opponentReadyForNext = true;
+                    checkNextRoundTransition();
                 }
-            }
+            });
+
+            conn.on('close', () => {
+                alert('Oponente desconectou.');
+                window.location.reload();
+            });
         }
 
-        function tileClick(x, y) {
-            if (!isMyTurn) return;
-            const btn = document.getElementById(`cell-${x}-${y}`);
-            if (btn.disabled) return;
-
-            if (x === target.x && y === target.y) {
-                btn.className = "bg-green-500 text-white aspect-square rounded font-bold text-center";
-                btn.innerText = "🏆";
-                conn.send({ type: 'WIN' });
-                alert('Parabéns! Você achou o tesouro!'); window.location.reload();
-                return;
-            }
-
-            const dist = Math.hypot(x - target.x, y - target.y);
-            let status = 'Frio';
-            if (dist <= 1.5) status = 'Fogo!';
-            else if (dist <= 3) status = 'Quente';
-            else if (dist <= 5) status = 'Morno';
-
-            markCell(x, y, status, true);
-            isMyTurn = false; updateUI();
-            conn.send({ type: 'CLICK', x: x, y: y, status: status });
-        }
-
-        function markCell(x, y, status, isLocal) {
-            const btn = document.getElementById(`cell-${x}-${y}`);
-            btn.disabled = true;
-            btn.innerText = status[0];
-            if (status === 'Fogo!') btn.className = "bg-rose-600 text-white font-bold aspect-square rounded";
-            else if (status === 'Quente') btn.className = "bg-orange-500 text-slate-900 font-bold aspect-square rounded";
-            else if (status === 'Morno') btn.className = "bg-amber-400 text-slate-900 font-bold aspect-square rounded";
-            else btn.className = "bg-slate-950 text-slate-600 aspect-square rounded";
+        // Lógica de Rodadas
+        function startNewRound() {
+            localReadyForNext = false;
+            opponentReadyForNext = false;
+            const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
+            currentLetter = randomLetter;
             
-            document.getElementById('distance-feed').innerText = `${isLocal ? 'Seu tiro' : 'Tiro do rival'} em (${x},${y}) deu: ${status}`;
+            conn.send({ type: 'START_ROUND', letter: randomLetter });
+            setupGameLayout();
         }
 
-        function updateUI() {
-            const ind = document.getElementById('turn-indicator');
-            ind.innerText = isMyTurn ? "🟢 SEU TURNO" : "⏳ VEZ DO ADVERSÁRIO";
-            ind.className = isMyTurn ? "w-full text-center font-black py-2 rounded-xl text-xs bg-emerald-950 text-emerald-400 border border-emerald-800" : "w-full text-center font-bold py-2 rounded-xl text-xs bg-slate-800 text-slate-500 border border-slate-700";
+        function setupGameLayout() {
+            document.getElementById('current-letter').innerText = currentLetter;
+            screenResult.classList.add('hidden');
+            screenValidation.classList.add('hidden');
+            document.getElementById('waiting-validation-msg').classList.add('hidden');
+            document.getElementById('btn-confirm-validation').disabled = false;
+            
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+
+            categories.forEach(cat => {
+                const wrapper = document.createElement('div');
+                wrapper.className = "flex flex-col space-y-1 text-left";
+                wrapper.innerHTML = `
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400">${cat}</label>
+                    <input type="text" id="input-${cat}" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500 font-medium placeholder-slate-700" placeholder="Letra ${currentLetter}..." />
+                `;
+                container.appendChild(wrapper);
+            });
+
+            screenGame.classList.remove('hidden');
         }
 
-        function copyLink() { navigator.clipboard.writeText(window.location.href).then(() => alert('Link copiado!')); }
-        function leaveRoom() { localStorage.clear(); window.location.href = window.location.origin + window.location.pathname; }
+        // Ação de Apertar STOP
+        function triggerStop() {
+            captureLocalAnswers();
+            document.getElementById('btn-stop').disabled = true;
+
+            // Envia as próprias respostas forçando o stop no outro cliente
+            conn.send({ type: 'STOP_FORCED', answers: myAnswers });
+        }
+
+        function captureLocalAnswers() {
+            myAnswers = {};
+            categories.forEach(cat => {
+                const val = document.getElementById(`input-${cat}`).value.trim();
+                myAnswers[cat] = val;
+            });
+        }
+
+        // Trata o congelamento quando o adversário dá STOP primeiro
+        function freezeAndSubmitInputs() {
+            captureLocalAnswers();
+            // Congela interface visualmente
+            categories.forEach(cat => {
+                const el = document.getElementById(`input-${cat}`);
+                if (el) el.disabled = true;
+            });
+            document.getElementById('btn-stop').disabled = true;
+
+            // Envia de volta as respostas locais capturadas no milissegundo do travamento
+            conn.send({ type: 'SEND_ANSWERS_BACK', answers: myAnswers });
+            goToValidationStage();
+        }
+
+        function goToValidationStage() {
+            screenGame.classList.add('hidden');
+            screenValidation.classList.remove('hidden');
+
+            const valList = document.getElementById('validation-list');
+            valList.innerHTML = '';
+
+            categories.forEach(cat => {
+                const oppAns = opponentAnswers[cat] || '';
+                const myAns = myAnswers[cat] || '';
+                
+                // Validação básica automática da letra inicial
+                const isLetterMatch = oppAns.toLowerCase().startsWith(currentLetter.toLowerCase());
+                const isChecked = (oppAns !== '' && isLetterMatch) ? 'checked' : '';
+
+                const row = document.createElement('div');
+                row.className = "bg-slate-800 p-3 rounded-xl border border-slate-700 text-left space-y-2";
+                row.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-1.5">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-400">${cat}</span>
+                        <span class="text-[11px] text-slate-400">Sua resposta: <strong class="text-white">${myAns || '-'}</strong></span>
+                    </div>
+                    <label class="flex items-center space-x-3 cursor-pointer bg-slate-950 p-2 rounded-lg border border-slate-800 select-none">
+                        <input type="checkbox" id="valid-${cat}" ${isChecked} class="w-4 h-4 text-emerald-600 bg-slate-900 border-slate-700 rounded focus:ring-emerald-500" />
+                        <div class="flex flex-col">
+                            <span class="text-xs text-slate-400 leading-tight">Resposta do Oponente:</span>
+                            <span class="text-sm font-bold ${oppAns ? 'text-white' : 'text-slate-600 italic'}">${oppAns || 'Não respondeu'}</span>
+                        </div>
+                    </label>
+                `;
+                valList.appendChild(row);
+            });
+        }
+
+        // Envio da aprovação de pontos para o oponente
+        function sendValidationReady() {
+            document.getElementById('btn-confirm-validation').disabled = true;
+            document.getElementById('waiting-validation-msg').classList.remove('hidden');
+
+            const approvedKeys = {};
+            categories.forEach(cat => {
+                approvedKeys[cat] = document.getElementById(`valid-${cat}`).checked;
+            });
+
+            conn.send({ type: 'VALIDATION_DONE', approvedKeys: approvedKeys });
+        }
+
+        // Processa cálculo final da pontuação com base nas regras tradicionais do Stop
+        function processScores(oppApprovedKeys) {
+            let pointsEarnedByMe = 0;
+            let pointsEarnedByOpponent = 0;
+
+            categories.forEach(cat => {
+                const myAns = (myAnswers[cat] || '').toLowerCase().trim();
+                const oppAns = (opponentAnswers[cat] || '').toLowerCase().trim();
+
+                // 1. Quanto eu ganhei (Verifica se o oponente aprovou minha célula)
+                // Se eu respondi e o oponente não desmarcou
+                if (myAns !== '' && oppApprovedKeys[cat]) {
+                    if (myAns === oppAns) {
+                        pointsEarnedByMe += 5; // Respostas iguais = 5 pontos
+                    } else {
+                        pointsEarnedByMe += 10; // Resposta única válida = 10 pontos
+                    }
+                }
+
+                // 2. Quanto o oponente ganhou (Verifica se eu aprovei a célula dele)
+                const iApprovedOpponent = document.getElementById(`valid-${cat}`).checked;
+                if (oppAns !== '' && iApprovedOpponent) {
+                    if (myAns === oppAns) {
+                        pointsEarnedByOpponent += 5;
+                    } else {
+                        pointsEarnedByOpponent += 10;
+                    }
+                }
+            });
+
+            // Incrementa placar global persistente
+            if (myRole === 'red') {
+                globalScores.p1 += pointsEarnedByMe;
+                globalScores.p2 += pointsEarnedByOpponent;
+            } else {
+                globalScores.p2 += pointsEarnedByMe;
+                globalScores.p1 += pointsEarnedByOpponent;
+            }
+
+            // Atualiza Interface de Scores
+            document.getElementById('score-p1').innerText = globalScores.p1;
+            document.getElementById('score-p2').innerText = globalScores.p2;
+
+            document.getElementById('round-points-p1').innerText = (myRole === 'red') ? pointsEarnedByMe : pointsEarnedByOpponent;
+            document.getElementById('round-points-p2').innerText = (myRole === 'red') ? pointsEarnedByOpponent : pointsEarnedByMe;
+
+            // Transiciona de tela
+            screenValidation.classList.add('hidden');
+            screenResult.classList.remove('hidden');
+            
+            document.getElementById('btn-next-round').disabled = false;
+            document.getElementById('waiting-next-round-msg').classList.add('hidden');
+        }
+
+        // Solicitação de próxima partida / revanche
+        function requestNextRound() {
+            localReadyForNext = true;
+            conn.send({ type: 'NEXT_ROUND_READY' });
+
+            document.getElementById('btn-next-round').disabled = true;
+            document.getElementById('waiting-next-round-msg').classList.remove('hidden');
+
+            checkNextRoundTransition();
+        }
+
+        function checkNextRoundTransition() {
+            if (localReadyForNext && opponentReadyForNext) {
+                if (myRole === 'red') {
+                    startNewRound();
+                }
+            }
+        }
+
+        // Utilitários estruturais idênticos ao Cara a Cara
+        function copyLink() {
+            const shareLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
+            navigator.clipboard.writeText(shareLink).then(() => {
+                alert('Link da sala copiado!');
+            });
+        }
+
+        function leaveRoom() {
+            localStorage.removeItem('hosted_stop_room');
+            if (conn) conn.close();
+            if (peer) peer.destroy();
+            window.location.href = window.location.origin + window.location.pathname;
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (conn) conn.close();
+            if (peer) peer.destroy();
+        });
     </script>
 </body>
 </html>
