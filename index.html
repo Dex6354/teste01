@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banco Imobiliário P2P</title>
+    <title>Monopoly P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
@@ -12,7 +12,7 @@
     <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-0 z-50">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex flex-col">
-                <h1 class="font-extrabold text-base tracking-wider text-blue-400">💼 BANCO P2P</h1>
+                <h1 class="font-extrabold text-base tracking-wider text-red-500">🎩 MONOPOLY P2P</h1>
                 <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
                     <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
                     <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">📋 Copiar</button>
@@ -27,33 +27,33 @@
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
                 <h2 class="text-xl font-extrabold">Aguardando Jogador</h2>
-                <p class="text-slate-400 text-xs">Envie o link para o seu oponente entrar na partida de finanças!</p>
-                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Buscando servidor...</div>
+                <p class="text-slate-400 text-xs">Envie o link para o oponente entrar no Tabuleiro de Monopoly!</p>
+                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Buscando o servidor...</div>
             </div>
         </div>
 
         <div class="w-full bg-slate-800 p-2.5 rounded-xl border border-slate-700 shadow-xl flex items-center justify-between text-center text-xs">
             <div class="flex-1">
                 <span class="font-bold text-red-400 block">Seu Saldo</span>
-                <span id="cash-me" class="text-base font-mono font-black text-white">M$ 1500</span>
+                <span id="cash-me" class="text-base font-mono font-black text-white">$ 1500</span>
             </div>
             <div class="px-2 border-x border-slate-700 min-w-[110px]">
-                <span id="turn-text" class="font-black text-amber-400 uppercase tracking-wider block">Carregando...</span>
-                <span id="log-text" class="text-[9px] text-slate-300 block truncate mt-0.5">Jogo iniciado</span>
+                <span id="turn-text" class="font-black text-amber-400 uppercase tracking-wider block">Aguardando...</span>
+                <span id="log-text" class="text-[9px] text-slate-300 block truncate mt-0.5">Let's Play!</span>
             </div>
             <div class="flex-1">
                 <span class="font-bold text-blue-400 block">Oponente</span>
-                <span id="cash-opp" class="text-base font-mono font-black text-white">M$ 1500</span>
+                <span id="cash-opp" class="text-base font-mono font-black text-white">$ 1500</span>
             </div>
         </div>
 
-        <div id="board" class="w-full aspect-square bg-slate-950 rounded-2xl p-1 border-2 border-slate-800 grid grid-cols-5 grid-rows-5 gap-1 relative">
+        <div id="board" class="w-full aspect-square bg-emerald-950 rounded-2xl p-1 border-2 border-slate-800 grid grid-cols-5 grid-rows-5 gap-1 relative shadow-2xl">
             
-            <div class="row-start-2 row-end-5 col-start-2 col-end-5 bg-slate-900/90 rounded-xl p-2 flex flex-col items-center justify-center space-y-2 text-center border border-slate-800/60 z-10">
+            <div class="row-start-2 row-end-5 col-start-2 col-end-5 bg-slate-900/95 rounded-xl p-2 flex flex-col items-center justify-center space-y-2 text-center border border-slate-800 z-10">
                 <div id="dice-display" class="w-10 h-10 bg-white text-slate-900 rounded-lg flex items-center justify-center text-xl font-black shadow-md border-b-4 border-slate-300">🎲</div>
                 
                 <div id="action-panel" class="w-full space-y-1">
-                    <button id="btn-roll" onclick="rollDice()" class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-1.5 px-2 rounded-lg text-xs uppercase tracking-wider transition disabled:opacity-40">Jogar Dado</button>
+                    <button id="btn-roll" onclick="rollDice()" class="w-full bg-red-600 hover:bg-red-500 font-bold py-1.5 px-2 rounded-lg text-xs uppercase tracking-wider transition disabled:opacity-40">Lançar Dado</button>
                     
                     <div id="buy-controls" class="hidden grid grid-cols-2 gap-1">
                         <button onclick="buyProperty(true)" class="bg-emerald-600 hover:bg-emerald-500 font-bold py-1 rounded text-[10px] uppercase">Comprar</button>
@@ -74,37 +74,34 @@
 
     <script>
         let peer = null, conn = null, myRole = '', roomCode = '';
-        let isMyTurn = false;
-        let diceValue = 1;
+        let isMyTurn = false, diceValue = 1;
 
-        // Estado do Jogo
         let gameState = {
             players: { red: { pos: 0, cash: 1500 }, blue: { pos: 0, cash: 1500 } },
-            owner: Array(16).fill(null), // null, 'red' ou 'blue'
+            owner: Array(16).fill(null),
             currentTurn: 'red',
-            lastLog: "Aguardando começo..."
+            lastLog: "Jogo iniciado"
         };
 
         const boardSpaces = [
-            { name: "INÍCIO", type: "start", color: "bg-slate-700 text-slate-200" },
-            { name: "Leblon", type: "property", price: 100, rent: 10, color: "bg-pink-600" },
-            { name: "P. Vargas", type: "property", price: 120, rent: 12, color: "bg-pink-600" },
-            { name: "N. Senhora", type: "property", price: 140, rent: 14, color: "bg-pink-600" },
-            { name: "PRISÃO", type: "jail", color: "bg-slate-800 text-slate-400 text-[9px]" },
-            { name: "Paulista", type: "property", price: 200, rent: 20, color: "bg-blue-600" },
-            { name: "Augusta", type: "property", price: 220, rent: 22, color: "bg-blue-600" },
-            { name: "Morumbi", type: "property", price: 240, rent: 24, color: "bg-blue-600" },
-            { name: "SORTE", type: "luck", color: "bg-amber-500 text-slate-950 font-bold" },
-            { name: "Interlagos", type: "property", price: 300, rent: 30, color: "bg-emerald-600" },
-            { name: "Ipanema", type: "property", price: 320, rent: 35, color: "bg-emerald-600" },
-            { name: "Copacabana", type: "property", price: 400, rent: 50, color: "bg-emerald-600" },
-            { name: "TAXA", type: "tax", color: "bg-red-700 text-white font-bold text-[9px]" },
-            { name: "Brás", type: "property", price: 60, rent: 6, color: "bg-orange-600" },
-            { name: "25 Março", type: "property", price: 80, rent: 8, color: "bg-orange-600" },
-            { name: "Barra", type: "property", price: 160, rent: 16, color: "bg-pink-600" }
+            { name: "GO", type: "start", color: "bg-slate-700 text-white" },
+            { name: "Mediter. Av", type: "property", price: 60, rent: 6, color: "bg-amber-800" },
+            { name: "Baltic Av", type: "property", price: 80, rent: 8, color: "bg-amber-800" },
+            { name: "Reading RR", type: "property", price: 200, rent: 25, color: "bg-slate-600" },
+            { name: "JAIL", type: "jail", color: "bg-slate-800 text-slate-400 text-[9px]" },
+            { name: "Oriental Av", type: "property", price: 100, rent: 10, color: "bg-cyan-600" },
+            { name: "Vermont Av", type: "property", price: 120, rent: 12, color: "bg-cyan-600" },
+            { name: "Connect. Av", type: "property", price: 140, rent: 14, color: "bg-cyan-600" },
+            { name: "CHANCE", type: "luck", color: "bg-orange-500 text-slate-950 font-bold" },
+            { name: "St. Charles", type: "property", price: 160, rent: 16, color: "bg-purple-600" },
+            { name: "States Av", type: "property", price: 180, rent: 18, color: "bg-purple-600" },
+            { name: "Virginia Av", type: "property", price: 200, rent: 20, color: "bg-purple-600" },
+            { name: "LUXURY TAX", type: "tax", color: "bg-red-700 text-white font-bold text-[8px]" },
+            { name: "Park Place", type: "property", price: 350, rent: 35, color: "bg-blue-800" },
+            { name: "Boardwalk", type: "property", price: 400, rent: 50, color: "bg-blue-800" },
+            { name: "Short Line", type: "property", price: 200, rent: 25, color: "bg-slate-600" }
         ];
 
-        // Mapeamento visual das posições periféricas do Grid 5x5
         const gridCoords = [
             "row-start-1 col-start-1", "row-start-1 col-start-2", "row-start-1 col-start-3", "row-start-1 col-start-4", "row-start-1 col-start-5",
             "row-start-2 col-start-5", "row-start-3 col-start-5", "row-start-4 col-start-5", "row-start-5 col-start-5",
@@ -116,12 +113,12 @@
         roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            const generatedCode = 'BANCO-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_banco_room', generatedCode);
+            const generatedCode = 'MONO-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_monopoly_room', generatedCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
             document.getElementById('topbar-room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('hosted_banco_room')) ? 'red' : 'blue';
+            myRole = (roomCode === localStorage.getItem('hosted_monopoly_room')) ? 'red' : 'blue';
             if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
@@ -162,20 +159,19 @@
 
         function buildBoardDOM() {
             const boardEl = document.getElementById('board');
-            // Remove elementos antigos de casas que possam existir
             boardEl.querySelectorAll('.board-space').forEach(e => e.remove());
 
             boardSpaces.forEach((space, index) => {
                 const div = document.createElement('div');
                 div.id = `space-${index}`;
-                div.className = `board-space ${gridCoords[index]} bg-slate-800 rounded-md p-1 flex flex-col justify-between items-center text-center border border-slate-700 relative overflow-hidden`;
+                div.className = `board-space ${gridCoords[index]} bg-slate-800 rounded-md p-1 flex flex-col justify-between items-center text-center border border-slate-700/60 relative overflow-hidden`;
                 
                 let innerHTML = '';
                 if (space.type === 'property') {
                     innerHTML = `
                         <div class="w-full h-2 ${space.color} rounded-sm mb-0.5"></div>
                         <span class="text-[8px] font-bold leading-none truncate w-full">${space.name}</span>
-                        <span class="text-[7px] text-slate-400 font-mono">M$${space.price}</span>
+                        <span class="text-[7px] text-slate-400 font-mono">$${space.price}</span>
                         <div id="owner-mark-${index}" class="absolute bottom-0.5 right-0.5 w-2 h-2 rounded-full hidden"></div>
                     `;
                 } else {
@@ -186,22 +182,18 @@
                     `;
                 }
                 
-                // Div container dos pinos dos jogadores
                 innerHTML += `<div id="tokens-${index}" class="absolute bottom-1 left-1 flex space-x-0.5 z-20"></div>`;
-                
                 div.innerHTML = innerHTML;
                 boardEl.appendChild(div);
             });
         }
 
         function updateUI() {
-            // Atualizar Saldos
             const meCash = myRole === 'red' ? gameState.players.red.cash : gameState.players.blue.cash;
             const oppCash = myRole === 'red' ? gameState.players.blue.cash : gameState.players.red.cash;
-            document.getElementById('cash-me').innerText = `M$ ${meCash}`;
-            document.getElementById('cash-opp').innerText = `M$ ${oppCash}`;
+            document.getElementById('cash-me').innerText = `$ ${meCash}`;
+            document.getElementById('cash-opp').innerText = `$ ${oppCash}`;
 
-            // Turno e Logs
             const turnText = document.getElementById('turn-text');
             if (isMyTurn) {
                 turnText.innerText = "Sua Vez!";
@@ -215,21 +207,14 @@
             document.getElementById('log-text').innerText = gameState.lastLog;
             document.getElementById('dice-display').innerText = diceValue;
 
-            // Atualizar Pinos e Donos no Tabuleiro
             boardSpaces.forEach((space, index) => {
-                // Atualizar pinos
                 const tokenContainer = document.getElementById(`tokens-${index}`);
                 if (tokenContainer) {
                     tokenContainer.innerHTML = '';
-                    if (gameState.players.red.pos === index) {
-                        tokenContainer.innerHTML += `<div class="w-2.5 h-2.5 bg-red-500 rounded-full border border-white shadow"></div>`;
-                    }
-                    if (gameState.players.blue.pos === index) {
-                        tokenContainer.innerHTML += `<div class="w-2.5 h-2.5 bg-blue-500 rounded-full border border-white shadow"></div>`;
-                    }
+                    if (gameState.players.red.pos === index) tokenContainer.innerHTML += `<div class="w-2.5 h-2.5 bg-red-500 rounded-full border border-white"></div>`;
+                    if (gameState.players.blue.pos === index) tokenContainer.innerHTML += `<div class="w-2.5 h-2.5 bg-blue-500 rounded-full border border-white"></div>`;
                 }
 
-                // Atualizar marca de dono das propriedades
                 const ownerMark = document.getElementById(`owner-mark-${index}`);
                 if (ownerMark && space.type === 'property') {
                     const owner = gameState.owner[index];
@@ -254,10 +239,9 @@
 
             player.pos = newPos;
 
-            // Passou pelo Início ganha M$ 200
             if (newPos < oldPos) {
                 player.cash += 200;
-                gameState.lastLog = `Ganhou M$200 ao passar pelo início!`;
+                gameState.lastLog = `Passou por GO! Coletou $200.`;
             }
 
             evaluateSpace(newPos);
@@ -270,32 +254,30 @@
             if (space.type === 'property') {
                 const owner = gameState.owner[pos];
                 if (!owner) {
-                    // Sem dono: liberar painel de compra se tiver dinheiro
                     if (gameState.players[myRole].cash >= space.price) {
-                        gameState.lastLog = `Caiu em ${space.name}. Comprar por M$${space.price}?`;
+                        gameState.lastLog = `Caiu em ${space.name}. Comprar por $${space.price}?`;
                         document.getElementById('buy-controls').classList.remove('hidden');
                         updateUI();
-                        return; // Trava o fluxo esperando a decisão do jogador
+                        return;
                     } else {
-                        gameState.lastLog = `Caiu em ${space.name}, mas não tem saldo para comprar.`;
+                        gameState.lastLog = `Sem saldo para comprar ${space.name}.`;
                     }
                 } else if (owner === oppRole) {
-                    // Pagar Aluguel automático
                     gameState.players[myRole].cash -= space.rent;
                     gameState.players[oppRole].cash += space.rent;
-                    gameState.lastLog = `Pagou M$${space.rent} de aluguel em ${space.name}.`;
+                    gameState.lastLog = `Pagou $${space.rent} de aluguel em ${space.name}.`;
                 } else {
-                    gameState.lastLog = `Caiu na sua propriedade (${space.name}).`;
+                    gameState.lastLog = `Parou na sua propriedade.`;
                 }
             } else if (space.type === 'tax') {
                 gameState.players[myRole].cash -= 150;
-                gameState.lastLog = `Imposto! Pagou M$150 ao banco.`;
+                gameState.lastLog = `Pagou $150 de taxas ao Banco.`;
             } else if (space.type === 'luck') {
                 const bonus = Math.random() > 0.5 ? 100 : -100;
                 gameState.players[myRole].cash += bonus;
-                gameState.lastLog = bonus > 0 ? `Sorte! Ganhou M$100.` : `Revés! Perdeu M$100.`;
+                gameState.lastLog = bonus > 0 ? `Chance: Recebeu prêmio de $100.` : `Chance: Pagou multa de $100.`;
             } else {
-                gameState.lastLog = `Parou no(a) ${space.name}.`;
+                gameState.lastLog = `Visitando a ${space.name}.`;
             }
 
             endTurn();
@@ -309,7 +291,7 @@
             if (wantsToBuy) {
                 gameState.players[myRole].cash -= space.price;
                 gameState.owner[pos] = myRole;
-                gameState.lastLog = `Comprou ${space.name} por M$${space.price}!`;
+                gameState.lastLog = `Comprou ${space.name} por $${space.price}!`;
             } else {
                 gameState.lastLog = `Passou a compra de ${space.name}.`;
             }
@@ -327,11 +309,7 @@
 
         function sendState() {
             if (conn && conn.open) {
-                conn.send({
-                    type: 'SYNC_STATE',
-                    state: gameState,
-                    dice: diceValue
-                });
+                conn.send({ type: 'SYNC_STATE', state: gameState, dice: diceValue });
             }
         }
 
@@ -343,26 +321,25 @@
                 const title = document.getElementById('game-over-title');
                 const msg = document.getElementById('game-over-msg');
 
-                const iFaliu = gameState.players[myRole].cash <= 0;
-                if (iFaliu) {
+                if (gameState.players[myRole].cash <= 0) {
                     title.innerText = "💀 FALÊNCIA!";
                     title.className = "text-3xl font-black text-red-500";
-                    msg.innerText = "Seu dinheiro acabou e você faliu!";
+                    msg.innerText = "Você faliu e perdeu o jogo!";
                 } else {
                     title.innerText = "🏆 VITÓRIA!";
                     title.className = "text-3xl font-black text-green-400";
-                    msg.innerText = "O oponente faliu! Você é o novo magnata!";
+                    msg.innerText = "O oponente faliu! Você venceu!";
                 }
             }
         }
 
         function copyLink() {
             const shareLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
-            navigator.clipboard.writeText(shareLink).then(() => alert('Link da sala copiado!'));
+            navigator.clipboard.writeText(shareLink).then(() => alert('Link copiado!'));
         }
 
         function leaveRoom() {
-            localStorage.removeItem('hosted_banco_room');
+            localStorage.removeItem('hosted_monopoly_room');
             if (conn) conn.close();
             if (peer) peer.destroy();
             window.location.href = window.location.origin + window.location.pathname;
