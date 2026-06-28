@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Batalha Naval P2P</title>
+    <title>PPTLS P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
@@ -13,7 +13,7 @@
         <div class="max-w-md mx-auto">
             <div class="flex justify-between items-center relative">
                 <div class="flex flex-col">
-                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Batalha Naval P2P</h1>
+                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">PPTLS Competitivo</h1>
                     <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
                         <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
                         <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">📋 Compartilhar</button>
@@ -29,8 +29,8 @@
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
                 <h2 class="text-xl font-extrabold mb-2">Aguardando Oponente</h2>
-                <p class="text-slate-400 text-xs">Envie o link da sala para o seu amigo entrar.</p>
-                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Conectando ao servidor...</div>
+                <p class="text-slate-400 text-xs">Envie o link para o oponente entrar na sala de duelo.</p>
+                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Conectando ao P2P...</div>
                 <div id="loading-peer" class="hidden text-amber-400 text-xs font-medium animate-pulse">Configurando sala...</div>
             </div>
         </div>
@@ -60,71 +60,88 @@
         <div id="screen-game" class="w-full space-y-4">
             <div id="btn-turn" class="w-full text-center font-bold py-2.5 rounded-xl text-xs border border-slate-700 bg-slate-800 transition">Carregando...</div>
 
-            <div class="space-y-1">
-                <span id="board-title" class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block ml-1">Seu Tabuleiro: Posicione 4 Navios</span>
-                <div id="main-grid" class="grid grid-cols-5 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 shadow-2xl aspect-square">
-                    </div>
+            <div id="round-arena" class="bg-slate-950 border border-slate-800 p-4 rounded-2xl h-28 flex items-center justify-around text-center shadow-inner">
+                <div>
+                    <span class="text-[10px] text-slate-500 uppercase block font-bold">Sua Escolha</span>
+                    <span id="arena-my-choice" class="text-4xl mt-1 block">❓</span>
+                </div>
+                <div id="arena-vs" class="text-xs font-black italic text-slate-600">VS</div>
+                <div>
+                    <span class="text-[10px] text-slate-500 uppercase block font-bold">Oponente</span>
+                    <span id="arena-opp-choice" class="text-4xl mt-1 block">❓</span>
+                </div>
             </div>
 
-            <button id="btn-confirm-ships" onclick="confirmShips()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-3 rounded-xl text-xs shadow-lg transition hidden">
-                ⚓ CONFIRMAR POSIÇÕES
-            </button>
-
-            <div id="defense-area" class="hidden bg-slate-800/50 border border-slate-700 p-3 rounded-xl flex flex-col items-center">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Seu Tabuleiro (Defesa)</span>
-                <div id="defense-grid" class="grid grid-cols-5 gap-1.5 w-32 aspect-square">
-                    </div>
+            <div class="grid grid-cols-5 gap-2">
+                <button onclick="makeChoice('pedra')" class="choice-btn bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 p-3 rounded-xl flex flex-col items-center transition active:scale-95">
+                    <span class="text-2xl">✊</span><span class="text-[9px] font-bold mt-1 text-slate-400">Pedra</span>
+                </button>
+                <button onclick="makeChoice('papel')" class="choice-btn bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 p-3 rounded-xl flex flex-col items-center transition active:scale-95">
+                    <span class="text-2xl">✋</span><span class="text-[9px] font-bold mt-1 text-slate-400">Papel</span>
+                </button>
+                <button onclick="makeChoice('tesoura')" class="choice-btn bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 p-3 rounded-xl flex flex-col items-center transition active:scale-95">
+                    <span class="text-2xl">✌️</span><span class="text-[9px] font-bold mt-1 text-slate-400">Tesoura</span>
+                </button>
+                <button onclick="makeChoice('lagarto')" class="choice-btn bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 p-3 rounded-xl flex flex-col items-center transition active:scale-95">
+                    <span class="text-2xl">🦎</span><span class="text-[9px] font-bold mt-1 text-slate-400">Lagarto</span>
+                </button>
+                <button onclick="makeChoice('spock')" class="choice-btn bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 p-3 rounded-xl flex flex-col items-center transition active:scale-95">
+                    <span class="text-2xl">🖖</span><span class="text-[9px] font-bold mt-1 text-slate-400">Spock</span>
+                </button>
             </div>
+            <p class="text-[10px] text-center text-slate-500 italic">Primeiro a marcar 5 pontos vence a partida.</p>
         </div>
 
         <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center">
             <div class="border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl" id="game-over-box">
                 <h2 id="game-over-title" class="text-3xl font-black tracking-wide"></h2>
                 <p id="game-over-msg" class="text-sm text-slate-300 font-medium"></p>
-                <button id="btn-next-game" onclick="requestNewGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">🔄 Jogar Novamente</button>
+                <button id="btn-next-game" onclick="requestNewGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">🔄 Jogar Revanche</button>
                 <p id="waiting-opponent-next" class="hidden text-amber-400 text-xs animate-pulse font-medium">Aguardando oponente...</p>
                 <p id="opponent-requested-rematch" class="hidden text-amber-400 text-xs animate-pulse font-medium">Oponente solicitou revanche...</p>
             </div>
         </div>
     </main>
 
-    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">⚡ Conexão P2P Direta</footer>
+    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">⚡ Conexão P2P Direta • Sincronização Secreta</footer>
 
     <script>
-        let peer = null, conn = null, myRole = '', isMyTurn = false;
+        let peer = null, conn = null, myRole = '';
         let score = { red: 0, blue: 0 };
         let localPlayerReadyForNext = false, opponentReadyForNext = false;
 
-        const GRID_SIZE = 25;
-        const SHIPS_NEEDED = 4;
-        
-        let gamePhase = 'setup'; // 'setup' ou 'battle'
-        let myShips = []; 
-        let opponentShips = null; 
-        let myShots = Array(GRID_SIZE).fill(null); 
-        let opponentShots = Array(GRID_SIZE).fill(null);
+        let myCurrentChoice = null;
+        let oppCurrentChoice = null;
+        let lockRound = false;
+
+        const emojis = { pedra: '✊', papel: '✋', tesoura: '✌️', lagarto: '🦎', spock: '🖖' };
+        const winRules = {
+            pedra: ['tesoura', 'lagarto'],
+            papel: ['pedra', 'spock'],
+            tesoura: ['papel', 'lagarto'],
+            lagarto: ['spock', 'papel'],
+            spock: ['tesoura', 'pedra']
+        };
 
         const screenLobby = document.getElementById('screen-lobby');
         const topbar = document.getElementById('topbar');
-        const mainGrid = document.getElementById('main-grid');
-        const defenseGrid = document.getElementById('defense-grid');
         const urlParams = new URLSearchParams(window.location.search);
         let roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            const generatedCode = 'NAVAL-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_room_naval', generatedCode);
+            const generatedCode = 'PPTLS-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_room_pptls', generatedCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
             document.getElementById('topbar-room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('hosted_room_naval')) ? 'red' : 'blue';
+            myRole = (roomCode === localStorage.getItem('hosted_room_pptls')) ? 'red' : 'blue';
             loadGameState();
             setupTheme();
             if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
-        function saveGameState() { if (roomCode) localStorage.setItem(`naval_score_${roomCode}`, JSON.stringify(score)); }
-        function loadGameState() { const s = localStorage.getItem(`naval_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
+        function saveGameState() { if (roomCode) localStorage.setItem(`pptls_score_${roomCode}`, JSON.stringify(score)); }
+        function loadGameState() { const s = localStorage.getItem(`pptls_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
         function setupTheme() { topbar.className = myRole === 'red' ? "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white" : "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white"; }
         function updateScoreboardVisual() { document.getElementById('score-red').innerText = score.red; document.getElementById('score-blue').innerText = score.blue; }
 
@@ -154,16 +171,14 @@
 
         function handleEvents() {
             const cur = conn;
-            const onOpen = () => { if (conn !== cur) return; updatePresenceUI(true, true); screenLobby.classList.add('hidden'); startSetupPhase(); };
+            const onOpen = () => { if (conn !== cur) return; updatePresenceUI(true, true); screenLobby.classList.add('hidden'); startNewRound(); };
             if (cur.open) onOpen(); else cur.on('open', onOpen);
 
             cur.on('data', data => {
                 if (conn !== cur) return;
-                if (data.type === 'SHIPS_READY') {
-                    opponentShips = data.ships;
-                    checkBattleTransition();
-                } else if (data.type === 'FIRE') {
-                    handleOpponentShot(data.index);
+                if (data.type === 'CHOICE') {
+                    oppCurrentChoice = data.choice;
+                    checkRoundResolution();
                 } else if (data.type === 'NEXT_GAME_READY') {
                     opponentReadyForNext = true;
                     document.getElementById('opponent-requested-rematch').classList.remove('hidden');
@@ -179,144 +194,80 @@
             });
         }
 
-        function startSetupPhase() {
-            gamePhase = 'setup';
-            myShips = [];
-            opponentShips = null;
-            myShots.fill(null);
-            opponentShots.fill(null);
-            localPlayerReadyForNext = false;
-            opponentReadyForNext = false;
+        function startNewRound() {
+            myCurrentChoice = null;
+            oppCurrentChoice = null;
+            lockRound = false;
 
-            document.getElementById('game-over-screen').classList.add('hidden');
-            document.getElementById('defense-area').classList.add('hidden');
-            document.getElementById('btn-confirm-ships').classList.add('hidden');
-            document.getElementById('board-title').innerText = "Seu Tabuleiro: Posicione 4 Navios";
+            document.getElementById('arena-my-choice').innerText = '❓';
+            document.getElementById('arena-opp-choice').innerText = '❓';
+            document.getElementById('arena-vs').innerText = 'VS';
+            document.getElementById('arena-vs').className = "text-xs font-black italic text-slate-600";
+
+            const b = document.getElementById('btn-turn');
+            b.className = "w-full bg-emerald-600 text-white font-black py-2.5 rounded-xl text-xs shadow-lg animate-pulse text-center";
+            b.innerText = "🟢 SUA VEZ! Escolha uma opção em segredo";
+
+            toggleButtons(false);
+        }
+
+        function makeChoice(choice) {
+            if (lockRound || myCurrentChoice !== null) return;
+            myCurrentChoice = choice;
+
+            document.getElementById('arena-my-choice').innerText = '🔒';
             
             const b = document.getElementById('btn-turn');
-            b.className = "w-full bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs text-center animate-pulse";
-            b.innerText = "⚓ FASE DE PREPARAÇÃO: Toque no mapa para ocultar seus navios";
+            b.className = "w-full bg-slate-800 text-slate-400 font-bold py-2.5 rounded-xl text-xs border border-slate-700/50 text-center animate-none";
+            b.innerText = "⏳ AGUARDANDO ESCOLA DO OPONENTE...";
 
-            mainGrid.innerHTML = '';
-            for (let i = 0; i < GRID_SIZE; i++) {
-                const cell = document.createElement('button');
-                cell.className = "bg-slate-800 hover:bg-slate-700 rounded-xl transition duration-200 aspect-square border border-slate-700";
-                cell.onclick = () => toggleShipPlacement(i, cell);
-                mainGrid.appendChild(cell);
+            toggleButtons(true);
+
+            if (conn && conn.open) conn.send({ type: 'CHOICE', choice: choice });
+            checkRoundResolution();
+        }
+
+        function checkRoundResolution() {
+            if (myCurrentChoice !== null && oppCurrentChoice !== null) {
+                lockRound = true;
+                
+                document.getElementById('arena-my-choice').innerText = emojis[myCurrentChoice];
+                document.getElementById('arena-opp-choice').innerText = emojis[oppCurrentChoice];
+
+                const b = document.getElementById('btn-turn');
+
+                if (myCurrentChoice === oppCurrentChoice) {
+                    b.className = "w-full bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs text-center";
+                    b.innerText = "🤝 EMPATE NESSA RODADA!";
+                    document.getElementById('arena-vs').className = "text-sm font-black text-amber-500 animate-bounce";
+                    document.getElementById('arena-vs').innerText = "EMPATE";
+                } else if (winRules[myCurrentChoice].includes(oppCurrentChoice)) {
+                    b.className = "w-full bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs text-center";
+                    b.innerText = "🎉 VOCÊ PONTOU!";
+                    document.getElementById('arena-vs').className = "text-sm font-black text-green-500 animate-bounce";
+                    document.getElementById('arena-vs').innerText = "GANHOU";
+                    if (myRole === 'red') score.red++; else score.blue++;
+                } else {
+                    b.className = "w-full bg-rose-600 text-white font-bold py-2.5 rounded-xl text-xs text-center";
+                    b.innerText = "❌ OPONENTE PONTOU!";
+                    document.getElementById('arena-vs').className = "text-sm font-black text-rose-500 animate-bounce";
+                    document.getElementById('arena-vs').innerText = "PERDEU";
+                    if (myRole === 'red') score.blue++; else score.red++;
+                }
+
+                updateScoreboardVisual();
+                saveGameState();
+
+                if (score.red >= 5 || score.blue >= 5) {
+                    setTimeout(() => triggerGameOver(score.red >= 5 ? 'red' : 'blue'), 1500);
+                } else {
+                    setTimeout(startNewRound, 2500);
+                }
             }
         }
 
-        function toggleShipPlacement(index, cell) {
-            if (gamePhase !== 'setup') return;
-            const idx = myShips.indexOf(index);
-            if (idx > -1) {
-                myShips.splice(idx, 1);
-                cell.className = "bg-slate-800 hover:bg-slate-700 rounded-xl transition duration-200 aspect-square border border-slate-700";
-            } else {
-                if (myShips.length >= SHIPS_NEEDED) return;
-                myShips.push(index);
-                cell.className = "bg-indigo-600 rounded-xl aspect-square border border-indigo-400 shadow-lg scale-95 transition duration-200";
-            }
-            document.getElementById('btn-confirm-ships').classList.toggle('hidden', myShips.length !== SHIPS_NEEDED);
-        }
-
-        function confirmShips() {
-            document.getElementById('btn-confirm-ships').classList.add('hidden');
-            document.getElementById('board-title').innerText = "Aguardando oponente confirmar navios...";
-            // Congela o grid
-            Array.from(mainGrid.children).forEach(c => c.disabled = true);
-            if (conn && conn.open) conn.send({ type: 'SHIPS_READY', ships: myShips });
-            checkBattleTransition();
-        }
-
-        function checkBattleTransition() {
-            if (myShips.length === SHIPS_NEEDED && opponentShips !== null) {
-                gamePhase = 'battle';
-                isMyTurn = ((score.red + score.blue) % 2 === 0) ? (myRole === 'red') : (myRole === 'blue');
-                setupBattleUI();
-            }
-        }
-
-        function setupBattleUI() {
-            document.getElementById('board-title').innerText = "Tabuleiro de Ataque (Dispare no Inimigo)";
-            document.getElementById('defense-area').classList.remove('hidden');
-            updateTurnUI();
-
-            // Renderiza Grid Principal (Ataque)
-            mainGrid.innerHTML = '';
-            for (let i = 0; i < GRID_SIZE; i++) {
-                const cell = document.createElement('button');
-                cell.className = "bg-slate-800 hover:bg-sky-900 rounded-xl transition duration-150 aspect-square border border-slate-800";
-                cell.onclick = () => fireShot(i, cell);
-                mainGrid.appendChild(cell);
-            }
-
-            // Renderiza Mini Grid (Sua Defesa)
-            defenseGrid.innerHTML = '';
-            for (let i = 0; i < GRID_SIZE; i++) {
-                const minicell = document.createElement('div');
-                minicell.id = `def-${i}`;
-                minicell.className = myShips.includes(i) ? "bg-indigo-600 rounded" : "bg-slate-900 rounded border border-slate-800";
-                defenseGrid.appendChild(minicell);
-            }
-        }
-
-        function updateTurnUI() {
-            const b = document.getElementById('btn-turn');
-            if (isMyTurn) {
-                b.className = "w-full bg-emerald-600 text-white font-black py-2.5 rounded-xl text-xs shadow-lg animate-pulse text-center";
-                b.innerText = "🟢 SUA VEZ! Escolha um quadrante inimigo";
-            } else {
-                b.className = "w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl text-xs border border-slate-700/50 text-center";
-                b.innerText = "⏳ VEZ DO OPONENTE...";
-            }
-        }
-
-        function fireShot(index, cell) {
-            if (!isMyTurn || myShots[index] !== null) return;
-
-            const hit = opponentShips.includes(index);
-            myShots[index] = hit ? 'H' : 'M';
-            cell.disabled = true;
-
-            if (hit) {
-                cell.className = "bg-red-600 rounded-xl aspect-square border border-red-400 text-center flex items-center justify-center font-bold text-xs animate-bounce text-white";
-                cell.innerText = "💥";
-            } else {
-                cell.className = "bg-slate-950 text-slate-600 rounded-xl aspect-square border border-slate-800 text-center flex items-center justify-center font-mono text-xs";
-                cell.innerText = "💧";
-            }
-
-            if (conn && conn.open) conn.send({ type: 'FIRE', index: index });
-            
-            if (checkWinCondition(myShots)) {
-                triggerGameOver(myRole);
-            } else {
-                isMyTurn = false;
-                updateTurnUI();
-            }
-        }
-
-        function handleOpponentShot(index) {
-            const hit = myShips.includes(index);
-            opponentShots[index] = hit ? 'H' : 'M';
-            
-            const miniCell = document.getElementById(`def-${index}`);
-            if (miniCell) {
-                miniCell.className = hit ? "bg-red-500 rounded animate-ping" : "bg-sky-950 rounded border border-sky-900";
-            }
-
-            if (checkWinCondition(opponentShots)) {
-                triggerGameOver(myRole === 'red' ? 'blue' : 'red');
-            } else {
-                isMyTurn = true;
-                updateTurnUI();
-            }
-        }
-
-        function checkWinCondition(shotsArray) {
-            const hits = shotsArray.filter(s => s === 'H').length;
-            return hits === SHIPS_NEEDED;
+        function toggleButtons(disable) {
+            document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = disable);
         }
 
         function triggerGameOver(winner) {
@@ -325,15 +276,10 @@
             const msg = document.getElementById('game-over-msg');
             box.className = `${myRole === 'red' ? 'bg-red-950' : 'bg-blue-950'} border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl ` + (winner === myRole ? 'border-green-500' : 'border-red-500');
 
-            if (!localPlayerReadyForNext && !opponentReadyForNext) {
-                if (winner === 'red') score.red++; else score.blue++;
-                updateScoreboardVisual(); saveGameState();
-            }
-
             if (winner === myRole) {
-                title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce"; msg.innerText = "Você afundou toda a frota inimiga!";
+                title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce"; msg.innerText = "Você alcançou 5 pontos primeiro!";
             } else {
-                title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500"; msg.innerText = "Seus navios foram destruídos.";
+                title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500"; msg.innerText = "O oponente venceu o duelo desta vez.";
             }
 
             document.getElementById('btn-next-game').className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm cursor-pointer";
@@ -351,9 +297,17 @@
             checkNextGameTransition();
         }
 
-        function checkNextGameTransition() { if (localPlayerReadyForNext && opponentReadyForNext) startSetupPhase(); }
+        function checkNextGameTransition() { 
+            if (localPlayerReadyForNext && opponentReadyForNext) {
+                score = { red: 0, blue: 0 };
+                updateScoreboardVisual();
+                saveGameState();
+                document.getElementById('game-over-screen').classList.add('hidden');
+                startNewRound();
+            } 
+        }
         function copyLink() { navigator.clipboard.writeText(window.location.origin + window.location.pathname + '?room=' + roomCode).then(() => alert('Link copiado!')); }
-        function leaveRoom() { if (roomCode) localStorage.removeItem(`naval_score_${roomCode}`); localStorage.removeItem('hosted_room_naval'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
+        function leaveRoom() { if (roomCode) localStorage.removeItem(`pptls_score_${roomCode}`); localStorage.removeItem('hosted_room_pptls'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
     </script>
 </body>
 </html>
