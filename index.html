@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Isolamento P2P</title>
+    <title>Chomp P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
@@ -13,7 +13,7 @@
         <div class="max-w-md mx-auto">
             <div class="flex justify-between items-center relative">
                 <div class="flex flex-col">
-                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Isolamento P2P</h1>
+                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Chomp P2P</h1>
                     <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
                         <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
                         <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">📋 Compartilhar</button>
@@ -29,7 +29,7 @@
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
                 <h2 class="text-xl font-extrabold mb-2">Aguardando Oponente</h2>
-                <p class="text-slate-400 text-xs">Envie o link para o adversário entrar na arena estratégica.</p>
+                <p class="text-slate-400 text-xs">Partilhe o link para iniciar o duelo de estratégia pura.</p>
                 <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Conectando ao servidor...</div>
                 <div id="loading-peer" class="hidden text-amber-400 text-xs font-medium animate-pulse">Configurando sala...</div>
             </div>
@@ -60,8 +60,9 @@
         <div id="screen-game" class="w-full space-y-4">
             <div id="btn-turn" class="w-full text-center font-bold py-2.5 rounded-xl text-xs border border-slate-700 bg-slate-800 transition">Carregando...</div>
 
-            <div id="board-grid" class="grid grid-cols-6 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 shadow-2xl aspect-square">
+            <div id="board-grid" class="grid grid-cols-6 gap-2 bg-amber-950/30 p-4 rounded-2xl border-2 border-amber-900/40 shadow-inner">
                 </div>
+            <p class="text-[10px] text-center text-slate-500 italic">Evite o veneno 💀 no canto superior esquerdo.</p>
         </div>
 
         <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center">
@@ -75,19 +76,17 @@
         </div>
     </main>
 
-    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">⚡ Conexão P2P Direta • Tabuleiro 6x6</footer>
+    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">⚡ Conexão P2P Direta • Chomp Engine</footer>
 
     <script>
         let peer = null, conn = null, myRole = '', isMyTurn = false;
         let score = { red: 0, blue: 0 };
         let localPlayerReadyForNext = false, opponentReadyForNext = false;
 
-        const BOARD_SIZE = 36; // 6x6
-        let boardState = Array(BOARD_SIZE).fill('empty'); // 'empty', 'destroyed', 'red', 'blue'
-        let posP1 = 2;  // P1 começa no topo do meio
-        let posP2 = 33; // P2 começa na base do meio
-        let turnPhase = 'move'; // 'move' ou 'destroy'
-        let tempMoveIdx = null;
+        const ROWS = 5;
+        const COLS = 6;
+        const TOTAL_CELLS = ROWS * COLS;
+        let boardState = Array(TOTAL_CELLS).fill(true); // true = intacto, false = comido
 
         const screenLobby = document.getElementById('screen-lobby');
         const topbar = document.getElementById('topbar');
@@ -96,19 +95,19 @@
         let roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            const generatedCode = 'ISOLA-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_room_isola', generatedCode);
+            const generatedCode = 'CHOMP-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_room_chomp', generatedCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
             document.getElementById('topbar-room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('hosted_room_isola')) ? 'red' : 'blue';
+            myRole = (roomCode === localStorage.getItem('hosted_room_chomp')) ? 'red' : 'blue';
             loadGameState();
             setupTheme();
             if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
-        function saveGameState() { if (roomCode) localStorage.setItem(`isola_score_${roomCode}`, JSON.stringify(score)); }
-        function loadGameState() { const s = localStorage.getItem(`isola_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
+        function saveGameState() { if (roomCode) localStorage.setItem(`chomp_score_${roomCode}`, JSON.stringify(score)); }
+        function loadGameState() { const s = localStorage.getItem(`chomp_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
         function setupTheme() { topbar.className = myRole === 'red' ? "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white" : "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white"; }
         function updateScoreboardVisual() { document.getElementById('score-red').innerText = score.red; document.getElementById('score-blue').innerText = score.blue; }
 
@@ -143,15 +142,15 @@
 
             cur.on('data', data => {
                 if (conn !== cur) return;
-                if (data.type === 'TURN_SYNC') {
+                if (data.type === 'CHOMP_SYNC') {
                     boardState = data.boardState;
-                    posP1 = data.posP1;
-                    posP2 = data.posP2;
                     renderGrid();
-                    isMyTurn = true;
-                    turnPhase = 'move';
-                    checkDefeatCondition();
-                    updateTurnUI();
+                    if (data.wasPoisonedClick) {
+                        triggerGameOver(myRole); // Se o outro clicou no veneno, eu venci
+                    } else {
+                        isMyTurn = true;
+                        updateTurnUI();
+                    }
                 } else if (data.type === 'NEXT_GAME_READY') {
                     opponentReadyForNext = true;
                     document.getElementById('opponent-requested-rematch').classList.remove('hidden');
@@ -168,122 +167,82 @@
         }
 
         function resetBoard() {
-            boardState.fill('empty');
-            posP1 = 2;
-            posP2 = 33;
-            boardState[posP1] = 'red';
-            boardState[posP2] = 'blue';
-            turnPhase = 'move';
+            boardState.fill(true);
             localPlayerReadyForNext = false;
             opponentReadyForNext = false;
-
             isMyTurn = ((score.red + score.blue) % 2 === 0) ? (myRole === 'red') : (myRole === 'blue');
-            
+
             document.getElementById('game-over-screen').classList.add('hidden');
             renderGrid();
-            if (isMyTurn) checkDefeatCondition();
             updateTurnUI();
         }
 
         function renderGrid() {
             gridContainer.innerHTML = '';
-            boardState.forEach((state, i) => {
+            for (let i = 0; i < TOTAL_CELLS; i++) {
                 const cell = document.createElement('button');
-                cell.onclick = () => handleCellClick(i);
+                cell.onclick = () => eatChocolate(i);
                 
-                if (state === 'empty') {
-                    cell.className = "bg-slate-800 border border-slate-700/60 rounded-xl transition duration-150 aspect-square hover:bg-slate-700";
-                } else if (state === 'destroyed') {
-                    cell.className = "bg-slate-950 border border-slate-900 rounded-xl aspect-square cursor-not-allowed text-transparent opacity-10";
-                    cell.innerText = "✖";
-                } else if (state === 'red') {
-                    cell.className = "bg-red-600 border-2 border-red-400 rounded-xl aspect-square flex items-center justify-center font-black text-xl text-white shadow-lg shadow-red-500/20 animate-pulse";
-                    cell.innerText = "♟";
-                } else if (state === 'blue') {
-                    cell.className = "bg-blue-600 border-2 border-blue-400 rounded-xl aspect-square flex items-center justify-center font-black text-xl text-white shadow-lg shadow-blue-500/20 animate-pulse";
-                    cell.innerText = "♞";
+                const r = Math.floor(i / COLS);
+                const c = i % COLS;
+
+                if (!boardState[i]) {
+                    // Pedaço já comido
+                    cell.className = "bg-slate-950/40 border border-slate-900/20 rounded-lg aspect-square cursor-not-allowed opacity-0 transition-all duration-300";
+                    cell.disabled = true;
+                } else if (i === 0) {
+                    // Pedaço envenenado
+                    cell.className = "bg-amber-500 hover:bg-amber-600 border-2 border-amber-400 rounded-lg aspect-square flex items-center justify-center font-black text-lg text-slate-950 shadow-md shadow-amber-500/20 active:scale-95 transition";
+                    cell.innerText = "💀";
+                } else {
+                    // Chocolate normal intacto
+                    cell.className = "bg-amber-800 hover:bg-amber-700 border border-amber-900 rounded-lg aspect-square shadow-md transition transform active:scale-95 border-b-4 border-r-4";
                 }
                 gridContainer.appendChild(cell);
-            });
+            }
         }
 
         function updateTurnUI() {
             const b = document.getElementById('btn-turn');
-            if (!isMyTurn) {
-                b.className = "w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl text-xs border border-slate-700/50 text-center";
-                b.innerText = "⏳ VEZ DO OPONENTE... Analisando o mapa";
-                return;
-            }
-            if (turnPhase === 'move') {
+            if (isMyTurn) {
                 b.className = "w-full bg-emerald-600 text-white font-black py-2.5 rounded-xl text-xs shadow-lg animate-pulse text-center";
-                b.innerText = "🟢 SEU TURNO: Mova sua peça para uma casa vizinha";
+                b.innerText = "🟢 SUA VEZ! Morda um pedaço estrategicamente";
             } else {
-                b.className = "w-full bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-xs shadow-lg text-center";
-                b.innerText = "🔥 FASE 2: Escolha qualquer casa livre para DESTRUIR";
+                b.className = "w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl text-xs border border-slate-700/50 text-center";
+                b.innerText = "⏳ VEZ DO OPONENTE... Pensando na mordida";
             }
         }
 
-        function getValidMoves(currentPos) {
-            const moves = [];
-            const r = Math.floor(currentPos / 6);
-            const c = currentPos % 6;
+        function eatChocolate(index) {
+            if (!isMyTurn || !boardState[index]) return;
 
-            for (let dr = -1; dr <= 1; dr++) {
-                for (let dc = -1; dc <= 1; dc++) {
-                    if (dr === 0 && dc === 0) continue;
-                    const nr = r + dr;
-                    const nc = c + dc;
-                    if (nr >= 0 && nr < 6 && nc >= 0 && nc < 6) {
-                        const targetIdx = nr * 6 + nc;
-                        if (boardState[targetIdx] === 'empty') {
-                            moves.push(targetIdx);
-                        }
-                    }
+            const clickR = Math.floor(index / COLS);
+            const clickC = index % COLS;
+            const isPoison = (index === 0);
+
+            // Regra do Chomp: Remove tudo abaixo e à direita
+            for (let i = 0; i < TOTAL_CELLS; i++) {
+                const r = Math.floor(i / COLS);
+                const c = i % COLS;
+                if (r >= clickR && c >= clickC) {
+                    boardState[i] = false;
                 }
             }
-            return moves;
-        }
 
-        function checkDefeatCondition() {
-            const myPos = (myRole === 'red') ? posP1 : posP2;
-            const legalMoves = getValidMoves(myPos);
-            if (legalMoves.length === 0) {
-                triggerGameOver(myRole === 'red' ? 'blue' : 'red');
+            isMyTurn = false;
+            renderGrid();
+            updateTurnUI();
+
+            if (conn && conn.open) {
+                conn.send({
+                    type: 'CHOMP_SYNC',
+                    boardState: boardState,
+                    wasPoisonedClick: isPoison
+                });
             }
-        }
 
-        function handleCellClick(index) {
-            if (!isMyTurn) return;
-
-            if (turnPhase === 'move') {
-                const myPos = (myRole === 'red') ? posP1 : posP2;
-                const validMoves = getValidMoves(myPos);
-
-                if (validMoves.includes(index)) {
-                    boardState[myPos] = 'empty';
-                    if (myRole === 'red') posP1 = index; else posP2 = index;
-                    boardState[index] = myRole;
-                    
-                    turnPhase = 'destroy';
-                    renderGrid();
-                    updateTurnUI();
-                }
-            } else if (turnPhase === 'destroy') {
-                if (boardState[index] === 'empty') {
-                    boardState[index] = 'destroyed';
-                    isMyTurn = false;
-                    renderGrid();
-                    updateTurnUI();
-
-                    if (conn && conn.open) {
-                        conn.send({
-                            type: 'TURN_SYNC',
-                            boardState: boardState,
-                            posP1: posP1,
-                            posP2: posP2
-                        });
-                    }
-                }
+            if (isPoison) {
+                triggerGameOver(myRole === 'red' ? 'blue' : 'red'); // Eu comi o veneno, o outro vence
             }
         }
 
@@ -299,9 +258,9 @@
             }
 
             if (winner === myRole) {
-                title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce"; msg.innerText = "Você isolou o oponente completamente!";
+                title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce"; msg.innerText = "O oponente foi forçado a comer o veneno!";
             } else {
-                title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500"; msg.innerText = "Você ficou sem rotas de fuga válidas.";
+                title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500"; msg.innerText = "Você mordeu o pedaço envenenado.";
             }
 
             document.getElementById('btn-next-game').className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm cursor-pointer";
@@ -321,7 +280,7 @@
 
         function checkNextGameTransition() { if (localPlayerReadyForNext && opponentReadyForNext) resetBoard(); }
         function copyLink() { navigator.clipboard.writeText(window.location.origin + window.location.pathname + '?room=' + roomCode).then(() => alert('Link copiado!')); }
-        function leaveRoom() { if (roomCode) localStorage.removeItem(`isola_score_${roomCode}`); localStorage.removeItem('hosted_room_isola'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
+        function leaveRoom() { if (roomCode) localStorage.removeItem(`chomp_score_${roomCode}`); localStorage.removeItem('hosted_room_chomp'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
     </script>
 </body>
 </html>
