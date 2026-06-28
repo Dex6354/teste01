@@ -3,167 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Termo Versus P2P</title>
+    <title>Snake Versus P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between">
 
-    <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-0 z-50">
+    <header class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div>
-                <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Termo Versus</h1>
-                <div class="text-[11px] text-slate-400 font-mono">Sala: <strong id="room-id" class="text-indigo-400">...</strong> <button onclick="copyLink()" class="bg-slate-700 px-1 rounded text-[10px]">📋 Copiar</button></div>
+                <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Snake Versus</h1>
+                <div class="text-[11px] text-slate-400 font-mono">Sala: <strong id="room-id" class="text-indigo-400">...</strong></div>
             </div>
-            <button onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-[11px] font-bold py-1 px-2 rounded">Sair</button>
+            <button onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-[11px] py-1 px-2 rounded">Sair</button>
         </div>
     </header>
 
     <main class="flex-grow flex flex-col items-center justify-center p-3 w-full max-w-md mx-auto mb-12">
-        <!-- LOBBY -->
         <div id="lobby" class="fixed inset-0 bg-slate-950/90 z-40 flex flex-col items-center justify-center p-6 text-center">
-            <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl max-w-sm w-full space-y-4">
-                <h2 class="text-xl font-bold">Aguardando Oponente</h2>
-                <p id="conn-status" class="text-amber-400 text-xs animate-pulse">Conectando ao P2P...</p>
+            <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-sm">
+                <h2 class="text-xl font-bold mb-2">Aguardando Adversário</h2>
+                <button onclick="copyLink()" class="bg-indigo-600 text-xs px-3 py-1.5 rounded font-bold">📋 Copiar Link de Convite</button>
             </div>
         </div>
 
-        <!-- PLACAR -->
-        <div class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 flex justify-between items-center mb-4 text-xs font-bold font-mono">
-            <div class="text-red-400">P1 (Vermelho): <span id="score-red">0</span></div>
-            <div class="text-slate-400" id="opponent-status">Aguardando jogada do rival...</div>
-            <div class="text-blue-400">P2 (Azul): <span id="score-blue">0</span></div>
-        </div>
+        <div id="turn-indicator" class="w-full text-center font-bold py-2 rounded-xl text-xs bg-slate-800 mb-3 border border-slate-700">Carregando...</div>
 
-        <!-- QUADRO DE PALAVRAS -->
-        <div id="grid" class="grid grid-rows-6 gap-2 mb-4 w-full max-w-[280px] mx-auto"></div>
+        <!-- TABULEIRO SNEAK -->
+        <div id="board" class="grid grid-cols-12 gap-1 w-full aspect-square bg-slate-950 p-2 rounded-xl border-2 border-slate-800 shadow-2xl"></div>
 
-        <!-- ENTRADA -->
-        <div class="w-full max-w-[280px] mx-auto space-y-2">
-            <input type="text" id="word-input" maxlength="5" autocomplete="off" spellcheck="false" disabled
-                class="w-full bg-slate-800 border-2 border-slate-700 rounded-xl py-2 text-center font-mono text-xl font-bold uppercase focus:outline-none focus:border-indigo-500" placeholder="Digite 5 letras">
-            <button id="btn-submit" onclick="submitGuess()" disabled class="w-full bg-indigo-600 py-2 rounded-xl text-sm font-bold">Enviar Palavra</button>
-        </div>
-
-        <!-- TELA FINAL -->
-        <div id="game-over" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center">
-            <div class="p-6 rounded-2xl max-w-sm w-full space-y-4 border border-slate-700 bg-slate-900">
-                <h2 id="go-title" class="text-3xl font-black"></h2>
-                <p id="go-msg" class="text-sm text-slate-300"></p>
-                <button onclick="requestNewGame()" id="btn-rematch" class="w-full bg-indigo-600 py-3 rounded-xl font-bold text-sm">Próxima Partida</button>
-            </div>
+        <!-- CONTROLES MOBILE -->
+        <div class="grid grid-cols-3 gap-2 w-full max-w-[200px] mx-auto mt-4 text-center">
+            <div></div><button onclick="move('UP')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl font-bold">▲</button><div></div>
+            <button onclick="move('LEFT')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl font-bold">◀</button>
+            <div class="bg-slate-900 flex items-center justify-center text-[10px] font-mono text-slate-500">Mover</div>
+            <button onclick="move('RIGHT')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl font-bold">▶</button>
+            <div></div><button onclick="move('DOWN')" class="bg-slate-800 border border-slate-700 p-3 rounded-xl font-bold">▼</button><div></div>
         </div>
     </main>
 
     <script>
         let peer = null, conn = null, myRole = '', roomCode = new URLSearchParams(window.location.search).get('room');
-        let score = { red: 0, blue: 0 }, currentWord = '', attempts = 0, maxAttempts = 6;
-        let localReady = false, opponentReady = false;
-        const words = ['TERMO', 'JOGOS', 'DUELO', 'CHAVE', 'TEXTO', 'FUEGO', 'MUNDO', 'LINHA', 'PLANO', 'PONTO'];
+        let isMyTurn = false, size = 12;
+        let p1 = [{x:2, y:6}], p2 = [{x:9, y:6}], apple = {x:6, y:6};
 
         if (!roomCode) {
-            roomCode = 'WORDLE-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('host_wordle', roomCode);
+            roomCode = 'SNAKE-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('host_snake', roomCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + roomCode;
         } else {
             document.getElementById('room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('host_wordle')) ? 'red' : 'blue';
+            myRole = (roomCode === localStorage.getItem('host_snake')) ? 'red' : 'blue';
             setupPeer();
         }
 
         function setupPeer() {
             if (myRole === 'red') {
                 peer = new Peer(roomCode);
-                peer.on('open', () => document.getElementById('conn-status').innerText = "Aguardando Jogador 2...");
                 peer.on('connection', c => { conn = c; handleEvents(); });
             } else {
                 peer = new Peer();
-                peer.on('open', () => { document.getElementById('conn-status').innerText = "Conectando..."; conn = peer.connect(roomCode); handleEvents(); });
+                peer.on('open', () => { conn = peer.connect(roomCode); handleEvents(); });
             }
         }
 
         function handleEvents() {
-            conn.on('open', () => { document.getElementById('lobby').classList.add('hidden'); resetBoard(); });
+            conn.on('open', () => { document.getElementById('lobby').classList.add('hidden'); isMyTurn = (myRole === 'red'); render(); updateUI(); });
             conn.on('data', data => {
-                if (data.type === 'START') { currentWord = data.word; enableInput(); }
-                else if (data.type === 'STATUS') { document.getElementById('opponent-status').innerText = `Rival na tentativa ${data.att}/6`; }
-                else if (data.type === 'WIN') { triggerGameOver(data.winner, `O oponente adivinhou a palavra "${currentWord}" primeiro!`); }
-                else if (data.type === 'REMATCH') { opponentReady = true; if(localReady) resetBoard(); }
+                if (data.type === 'MOVE') {
+                    p1 = data.p1; p2 = data.p2; apple = data.apple;
+                    if (data.lost) { alert(data.lost === myRole ? 'Você Perdeu!' : 'Você Ganhou!'); window.location.reload(); return; }
+                    isMyTurn = true; render(); updateUI();
+                }
             });
         }
 
-        function resetBoard() {
-            attempts = 0; localReady = false; opponentReady = false;
-            document.getElementById('game-over').classList.add('hidden');
-            document.getElementById('opponent-status').innerText = "Rival pensando...";
-            const grid = document.getElementById('grid'); grid.innerHTML = '';
-            for (let i = 0; i < maxAttempts * 5; i++) {
-                grid.innerHTML += `<div id="cell-${i}" class="aspect-square border-2 border-slate-700 flex items-center justify-center font-mono text-lg font-black uppercase rounded-md bg-slate-950/40"></div>`;
-            }
-            if (myRole === 'red') {
-                currentWord = words[Math.floor(Math.random() * words.length)];
-                conn.send({ type: 'START', word: currentWord });
-                enableInput();
-            }
-        }
-
-        function enableInput() {
-            document.getElementById('word-input').disabled = false;
-            document.getElementById('btn-submit').disabled = false;
-            document.getElementById('word-input').focus();
-        }
-
-        function submitGuess() {
-            const input = document.getElementById('word-input');
-            const guess = input.value.toUpperCase();
-            if (guess.length !== 5) return;
-
-            const startIdx = attempts * 5;
-            let correctCount = 0;
-
-            for (let i = 0; i < 5; i++) {
-                const cell = document.getElementById(`cell-${startIdx + i}`);
-                cell.innerText = guess[i];
-                if (guess[i] === currentWord[i]) {
-                    cell.className += " bg-emerald-600 border-emerald-500 text-white animate-bounce";
-                    correctCount++;
-                } else if (currentWord.includes(guess[i])) {
-                    cell.className += " bg-amber-500 border-amber-400 text-slate-950";
-                } else {
-                    cell.className += " bg-slate-700 border-slate-600 text-slate-400";
+        function render() {
+            const board = document.getElementById('board'); board.innerHTML = '';
+            for(let y=0; y<size; y++) {
+                for(let x=0; x<size; x++) {
+                    let c = "bg-slate-900/40 rounded-sm";
+                    if (p1.some(b => b.x===x && b.y===y)) c = "bg-red-500 rounded-sm shadow-md shadow-red-500/20";
+                    else if (p2.some(b => b.x===x && b.y===y)) c = "bg-blue-500 rounded-sm shadow-md shadow-blue-500/20";
+                    else if (apple.x===x && apple.y===y) c = "bg-amber-400 animate-pulse rounded-full";
+                    board.innerHTML += `<div class="${c} aspect-square"></div>`;
                 }
             }
+        }
 
-            attempts++;
-            input.value = '';
-            conn.send({ type: 'STATUS', att: attempts });
+        function updateUI() {
+            const ind = document.getElementById('turn-indicator');
+            ind.innerText = isMyTurn ? "🟢 SEU TURNO! Faça sua jogada" : "⏳ VEZ DO RIVAL... Aguarde";
+            ind.className = isMyTurn ? "w-full text-center font-black py-2 rounded-xl text-xs bg-emerald-950 text-emerald-400 border border-emerald-800" : "w-full text-center font-bold py-2 rounded-xl text-xs bg-slate-800 text-slate-500 border border-slate-700";
+        }
 
-            if (correctCount === 5) {
-                conn.send({ type: 'WIN', winner: myRole });
-                triggerGameOver(myRole, `Você adivinhou a palavra "${currentWord}"!`);
-            } else if (attempts >= maxAttempts) {
-                document.getElementById('word-input').disabled = true;
-                document.getElementById('btn-submit').disabled = true;
-                document.getElementById('opponent-status').innerText = "Você esgotou as chances!";
+        function move(dir) {
+            if (!isMyTurn) return;
+            let head = Object.assign({}, myRole === 'red' ? p1[0] : p2[0]);
+            if (dir === 'UP') head.y--; if (dir === 'DOWN') head.y++;
+            if (dir === 'LEFT') head.x--; if (dir === 'RIGHT') head.x++;
+
+            let currentSnake = myRole === 'red' ? p1 : p2;
+            currentSnake.unshift(head);
+
+            if (head.x === apple.x && head.y === apple.y) {
+                apple = { x: Math.floor(Math.random()*size), y: Math.floor(Math.random()*size) };
+            } else {
+                currentSnake.pop();
             }
+
+            let lost = null;
+            if (head.x<0 || head.x>=size || head.y<0 || head.y>=size || p1.slice(1).some(b=>b.x===head.x && b.y===head.y) || p2.slice(1).some(b=>b.x===head.x && b.y===head.y)) {
+                lost = myRole;
+            }
+
+            isMyTurn = false; render(); updateUI();
+            conn.send({ type: 'MOVE', p1: p1, p2: p2, apple: apple, lost: lost });
+            if (lost) { alert('Você bateu e perdeu!'); window.location.reload(); }
         }
 
-        function triggerGameOver(winner, msg) {
-            if (winner === 'red') score.red++; else score.blue++;
-            document.getElementById('score-red').innerText = score.red;
-            document.getElementById('score-blue').innerText = score.blue;
-            document.getElementById('go-title').innerText = winner === myRole ? "🏆 VITÓRIA!" : "💀 DERROTA";
-            document.getElementById('go-title').className = winner === myRole ? "text-3xl font-black text-green-400" : "text-3xl font-black text-red-500";
-            document.getElementById('go-msg').innerText = msg;
-            document.getElementById('game-over').classList.remove('hidden');
-        }
-
-        function requestNewGame() {
-            localReady = true; conn.send({ type: 'REMATCH' });
-            document.getElementById('btn-rematch').disabled = true;
-            document.getElementById('btn-rematch').innerText = "Aguardando rival...";
-            if (opponentReady) resetBoard();
-        }
+        window.addEventListener('keydown', e => {
+            if(e.key === 'ArrowUp') move('UP'); if(e.key === 'ArrowDown') move('DOWN');
+            if(e.key === 'ArrowLeft') move('LEFT'); if(e.key === 'ArrowRight') move('RIGHT');
+        });
 
         function copyLink() { navigator.clipboard.writeText(window.location.href).then(() => alert('Link copiado!')); }
         function leaveRoom() { localStorage.clear(); window.location.href = window.location.origin + window.location.pathname; }
