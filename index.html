@@ -3,103 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uno P2P Online</title>
+    <title>Dominó P2P Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <style>
-        .uno-card { transition: transform 0.2s; }
-        .uno-card:hover { transform: translateY(-10px); }
+        .domino-hand-piece:hover { transform: translateY(-8px); }
+        /* Esconder barra de rolagem da mesa */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
+<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between select-none">
 
+    <!-- Topbar -->
     <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-0 z-50">
-        <div class="max-w-md mx-auto">
-            <div class="flex justify-between items-center relative">
-                <div class="flex flex-col">
-                    <h1 class="font-extrabold text-base tracking-wider text-red-500">🔥 UNO P2P</h1>
-                    <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
-                        <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
-                        <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">
-                        📋Compartilhar
-                        </button>
-                    </div>
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div class="flex flex-col">
+                <h1 class="font-extrabold text-base tracking-wider text-emerald-400">🀫 DOMINÓ P2P</h1>
+                <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
+                    <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
+                    <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">📋 Copiar</button>
                 </div>
-                <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow">
-                       ➡️ Sair
-                </button>
             </div>
+            <button onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-[11px] font-bold py-1 px-2.5 rounded-lg transition">➡️ Sair</button>
         </div>
     </header>
 
+    <!-- Main Container -->
     <main class="flex-grow flex flex-col items-center justify-start p-3 w-full max-w-md mx-auto mb-12 space-y-4">
         
+        <!-- Lobby Overlay -->
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
-                <h2 class="text-xl font-extrabold mb-2">Aguardando Conexão</h2>
-                <p class="text-slate-400 text-xs">Envie o link da sala para seu amigo começar a partida de Uno!</p>
-                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">
-                    Procurando sinal do servidor P2P...
-                </div>
+                <h2 class="text-xl font-extrabold">Aguardando Conexão</h2>
+                <p class="text-slate-400 text-xs">Compartilhe o link com seu oponente para iniciar a partida.</p>
+                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Buscando servidor...</div>
             </div>
         </div>
 
-        <div id="game-scoreboard" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between text-center">
+        <!-- Placar e Status -->
+        <div class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between text-center">
             <div class="flex-1">
-                <span class="text-xs font-bold text-red-400 block">Suas Cartas</span>
-                <span id="card-count-me" class="text-2xl font-mono font-black text-white">0</span>
+                <span class="text-xs font-bold text-emerald-400 block">Suas Peças</span>
+                <span id="count-me" class="text-2xl font-mono font-black">0</span>
             </div>
-            <div class="px-4 border-x border-slate-700">
-                <span id="game-turn-text" class="text-xs font-black text-amber-400 uppercase tracking-wider animate-pulse">Aguardando...</span>
+            <div class="px-3 border-x border-slate-700 flex flex-col items-center justify-center min-w-[120px]">
+                <span id="turn-text" class="text-xs font-black text-amber-400 uppercase tracking-wider">Carregando...</span>
+                <span class="text-[9px] text-slate-400 font-mono mt-1">Dormido: <span id="count-boneyard">0</span></span>
             </div>
             <div class="flex-1">
                 <span class="text-xs font-bold text-blue-400 block">Oponente</span>
-                <span id="card-count-opp" class="text-2xl font-mono font-black text-white">0</span>
+                <span id="count-opp" class="text-2xl font-mono font-black">0</span>
             </div>
         </div>
 
-        <div id="screen-game" class="w-full space-y-4 hidden">
+        <!-- Tela do Jogo / Mesa -->
+        <div id="screen-game" class="w-full space-y-4 hidden flex-grow flex flex-col justify-between">
             
-            <div class="w-full bg-slate-950/60 rounded-2xl p-6 border border-slate-800 flex items-center justify-center space-x-8 min-h-[160px] relative">
+            <!-- Mesa de Jogo (Esteira de Peças) -->
+            <div class="w-full bg-slate-950/60 rounded-2xl p-4 border border-slate-800 flex flex-col items-center justify-center min-h-[160px] relative">
+                <span class="text-[10px] uppercase font-bold text-slate-500 absolute top-2 tracking-widest">Mesa de Jogo</span>
                 
-                <button id="btn-draw" onclick="drawCardFromDeck()" class="w-16 h-24 bg-gradient-to-br from-red-600 via-slate-800 to-black rounded-xl border-2 border-white flex flex-col items-center justify-center text-white shadow-2xl active:scale-95 transition-transform font-black text-[10px] tracking-tighter uppercase text-center">
-                    <span>UNO</span>
-                    <span class="text-[8px] text-amber-400">COMPRAR</span>
+                <!-- Container de Rolagem Horizontal do Fluxo de Peças -->
+                <div id="board-flow" class="w-full flex items-center justify-center space-x-1.5 overflow-x-auto py-6 no-scrollbar min-h-[90px]">
+                    <!-- Peças jogadas entram aqui -->
+                </div>
+
+                <!-- Botões de Ação de Encaixe Dinâmico -->
+                <div id="placement-overlay" class="absolute inset-0 flex justify-between items-center px-4 bg-slate-950/40 rounded-2xl hidden">
+                    <button onclick="playSelectedPiece('left')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black py-2 px-3 rounded-lg shadow-lg transition">⬅️ Encaixar Esquerda</button>
+                    <button onclick="playSelectedPiece('right')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black py-2 px-3 rounded-lg shadow-lg transition">Encaixar Direita ➡️</button>
+                </div>
+            </div>
+
+            <!-- Controles Auxiliares (Comprar e Passar) -->
+            <div class="grid grid-cols-2 gap-2 w-full">
+                <button id="btn-draw" onclick="drawFromBoneyard()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider border border-slate-700 transition disabled:opacity-40">
+                    ➕ Comprar Peça
                 </button>
-
-                <div class="text-center relative">
-                    <span class="text-[9px] uppercase font-bold text-slate-500 block mb-1">Mesa</span>
-                    <div id="current-pile-card" class="w-16 h-24 bg-slate-800 rounded-xl border-2 border-slate-600 flex items-center justify-center text-xl shadow-2xl font-black text-white">
-                        -
-                    </div>
-                    <div id="current-color-indicator" class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider hidden"></div>
-                </div>
+                <button id="btn-pass" onclick="passTurn()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider border border-slate-700 transition disabled:opacity-40">
+                    🏳️ Passar Vez
+                </button>
             </div>
 
-            <div id="color-picker-modal" class="hidden bg-slate-800 border border-slate-700 p-3 rounded-xl text-center space-y-2">
-                <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block">Escolha a nova cor:</span>
-                <div class="grid grid-cols-4 gap-2">
-                    <button onclick="selectWildColor('red')" class="bg-red-600 hover:bg-red-700 py-2 rounded font-bold text-xs">Vermelho</button>
-                    <button onclick="selectWildColor('blue')" class="bg-blue-600 hover:bg-blue-700 py-2 rounded font-bold text-xs">Azul</button>
-                    <button onclick="selectWildColor('green')" class="bg-emerald-600 hover:bg-emerald-700 py-2 rounded font-bold text-xs">Verde</button>
-                    <button onclick="selectWildColor('yellow')" class="bg-amber-500 hover:bg-amber-600 py-2 rounded font-bold text-xs text-slate-950">Amarelo</button>
-                </div>
-            </div>
-
+            <!-- Mão do Jogador -->
             <div class="w-full space-y-1">
-                <div class="flex justify-between items-center px-1">
-                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Sua Mão</span>
-                    <span id="invalid-move-alert" class="text-[10px] font-bold text-red-500 hidden animate-shake">⚠️ Jogada Inválida!</span>
+                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block text-center">Sua Mão (Selecione uma peça para jogar)</span>
+                <div id="player-hand" class="flex flex-wrap justify-center gap-2 pt-2 bg-slate-900/40 p-2 rounded-xl min-h-[90px] border border-slate-800">
+                    <!-- Injeção via JS -->
                 </div>
-                <div id="player-hand" class="flex flex-wrap justify-center gap-2 pt-2 bg-slate-900/40 p-2 rounded-xl min-h-[110px] border border-slate-800">
-                    </div>
             </div>
 
         </div>
 
+        <!-- Tela de Fim de Jogo -->
         <div id="screen-game-over" class="w-full bg-slate-800 p-6 rounded-2xl border-2 border-amber-500 text-center space-y-4 hidden">
             <h2 id="game-over-title" class="text-3xl font-black text-green-400">🏆 VITÓRIA!</h2>
-            <p id="game-over-msg" class="text-sm text-slate-300">Você descartou todas as cartas!</p>
+            <p id="game-over-msg" class="text-sm text-slate-300">Você bateu o jogo!</p>
             <button onclick="window.location.reload()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
                 🔄 Jogar Novamente
             </button>
@@ -107,55 +107,42 @@
 
     </main>
 
-    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">
-        Compre carta se não puder jogar. Fique com 0 cartas para vencer!
-    </footer>
-
     <script>
-        const cardColors = ['red', 'blue', 'green', 'yellow'];
-        const cardValues = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '🚫', '➕2']; // Números, Bloqueio, +2
+        let peer = null, conn = null, myRole = '', roomCode = '';
+        let myHand = [], boneyard = [], board = [];
+        let leftEnd = null, rightEnd = null;
+        let opponentPieceCount = 7, isMyTurn = false;
+        let selectedPieceIndex = null;
 
-        let peer = null;
-        let conn = null;
-        let myRole = ''; 
-        let roomCode = '';
-        
-        let myHand = [];
-        let opponentCardCount = 7;
-        let currentPileCard = null;
-        let activeColor = ''; // Armazena a cor ativa (importante para curingas)
-        let isMyTurn = false;
-        let pendingWildCardIndex = null;
-
-        // Elementos UI
         const screenLobby = document.getElementById('screen-lobby');
         const screenGame = document.getElementById('screen-game');
         const screenGameOver = document.getElementById('screen-game-over');
         const playerHandContainer = document.getElementById('player-hand');
+        const boardFlowContainer = document.getElementById('board-flow');
 
         const urlParams = new URLSearchParams(window.location.search);
         roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            const generatedCode = 'UNO-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_uno_room', generatedCode);
+            const generatedCode = 'DOMINO-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_domino_room', generatedCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
             document.getElementById('topbar-room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('hosted_uno_room')) ? 'red' : 'blue';
+            myRole = (roomCode === localStorage.getItem('hosted_domino_room')) ? 'red' : 'blue';
             if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
         function initHost(code) {
             peer = new Peer(code);
-            peer.on('open', () => document.getElementById('connection-status').innerText = "Aguardando Jogador 2...");
+            peer.on('open', () => document.getElementById('connection-status').innerText = "Aguardando Oponente...");
             peer.on('connection', (connection) => { conn = connection; handleEvents(); });
         }
 
         function initGuest(code) {
             peer = new Peer();
             peer.on('open', () => {
-                document.getElementById('connection-status').innerText = "Conectando ao Jogador 1...";
+                document.getElementById('connection-status').innerText = "Conectando ao Host...";
                 conn = peer.connect(code);
                 handleEvents();
             });
@@ -171,209 +158,206 @@
             conn.on('data', (data) => {
                 if (data.type === 'START_GAME') {
                     myHand = data.guestHand;
-                    opponentCardCount = data.hostHandCount;
-                    currentPileCard = data.initialPile;
-                    activeColor = data.initialPile.color;
+                    boneyard = data.boneyard;
+                    opponentPieceCount = data.hostHandCount;
                     isMyTurn = data.yourTurn;
                     updateUI();
-                } else if (data.type === 'CARD_PLAYED') {
-                    currentPileCard = data.card;
-                    activeColor = data.activeColor;
-                    opponentCardCount = data.oppHandCount;
+                } else if (data.type === 'PIECE_PLAYED') {
+                    board = data.board;
+                    leftEnd = data.leftEnd;
+                    rightEnd = data.rightEnd;
+                    opponentPieceCount = data.oppHandCount;
                     isMyTurn = data.yourTurn;
-                    
-                    checkGameOverCondition();
+                    checkGameOver();
                     updateUI();
-                } else if (data.type === 'OPPONENT_DRAWN') {
-                    opponentCardCount = data.oppHandCount;
+                } else if (data.type === 'OPPONENT_ACTION') {
+                    boneyard = data.boneyard;
+                    opponentPieceCount = data.oppHandCount;
                     isMyTurn = data.yourTurn;
                     updateUI();
                 }
             });
         }
 
-        // Inicialização do Deck e Mãos (Apenas o Host faz)
         function setupNewGame() {
-            let fullDeck = [];
-            
-            // Cartas coloridas normais e especiais
-            cardColors.forEach(color => {
-                cardValues.forEach(val => {
-                    fullDeck.push({ color: color, value: val });
-                    if (val !== '0') fullDeck.push({ color: color, value: val }); // Duas de cada exceto o 0
-                });
-            });
-
-            // Adiciona Curingas simples e Curingas +4
-            for(let i=0; i<4; i++) {
-                fullDeck.push({ color: 'wild', value: '🌈' });
-                fullDeck.push({ color: 'wild', value: '⚡+4' });
+            let deck = [];
+            for (let i = 0; i <= 6; i++) {
+                for (let j = i; j <= 6; j++) {
+                    deck.push({ v1: i, v2: j });
+                }
             }
+            deck.sort(() => Math.random() - 0.5);
 
-            // Shuffle
-            fullDeck.sort(() => Math.random() - 0.5);
+            myHand = deck.splice(0, 7);
+            let guestHand = deck.splice(0, 7);
+            boneyard = deck;
 
-            // Distribuição de 7 cartas para cada
-            let hostHand = [];
-            let guestHand = [];
-            for(let i=0; i<7; i++) {
-                hostHand.push(fullDeck.pop());
-                guestHand.push(fullDeck.pop());
-            }
-
-            // Define primeira carta da mesa (precisa ser colorida normal para começar limpo)
-            let initialPile = fullDeck.pop();
-            while(initialPile.color === 'wild') {
-                fullDeck.unshift(initialPile);
-                initialPile = fullDeck.pop();
-            }
-
-            myHand = hostHand;
-            opponentCardCount = 7;
-            currentPileCard = initialPile;
-            activeColor = initialPile.color;
-            isMyTurn = true; // Host começa
+            isMyTurn = true; 
+            opponentPieceCount = 7;
 
             conn.send({
                 type: 'START_GAME',
                 guestHand: guestHand,
-                hostHandCount: hostHand.length,
-                initialPile: initialPile,
+                boneyard: boneyard,
+                hostHandCount: myHand.length,
                 yourTurn: false
             });
 
             updateUI();
         }
 
-        // Atualização Geral da Interface
         function updateUI() {
-            document.getElementById('card-count-me').innerText = myHand.length;
-            document.getElementById('card-count-opp').innerText = opponentCardCount;
-            
-            // Atualiza status do turno
-            const turnText = document.getElementById('game-turn-text');
+            document.getElementById('count-me').innerText = myHand.length;
+            document.getElementById('count-opp').innerText = opponentPieceCount;
+            document.getElementById('count-boneyard').innerText = boneyard.length;
+
+            const turnText = document.getElementById('turn-text');
             if (isMyTurn) {
-                turnText.innerText = "Seu Turno!";
+                turnText.innerText = "Sua Vez!";
                 turnText.className = "text-xs font-black text-emerald-400 uppercase tracking-wider animate-pulse";
             } else {
-                turnText.innerText = "Vez do Oponente";
+                turnText.innerText = "Vez do Outro";
                 turnText.className = "text-xs font-black text-slate-400 uppercase tracking-wider";
             }
 
-            // Atualiza a carta do Topo do Descarte
-            const pileEl = document.getElementById('current-pile-card');
-            pileEl.innerText = currentPileCard.value;
-            pileEl.className = `w-16 h-24 rounded-xl border-2 border-white flex items-center justify-center text-xl shadow-2xl font-black ${getCardBgClass(activeColor)}`;
+            document.getElementById('btn-draw').disabled = !isMyTurn || boneyard.length === 0;
+            document.getElementById('btn-pass').disabled = !isMyTurn;
 
-            // Atualiza indicador de cor se for Curinga
-            const colorIndicator = document.getElementById('current-color-indicator');
-            if (currentPileCard.color === 'wild') {
-                colorIndicator.innerText = getColorNamePt(activeColor);
-                colorIndicator.className = `absolute -bottom-2 left-1/2 transform -translate-x-1/2 px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider block ${getCardBgClass(activeColor)}`;
-            } else {
-                colorIndicator.classList.add('hidden');
+            document.getElementById('placement-overlay').classList.add('hidden');
+            selectedPieceIndex = null;
+
+            renderBoard();
+            renderHand();
+        }
+
+        function renderBoard() {
+            boardFlowContainer.innerHTML = '';
+            if (board.length === 0) {
+                boardFlowContainer.innerHTML = `<span class="text-xs text-slate-500 italic">Mesa vazia. Comece jogando qualquer peça!</span>`;
+                return;
             }
 
-            renderHand();
+            board.forEach(piece => {
+                const div = document.createElement('div');
+                div.className = `flex bg-white text-slate-900 font-mono font-black border border-slate-300 rounded shadow px-2 py-3 text-sm items-center divide-x divide-slate-400 min-w-[54px] justify-center`;
+                div.innerHTML = `<span class="px-1">${piece.v1}</span><span class="px-1">${piece.v2}</span>`;
+                boardFlowContainer.appendChild(div);
+            });
         }
 
         function renderHand() {
             playerHandContainer.innerHTML = '';
-            myHand.forEach((card, index) => {
+            myHand.forEach((piece, index) => {
                 const btn = document.createElement('button');
-                btn.className = `w-14 h-20 rounded-xl border border-slate-700 flex flex-col items-center justify-center text-md font-black shadow-md uno-card ${getCardBgClass(card.color)}`;
-                btn.innerText = card.value;
-                btn.onclick = () => playCard(index);
+                btn.className = `flex bg-white text-slate-900 font-mono font-black border border-slate-400 rounded-lg shadow-md px-3 py-4 text-base items-center divide-x divide-slate-400 transition-transform domino-hand-piece`;
+                if (selectedPieceIndex === index) {
+                    btn.className += " ring-4 ring-amber-400 border-transparent transform -translate-y-2";
+                }
+                btn.innerHTML = `<span class="px-1.5">${piece.v1}</span><span class="px-1.5">${piece.v2}</span>`;
+                btn.onclick = () => selectPiece(index);
                 playerHandContainer.appendChild(btn);
             });
         }
 
-        // Lógica de Validação e Jogada
-        function playCard(index) {
+        function selectPiece(index) {
             if (!isMyTurn) return;
-            
-            const card = myHand[index];
-            const isColorMatch = (card.color === activeColor);
-            const isValueMatch = (card.value === currentPileCard.value);
-            const isWild = (card.color === 'wild');
 
-            if (isColorMatch || isValueMatch || isWild) {
-                document.getElementById('invalid-move-alert').classList.add('hidden');
-                
-                if (isWild) {
-                    pendingWildCardIndex = index;
-                    document.getElementById('color-picker-modal').classList.remove('hidden');
-                } else {
-                    executeCardPlay(index, card.color);
-                }
+            if (selectedPieceIndex === index) {
+                selectedPieceIndex = null;
+                document.getElementById('placement-overlay').classList.add('hidden');
+                renderHand();
+                return;
+            }
+
+            selectedPieceIndex = index;
+            renderHand();
+
+            if (board.length === 0) {
+                playSelectedPiece('left'); // Primeira peça entra direto
             } else {
-                // Alerta de movimento inválido temporário
-                const alertEl = document.getElementById('invalid-move-alert');
-                alertEl.classList.remove('hidden');
-                setTimeout(() => alertEl.classList.add('hidden'), 1500);
+                document.getElementById('placement-overlay').classList.remove('hidden');
             }
         }
 
-        function selectWildColor(color) {
-            document.getElementById('color-picker-modal').classList.add('hidden');
-            if (pendingWildCardIndex !== null) {
-                executeCardPlay(pendingWildCardIndex, color);
-                pendingWildCardIndex = null;
+        function playSelectedPiece(side) {
+            if (selectedPieceIndex === null) return;
+            const piece = myHand[selectedPieceIndex];
+
+            let valid = false;
+            let orientedPiece = { ...piece };
+
+            if (board.length === 0) {
+                leftEnd = piece.v1;
+                rightEnd = piece.v2;
+                board.push(orientedPiece);
+                valid = true;
+            } else if (side === 'left') {
+                if (piece.v2 === leftEnd) {
+                    leftEnd = piece.v1;
+                    board.unshift(orientedPiece);
+                    valid = true;
+                } else if (piece.v1 === leftEnd) {
+                    orientedPiece = { v1: piece.v2, v2: piece.v1 };
+                    leftEnd = piece.v2;
+                    board.unshift(orientedPiece);
+                    valid = true;
+                }
+            } else if (side === 'right') {
+                if (piece.v1 === rightEnd) {
+                    rightEnd = piece.v2;
+                    board.push(orientedPiece);
+                    valid = true;
+                } else if (piece.v2 === rightEnd) {
+                    orientedPiece = { v1: piece.v2, v2: piece.v1 };
+                    rightEnd = piece.v1;
+                    board.push(orientedPiece);
+                    valid = true;
+                }
+            }
+
+            if (valid) {
+                myHand.splice(selectedPieceIndex, 1);
+                isMyTurn = false;
+
+                conn.send({
+                    type: 'PIECE_PLAYED',
+                    board: board,
+                    leftEnd: leftEnd,
+                    rightEnd: rightEnd,
+                    oppHandCount: myHand.length,
+                    yourTurn: true
+                });
+
+                checkGameOver();
+                updateUI();
+            } else {
+                alert("Essa peça não encaixa nesta extremidade!");
             }
         }
 
-        function executeCardPlay(index, chosenActiveColor) {
-            const card = myHand[index];
-            myHand.splice(index, 1); // Remove da mão
-
-            currentPileCard = card;
-            activeColor = chosenActiveColor;
-
-            // Lógica de Efeitos Especiais de Cartas no formato 1v1:
-            // No modo 1v1, cartas de bloqueio (🚫), +2 e +4 pulam o oponente, dando outro turno para você.
-            let giveTurnToOpponent = true;
-            if (card.value === '🚫' || card.value === '➕2' || card.value === '⚡+4') {
-                giveTurnToOpponent = false; // Mantém o turno com o jogador atual
-            }
-
-            isMyTurn = !giveTurnToOpponent;
+        function drawFromBoneyard() {
+            if (!isMyTurn || boneyard.length === 0) return;
+            
+            const piece = boneyard.pop();
+            myHand.push(piece);
 
             conn.send({
-                type: 'CARD_PLAYED',
-                card: card,
-                activeColor: activeColor,
+                type: 'OPPONENT_ACTION',
+                boneyard: boneyard,
                 oppHandCount: myHand.length,
-                yourTurn: giveTurnToOpponent
+                yourTurn: false // Mantém o turno com o jogador atual para ele verificar se pode jogar a nova peça
             });
 
-            checkGameOverCondition();
             updateUI();
         }
 
-        // Lógica para Comprar Carta
-        function drawCardFromDeck() {
+        function passTurn() {
             if (!isMyTurn) return;
-
-            // Simula a geração de uma nova carta aleatória
-            const isWildChance = Math.random() < 0.12; // 12% de chance de vir curinga
-            let drawnCard;
-
-            if (isWildChance) {
-                drawnCard = { color: 'wild', value: Math.random() > 0.5 ? '🌈' : '⚡+4' };
-            } else {
-                const randomColor = cardColors[Math.floor(Math.random() * cardColors.length)];
-                const randomValue = cardValues[Math.floor(Math.random() * cardValues.length)];
-                drawnCard = { color: randomColor, value: randomValue };
-            }
-
-            myHand.push(drawnCard);
-            
-            // Passa o turno automaticamente após comprar
             isMyTurn = false;
 
             conn.send({
-                type: 'GENERIC_DRAW',
-                type: 'OPPONENT_DRAWN',
+                type: 'OPPONENT_ACTION',
+                boneyard: boneyard,
                 oppHandCount: myHand.length,
                 yourTurn: true
             });
@@ -381,9 +365,8 @@
             updateUI();
         }
 
-        // Condições de Vitória
-        function checkGameOverCondition() {
-            if (myHand.length === 0 || opponentCardCount === 0) {
+        function checkGameOver() {
+            if (myHand.length === 0 || opponentPieceCount === 0) {
                 screenGame.classList.add('hidden');
                 screenGameOver.classList.remove('hidden');
 
@@ -393,34 +376,12 @@
                 if (myHand.length === 0) {
                     title.innerText = "🏆 VITÓRIA!";
                     title.className = "text-3xl font-black text-green-400";
-                    msg.innerText = "Parabéns! Você descartou todas as suas cartas e venceu a partida!";
+                    msg.innerText = "Sensacional! Você bateu todas as suas peças e venceu!";
                 } else {
                     title.innerText = "💀 DERROTA!";
                     title.className = "text-3xl font-black text-red-500";
-                    msg.innerText = "O oponente ficou sem cartas primeiro!";
+                    msg.innerText = "O oponente usou todas as peças primeiro.";
                 }
-            }
-        }
-
-        // Utilitários Estéticos de Cores
-        function getCardBgClass(color) {
-            switch(color) {
-                case 'red': return 'bg-red-600 text-white';
-                case 'blue': return 'bg-blue-600 text-white';
-                case 'green': return 'bg-emerald-600 text-white';
-                case 'yellow': return 'bg-amber-400 text-slate-950';
-                case 'wild': return 'bg-neutral-800 border-2 border-dashed border-amber-400 text-white';
-                default: return 'bg-slate-700 text-white';
-            }
-        }
-
-        function getColorNamePt(color) {
-            switch(color) {
-                case 'red': return 'Vermelho';
-                case 'blue': return 'Azul';
-                case 'green': return 'Verde';
-                case 'yellow': return 'Amarelo';
-                default: return '';
             }
         }
 
@@ -430,7 +391,7 @@
         }
 
         function leaveRoom() {
-            localStorage.removeItem('hosted_uno_room');
+            localStorage.removeItem('hosted_domino_room');
             if (conn) conn.close();
             if (peer) peer.destroy();
             window.location.href = window.location.origin + window.location.pathname;
