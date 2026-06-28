@@ -350,38 +350,10 @@
       font-size: 12px;
     }
 
-    /* ── ONLINE PULSE ────────────────────────────────────── */
-    .online-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--yellow);
-      display: inline-block;
-      animation: pulse 2s infinite;
-      margin-right: 5px;
-    }
-
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.4; }
     }
-
-    /* ── PLAYERS ONLINE BAR ──────────────────────────────── */
-    .online-bar {
-      /* Alterado rgba(46,204,113,0.08) para rgba(241,196,15,0.08) */
-      background: rgba(241, 196, 15, 0.08);
-      /* Alterado rgba(46,204,113,0.15) para rgba(241,196,15,0.15) */
-      border-top: 1px solid rgba(241, 196, 15, 0.15);
-      border-bottom: 1px solid rgba(241, 196, 15, 0.15);
-      padding: 8px 24px;
-      font-size: 13px;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .online-bar strong { color: var(--yellow); }
 
     /* ── SEARCH HIGHLIGHT ────────────────────────────────── */
     .card.hidden { display: none; }
@@ -432,10 +404,6 @@
     <span class="badge">🤖 Bots Incluídos</span>
     <span class="badge">🆓 100% Grátis</span>
   </div>
-</div>
-
-<div class="online-bar">
-  <span class="online-dot"></span>
 </div>
   
 <!-- FILTERS -->
