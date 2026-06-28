@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lig 4 P2P</title>
+    <title>Jogo da Memória P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
@@ -13,7 +13,7 @@
         <div class="max-w-md mx-auto">
             <div class="flex justify-between items-center relative">
                 <div class="flex flex-col">
-                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Lig 4 P2P</h1>
+                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Memória P2P</h1>
                     <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
                         <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
                         <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">📋 Compartilhar</button>
@@ -28,9 +28,9 @@
         
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
-                <h2 class="text-xl font-extrabold mb-2">Aguardando Conexão</h2>
-                <p class="text-slate-400 text-xs">Envie o link para o oponente para começar a partida.</p>
-                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Procurando sinal do servidor P2P...</div>
+                <h2 class="text-xl font-extrabold mb-2">Aguardando Oponente</h2>
+                <p class="text-slate-400 text-xs">Envie o link da sala para o outro jogador iniciar.</p>
+                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Conectando ao servidor P2P...</div>
                 <div id="loading-peer" class="hidden text-amber-400 text-xs font-medium animate-pulse">Configurando sala...</div>
             </div>
         </div>
@@ -60,27 +60,16 @@
         <div id="screen-game" class="w-full space-y-4">
             <div id="btn-turn" class="w-full text-center font-bold py-2.5 rounded-xl text-xs border border-slate-700 bg-slate-800 transition">Carregando...</div>
 
-            <div class="bg-indigo-900 p-3 rounded-2xl border-4 border-indigo-950 shadow-2xl">
-                <div class="grid grid-cols-7 gap-2 mb-2">
-                    <button onclick="selectColumn(0)" class="bg-indigo-700 hover:bg-indigo-500 text-xs font-bold py-1 rounded shadow text-center">▼</button>
-                    <button onclick="selectColumn(1)" class="bg-indigo-700 hover:bg-indigo-500 text-xs font-bold py-1 rounded shadow text-center">▼</button>
-                    <button onclick="selectColumn(2)" class="bg-indigo-700 hover:bg-indigo-500 text-xs font-bold py-1 rounded shadow text-center">▼</button>
-                    <button onclick="selectColumn(3)" class="bg-indigo-700 hover:bg-indigo-500 text-xs font-bold py-1 rounded shadow text-center">▼</button>
-                    <button onclick="selectColumn(4)" class="bg-indigo-700 hover:bg-indigo-500 text-xs font-bold py-1 rounded shadow text-center">▼</button>
-                    <button onclick="selectColumn(5)" class="bg-indigo-700 hover:bg-indigo-500 text-xs font-bold py-1 rounded shadow text-center">▼</button>
-                    <button onclick="selectColumn(6)" class="bg-indigo-700 hover:bg-indigo-500 text-xs font-bold py-1 rounded shadow text-center">▼</button>
+            <div id="board-grid" class="grid grid-cols-4 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 shadow-2xl aspect-square">
                 </div>
-                <div id="board-grid" class="grid grid-cols-7 gap-2 bg-indigo-950 p-3 rounded-xl">
-                    </div>
-            </div>
         </div>
 
         <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center">
             <div class="border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl" id="game-over-box">
                 <h2 id="game-over-title" class="text-3xl font-black tracking-wide"></h2>
                 <p id="game-over-msg" class="text-sm text-slate-300 font-medium"></p>
-                <button id="btn-next-game" onclick="requestNewGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">🔄 Jogar Revanche</button>
-                <p id="waiting-opponent-next" class="hidden text-amber-400 text-xs animate-pulse font-medium">Aguardando oponente...</p>
+                <button id="btn-next-game" onclick="requestNewGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">🔄 Próxima Partida</button>
+                <p id="waiting-opponent-next" class="hidden text-amber-400 text-xs animate-pulse font-medium">Aguardando oponente aceitar...</p>
                 <p id="opponent-requested-rematch" class="hidden text-amber-400 text-xs animate-pulse font-medium">Oponente solicitou revanche...</p>
             </div>
         </div>
@@ -91,9 +80,13 @@
     <script>
         let peer = null, conn = null, myRole = '', isMyTurn = false;
         let score = { red: 0, blue: 0 };
-        const ROWS = 6, COLS = 7;
-        let board = Array(ROWS * COLS).fill(null);
         let localPlayerReadyForNext = false, opponentReadyForNext = false;
+        
+        const cardsDataset = ['🐶', '🐱', '🦊', '🦁', '🐸', '🐵', '🐷', '👑'];
+        let gameBoard = []; 
+        let flippedCards = [];
+        let matchedCards = [];
+        let lockBoard = false;
 
         const screenLobby = document.getElementById('screen-lobby');
         const topbar = document.getElementById('topbar');
@@ -101,28 +94,20 @@
         const urlParams = new URLSearchParams(window.location.search);
         let roomCode = urlParams.get('room');
 
-        // Criação dinâmica dos slots visuais
-        for (let i = 0; i < ROWS * COLS; i++) {
-            const slot = document.createElement('div');
-            slot.className = "w-full aspect-square bg-slate-800 rounded-full border border-indigo-900 shadow-inner transition-all duration-300";
-            slot.id = `cell-${i}`;
-            gridContainer.appendChild(slot);
-        }
-
         if (!roomCode) {
-            const generatedCode = 'LIG4-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_room_lig4', generatedCode);
+            const generatedCode = 'MEMO-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_room_memo', generatedCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
             document.getElementById('topbar-room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('hosted_room_lig4')) ? 'red' : 'blue';
+            myRole = (roomCode === localStorage.getItem('hosted_room_memo')) ? 'red' : 'blue';
             loadGameState();
             setupTheme();
             if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
-        function saveGameState() { if (roomCode) localStorage.setItem(`lig4_score_${roomCode}`, JSON.stringify(score)); }
-        function loadGameState() { const s = localStorage.getItem(`lig4_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
+        function saveGameState() { if (roomCode) localStorage.setItem(`memo_score_${roomCode}`, JSON.stringify(score)); }
+        function loadGameState() { const s = localStorage.getItem(`memo_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
         function setupTheme() { topbar.className = myRole === 'red' ? "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white" : "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white"; }
         function updateScoreboardVisual() { document.getElementById('score-red').innerText = score.red; document.getElementById('score-blue').innerText = score.blue; }
 
@@ -152,13 +137,27 @@
 
         function handleEvents() {
             const cur = conn;
-            const onOpen = () => { if (conn !== cur) return; updatePresenceUI(true, true); screenLobby.classList.add('hidden'); resetBoardState(); };
+            const onOpen = () => { 
+                if (conn !== cur) return; 
+                updatePresenceUI(true, true); 
+                screenLobby.classList.add('hidden'); 
+                if (myRole === 'red') generateAndSyncBoard();
+            };
             if (cur.open) onOpen(); else cur.on('open', onOpen);
 
             cur.on('data', data => {
                 if (conn !== cur) return;
-                if (data.type === 'MOVE') { applyMove(data.col, data.role); isMyTurn = true; updateTurnUI(); }
-                else if (data.type === 'NEXT_GAME_READY') { opponentReadyForNext = true; document.getElementById('opponent-requested-rematch').classList.remove('hidden'); checkNextGameTransition(); }
+                if (data.type === 'BOARD_SYNC') {
+                    gameBoard = data.board;
+                    buildBoardUI();
+                    resetGameState(false);
+                } else if (data.type === 'FLIP') {
+                    handleCardFlip(data.index, false);
+                } else if (data.type === 'NEXT_GAME_READY') {
+                    opponentReadyForNext = true;
+                    document.getElementById('opponent-requested-rematch').classList.remove('hidden');
+                    checkNextGameTransition();
+                }
             });
 
             cur.on('close', () => {
@@ -169,14 +168,33 @@
             });
         }
 
-        function resetBoardState() {
-            board.fill(null);
-            localPlayerReadyForNext = false; opponentReadyForNext = false;
-            isMyTurn = ((score.red + score.blue) % 2 === 0) ? (myRole === 'red') : (myRole === 'blue');
+        function generateAndSyncBoard() {
+            gameBoard = [...cardsDataset, ...cardsDataset].sort(() => Math.random() - 0.5);
+            buildBoardUI();
+            resetGameState(true);
+            if (conn && conn.open) conn.send({ type: 'BOARD_SYNC', board: gameBoard });
+        }
 
-            for (let i = 0; i < ROWS * COLS; i++) {
-                document.getElementById(`cell-${i}`).className = "w-full aspect-square bg-slate-800 rounded-full border border-indigo-900 shadow-inner transition-all duration-300";
-            }
+        function buildBoardUI() {
+            gridContainer.innerHTML = '';
+            gameBoard.forEach((_, index) => {
+                const btn = document.createElement('button');
+                btn.id = `card-${index}`;
+                btn.onclick = () => handleCardFlip(index, true);
+                btn.className = "bg-slate-800 border-2 border-slate-700 rounded-xl flex items-center justify-center text-3xl font-black transition duration-300 h-full aspect-square text-transparent select-none";
+                btn.innerText = "?";
+                gridContainer.appendChild(btn);
+            });
+        }
+
+        function resetGameState(isHostRow) {
+            matchedCards = [];
+            flippedCards = [];
+            lockBoard = false;
+            localPlayerReadyForNext = false;
+            opponentReadyForNext = false;
+            
+            isMyTurn = ((score.red + score.blue) % 2 === 0) ? (myRole === 'red') : (myRole === 'blue');
             document.getElementById('game-over-screen').classList.add('hidden');
             updateTurnUI();
         }
@@ -185,90 +203,85 @@
             const b = document.getElementById('btn-turn');
             if (isMyTurn) {
                 b.className = "w-full bg-emerald-600 text-white font-black py-2.5 rounded-xl text-xs shadow-lg animate-pulse text-center";
-                b.innerText = "🟢 SUA VEZ! Escolha uma coluna";
+                b.innerText = "🟢 SUA VEZ! Encontre um par";
             } else {
                 b.className = "w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl text-xs border border-slate-700/50 text-center";
                 b.innerText = "⏳ VEZ DO OPONENTE...";
             }
         }
 
-        function selectColumn(col) {
-            if (!isMyTurn) return;
-            if (applyMove(col, myRole)) {
-                isMyTurn = false;
-                updateTurnUI();
-                if (conn && conn.open) conn.send({ type: 'MOVE', col: col, role: myRole });
-            }
-        }
+        function handleCardFlip(index, sentLocally) {
+            if (lockBoard || matchedCards.includes(index) || flippedCards.includes(index)) return;
+            if (sentLocally && !isMyTurn) return;
 
-        function applyMove(col, role) {
-            // Encontra a linha mais baixa disponível na coluna
-            for (let r = ROWS - 1; r >= 0; r--) {
-                const idx = r * COLS + col;
-                if (board[idx] === null) {
-                    board[idx] = role;
-                    const cell = document.getElementById(`cell-${idx}`);
-                    cell.className = `w-full aspect-square rounded-full border-2 shadow-lg scale-95 transition-all duration-300 ${role === 'red' ? 'bg-red-500 border-red-700' : 'bg-blue-500 border-blue-700'}`;
-                    checkWinCondition();
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        function checkWinCondition() {
-            const check = (a, b, c, d) => board[a] && board[a] === board[b] && board[a] === board[c] && board[a] === board[d];
+            const card = document.getElementById(`card-${index}`);
+            card.innerText = gameBoard[index];
+            card.className = "bg-indigo-950 border-2 border-indigo-500 rounded-xl flex items-center justify-center text-3xl font-black transition duration-300 h-full aspect-square text-white";
             
-            // Horizontal
-            for (let r = 0; r < ROWS; r++) {
-                for (let c = 0; c < COLS - 3; c++) {
-                    let i = r * COLS + c;
-                    if (check(i, i+1, i+2, i+3)) return triggerGameOver(board[i]);
-                }
+            flippedCards.push(index);
+
+            if (sentLocally && conn && conn.open) {
+                conn.send({ type: 'FLIP', index: index });
             }
-            // Vertical
-            for (let r = 0; r < ROWS - 3; r++) {
-                for (let c = 0; c < COLS; c++) {
-                    let i = r * COLS + c;
-                    if (check(i, i+COLS, i+COLS*2, i+COLS*3)) return triggerGameOver(board[i]);
-                }
+
+            if (flippedCards.length === 2) {
+                checkMatch(sentLocally);
             }
-            // Diagonal /
-            for (let r = 3; r < ROWS; r++) {
-                for (let c = 0; c < COLS - 3; c++) {
-                    let i = r * COLS + c;
-                    if (check(i, i-COLS+1, i-COLS*2+2, i-COLS*3+3)) return triggerGameOver(board[i]);
+        }
+
+        function checkMatch(drivenByMe) {
+            lockBoard = true;
+            const [firstIdx, secondIdx] = flippedCards;
+
+            if (gameBoard[firstIdx] === gameBoard[secondIdx]) {
+                matchedCards.push(firstIdx, secondIdx);
+                flippedCards = [];
+                lockBoard = false;
+                
+                document.getElementById(`card-${firstIdx}`).className = "bg-emerald-950/40 border-2 border-emerald-800 text-emerald-400 opacity-60 rounded-xl flex items-center justify-center text-3xl font-black h-full aspect-square cursor-not-allowed";
+                document.getElementById(`card-${secondIdx}`).className = "bg-emerald-950/40 border-2 border-emerald-800 text-emerald-400 opacity-60 rounded-xl flex items-center justify-center text-3xl font-black h-full aspect-square cursor-not-allowed";
+                
+                if (matchedCards.length === gameBoard.length) {
+                    determineWinner();
                 }
+            } else {
+                setTimeout(() => {
+                    document.getElementById(`card-${firstIdx}`).className = "bg-slate-800 border-2 border-slate-700 rounded-xl flex items-center justify-center text-3xl font-black h-full aspect-square text-transparent";
+                    document.getElementById(`card-${secondIdx}`).className = "bg-slate-800 border-2 border-slate-700 rounded-xl flex items-center justify-center text-3xl font-black h-full aspect-square text-transparent";
+                    document.getElementById(`card-${firstIdx}`).innerText = "?";
+                    document.getElementById(`card-${secondIdx}`).innerText = "?";
+                    
+                    flippedCards = [];
+                    lockBoard = false;
+                    isMyTurn = !isMyTurn;
+                    updateTurnUI();
+                }, 1000);
             }
-            // Diagonal \
-            for (let r = 0; r < ROWS - 3; r++) {
-                for (let c = 0; c < COLS - 3; c++) {
-                    let i = r * COLS + c;
-                    if (check(i, i+COLS+1, i+COLS*2+2, i+COLS*3+3)) return triggerGameOver(board[i]);
-                }
-            }
-            if (!board.includes(null)) triggerGameOver('draw');
+        }
+
+        function determineWinner() {
+            // No Jogo da memória puro por turnos, quem termina com a vez após limpar tudo ganha baseado na pontuação histórica ou no turno ativo.
+            // Para manter a mecânica competitiva simples do Cara a Cara: o jogador que realizou a última jogada correta leva o ponto do round.
+            triggerGameOver(isMyTurn ? myRole : (myRole === 'red' ? 'blue' : 'red'));
         }
 
         function triggerGameOver(winner) {
             const box = document.getElementById('game-over-box');
             const title = document.getElementById('game-over-title');
             const msg = document.getElementById('game-over-msg');
-            box.className = `${myRole === 'red' ? 'bg-red-950' : 'bg-blue-950'} border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl ` + (winner === 'draw' ? 'border-amber-500' : (winner === myRole ? 'border-green-500' : 'border-red-500'));
+            box.className = `${myRole === 'red' ? 'bg-red-950' : 'bg-blue-950'} border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl ` + (winner === myRole ? 'border-green-500' : 'border-red-500');
 
-            if (winner === 'draw') {
-                title.innerText = "🤝 EMPATE!"; title.className = "text-2xl font-black text-amber-400"; msg.innerText = "Tabuleiro cheio!";
-            } else {
-                if (!localPlayerReadyForNext && !opponentReadyForNext) {
-                    if (winner === 'red') score.red++; else score.blue++;
-                    updateScoreboardVisual(); saveGameState();
-                }
-                if (winner === myRole) {
-                    title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce"; msg.innerText = "Você conectou 4 fichas!";
-                } else {
-                    title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500"; msg.innerText = "O oponente conectou 4 primeiro.";
-                }
+            if (!localPlayerReadyForNext && !opponentReadyForNext) {
+                if (winner === 'red') score.red++; else score.blue++;
+                updateScoreboardVisual(); saveGameState();
             }
+
+            if (winner === myRole) {
+                title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce"; msg.innerText = "Você encontrou o par final!";
+            } else {
+                title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500"; msg.innerText = "O oponente limpou o tabuleiro antes.";
+            }
+
             document.getElementById('btn-next-game').className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm cursor-pointer";
             document.getElementById('btn-next-game').disabled = false;
             document.getElementById('waiting-opponent-next').classList.add('hidden');
@@ -284,9 +297,14 @@
             checkNextGameTransition();
         }
 
-        function checkNextGameTransition() { if (localPlayerReadyForNext && opponentReadyForNext) resetBoardState(); }
+        function checkNextGameTransition() { 
+            if (localPlayerReadyForNext && opponentReadyForNext) {
+                if (myRole === 'red') generateAndSyncBoard();
+            } 
+        }
+        
         function copyLink() { navigator.clipboard.writeText(window.location.origin + window.location.pathname + '?room=' + roomCode).then(() => alert('Link copiado!')); }
-        function leaveRoom() { if (roomCode) localStorage.removeItem(`lig4_score_${roomCode}`); localStorage.removeItem('hosted_room_lig4'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
+        function leaveRoom() { if (roomCode) localStorage.removeItem(`memo_score_${roomCode}`); localStorage.removeItem('hosted_room_memo'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
     </script>
 </body>
 </html>
