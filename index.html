@@ -7,283 +7,287 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg: #0a0a0c;
-            --card-bg: #121215;
-            --border: #1f1f24;
-            --border-hover: #3f3f46;
-            --text: #ffffff;
-            --text-muted: #71717a;
-            --accent: #3b82f6;
+            --bg-body: #090a0f;
+            --bg-navbar: #0f111a;
+            --bg-card: #151824;
+            --bg-search: #1c1f30;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --accent: #5865f2;
+            --radius: 14px;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            padding: 0 1.5rem;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            overflow-x: hidden;
         }
 
-        /* Navbar Minimalista */
+        /* Navbar Estilo Bloob */
         nav {
+            background-color: var(--bg-navbar);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 1300px;
-            margin: 0 auto;
-            padding: 2rem 0;
+            padding: 0.75rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #1e2235;
         }
 
         .logo {
-            font-size: 1.25rem;
-            font-weight: 700;
+            font-size: 1.3rem;
+            font-weight: 800;
             text-decoration: none;
-            color: var(--text);
-            letter-spacing: -0.03em;
+            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            letter-spacing: -0.02em;
         }
 
         .logo i {
             color: var(--accent);
-            font-size: 1.1rem;
         }
 
-        .nav-links a {
-            color: var(--text-muted);
-            text-decoration: none;
+        .search-container {
+            flex: 0 1 450px;
+            position: relative;
+            margin: 0 1rem;
+        }
+
+        .search-container input {
+            width: 100%;
+            background-color: var(--bg-search);
+            border: 1px solid #262a42;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border-radius: 50px;
+            color: var(--text-main);
             font-size: 0.9rem;
-            transition: color 0.2s;
+            outline: none;
+            transition: border-color 0.2s;
         }
 
-        .nav-links a:hover {
-            color: var(--text);
+        .search-container input:focus {
+            border-color: var(--accent);
         }
 
-        /* Categorias / Filtros Estilo Bloob */
-        .header-section {
-            max-width: 1300px;
-            margin: 1rem auto 2.5rem auto;
+        .search-container i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .nav-right {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
             gap: 1rem;
         }
 
-        .categories {
-            display: flex;
-            gap: 0.5rem;
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.2s;
         }
 
-        .cat-btn {
-            background: var(--card-bg);
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
+        .nav-btn:hover {
+            color: var(--text-main);
+        }
+
+        /* Container Principal */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* Categorias Horizontais em Carrossel/Pills */
+        .categories-bar {
+            display: flex;
+            gap: 0.6rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .categories-bar::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        .cat-item {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            text-decoration: none;
             font-size: 0.85rem;
-            font-weight: 500;
+            font-weight: 600;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid #1e2235;
             transition: all 0.2s;
         }
 
-        .cat-btn.active, .cat-btn:hover {
-            color: var(--text);
-            border-color: var(--border-hover);
-            background: #18181c;
+        .cat-item.active, .cat-item:hover {
+            background-color: var(--accent);
+            border-color: var(--accent);
         }
 
-        .tv-prompt {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .tv-prompt i {
-            color: #22c55e;
-        }
-
-        /* Grid de Cards */
-        .grid {
-            max-width: 1300px;
-            margin: 0 auto 4rem auto;
+        /* Grid de Jogos Densidade Máxima (Igual Bloob) */
+        .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 1.25rem;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
         }
 
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
+        /* Card de Jogo Compacto */
+        .game-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius);
             overflow: hidden;
             text-decoration: none;
             color: inherit;
-            transition: border-color 0.2s, transform 0.2s;
-        }
-
-        .card:hover {
-            border-color: var(--border-hover);
-            transform: translateY(-2px);
-        }
-
-        .thumb {
-            width: 100%;
-            aspect-ratio: 16 / 10;
-            background: #18181c;
             position: relative;
-            overflow: hidden;
+            aspect-ratio: 1 / 1; /* Cards perfeitamente quadrados */
+            border: 1px solid #1e2235;
+            transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
-        .thumb img {
+        .game-card:hover {
+            transform: scale(1.04);
+            border-color: var(--accent);
+            box-shadow: 0 8px 24px rgba(88, 101, 242, 0.2);
+        }
+
+        .game-card img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.9;
-            transition: opacity 0.2s;
         }
 
-        .card:hover .thumb img {
-            opacity: 1;
-        }
-
-        .info {
-            padding: 1rem;
-        }
-
-        .title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            letter-spacing: -0.01em;
-        }
-
-        .meta {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .players {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        /* Footer */
-        footer {
-            max-width: 1300px;
-            margin: 0 auto;
-            padding: 2rem 0;
-            border-top: 1px solid var(--border);
+        /* Título discreto na parte inferior do card */
+        .game-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(9, 10, 15, 0.95) 70%);
+            padding: 1.5rem 0.75rem 0.6rem 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 700;
             text-align: center;
-            font-size: 0.8rem;
-            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        @media (max-width: 600px) {
-            .header-section { flex-direction: column; align-items: start; }
-            .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.8rem; }
+        /* Responsividade para Telas Menores */
+        @media (max-width: 640px) {
+            nav { padding: 0.75rem 1rem; }
+            .search-container { flex: 1; margin: 0 0.5rem; }
+            .nav-right { display: none; }
+            .games-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.6rem; }
+            .game-title { font-size: 0.75rem; padding: 1rem 0.4rem 0.4rem 0.4rem; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Top Navbar -->
     <nav>
         <a href="#" class="logo">
-            <i class="fa-solid fa-dice"></i> Jogos da Galera
+            <i class="fa-solid fa-gamepad"></i> JDLG
         </a>
-        <div class="nav-links">
-            <a href="#">Sobre</a>
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Buscar jogos da galera...">
+        </div>
+        <div class="nav-right">
+            <button class="nav-btn"><i class="fa-solid fa-bolt"></i></button>
+            <button class="nav-btn"><i class="fa-solid fa-user"></i></button>
         </div>
     </nav>
 
-    <div class="header-section">
-        <div class="categories">
-            <button class="cat-btn active">Todos</button>
-            <button class="cat-btn">Tabuleiros</button>
-            <button class="cat-btn">Cartas</button>
-            <button class="cat-btn">Party</button>
+    <div class="container">
+        
+        <!-- Categorias Estilo Carrossel Bloob -->
+        <div class="categories-bar">
+            <a href="#" class="cat-item active"><i class="fa-solid fa-fire"></i> Em Alta</a>
+            <a href="#" class="cat-item"><i class="fa-solid fa-dice"></i> Tabuleiro</a>
+            <a href="#" class="cat-item"><i class="fa-solid fa-id-card"></i> Cartas</a>
+            <a href="#" class="cat-item"><i class="fa-solid fa-people-group"></i> Família</a>
+            <a href="#" class="cat-item"><i class="fa-solid fa-stopwatch"></i> Rápidos</a>
         </div>
-        <div class="tv-prompt">
-            <i class="fa-solid fa-tv"></i> Ideal para jogar na TV da sala
-        </div>
+
+        <!-- Grid Compacto de Jogos -->
+        <main class="games-grid">
+
+            <!-- Jogo 1 -->
+            <a href="#" class="game-card">
+                <img src="https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?q=80&w=400" alt="Ludo">
+                <div class="game-title">Ludo Clássico</div>
+            </a>
+
+            <!-- Jogo 2 -->
+            <a href="#" class="game-card">
+                <img src="https://images.unsplash.com/photo-1585504198199-20277593b94f?q=80&w=400" alt="Cartas">
+                <div class="game-title">Duelo de Cartas</div>
+            </a>
+
+            <!-- Jogo 3 -->
+            <a href="#" class="game-card">
+                <img src="https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=400" alt="Stop">
+                <div class="game-title">Stop! Online</div>
+            </a>
+
+            <!-- Jogo 4 -->
+            <a href="#" class="game-card">
+                <img src="https://images.unsplash.com/photo-1566694271453-390536dd1f0d?q=80&w=400" alt="Xadrez">
+                <div class="game-title">Xadrez da Galera</div>
+            </a>
+
+            <!-- Jogo 5 -->
+            <a href="#" class="game-card">
+                <img src="https://images.unsplash.com/photo-1611195974226-a6a9be9dd763?q=80&w=400" alt="Dominó">
+                <div class="game-title">Dominó Master</div>
+            </a>
+
+            <!-- Jogo 6 -->
+            <a href="#" class="game-card">
+                <img src="https://images.unsplash.com/photo-1543536448-d209d2d13a1c?q=80&w=400" alt="Trunfo">
+                <div class="game-title">Super Trunfo</div>
+            </a>
+
+            <!-- Jogo 7 -->
+            <a href="#" class="game-card">
+                <img src="https://images.unsplash.com/photo-1618519764620-7403abdbfee9?q=80&w=400" alt="Dados">
+                <div class="game-title">Cachaça e Dados</div>
+            </a>
+
+            <!-- Jogo 8 -->
+            <a href="#" class="game-card">
+                <img src="https://images.unsplash.com/photo-1601987177651-8edfe6c20009?q=80&w=400" alt="Trilha">
+                <div class="game-title">Jogo de Trilha</div>
+            </a>
+
+        </main>
     </div>
-
-    <main class="grid">
-
-        <!-- Jogo 1 -->
-        <a href="#" class="card">
-            <div class="thumb">
-                <img src="https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?q=80&w=500" alt="Tabuleiro">
-            </div>
-            <div class="info">
-                <div class="title">Ludo da Galera</div>
-                <div class="meta">
-                    <span class="players"><i class="fa-solid fa-users"></i> 2-4 Jogadores</span>
-                    <span>Tabuleiros</span>
-                </div>
-            </div>
-        </a>
-
-        <!-- Jogo 2 -->
-        <a href="#" class="card">
-            <div class="thumb">
-                <img src="https://images.unsplash.com/photo-1585504198199-20277593b94f?q=80&w=500" alt="Cartas">
-            </div>
-            <div class="info">
-                <div class="title">Duelo de Cartas</div>
-                <div class="meta">
-                    <span class="players"><i class="fa-solid fa-users"></i> 2 Jogadores</span>
-                    <span>Cartas</span>
-                </div>
-            </div>
-        </a>
-
-        <!-- Jogo 3 -->
-        <a href="#" class="card">
-            <div class="thumb">
-                <img src="https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=500" alt="Party">
-            </div>
-            <div class="info">
-                <div class="title">Stop! Corporativo</div>
-                <div class="meta">
-                    <span class="players"><i class="fa-solid fa-users"></i> 2-10 Jogadores</span>
-                    <span>Party</span>
-                </div>
-            </div>
-        </a>
-
-        <!-- Jogo 4 -->
-        <a href="#" class="card">
-            <div class="thumb">
-                <img src="https://images.unsplash.com/photo-1566694271453-390536dd1f0d?q=80&w=500" alt="Xadrez">
-            </div>
-            <div class="info">
-                <div class="title">Xadrez Rápido</div>
-                <div class="meta">
-                    <span class="players"><i class="fa-solid fa-users"></i> 2 Jogadores</span>
-                    <span>Tabuleiros</span>
-                </div>
-            </div>
-        </a>
-
-    </main>
-
-    <footer>
-        &copy; 2026 Jogos da Galera. Feito para unir o pessoal.
-    </footer>
 
 </body>
 </html>
