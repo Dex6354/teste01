@@ -1,0 +1,8 @@
+{
+  "title": "Cara a Cara",
+  "description": "Adivinhe a identidade do personagem do adversário antes que ele descubra a sua.",
+  "category": "tabuleiro",
+  "emoji": "👤",
+  "tags": ["Tabuleiro", "2 jogadores"],
+  "background": "linear-gradient(135deg,#002966,#001a3d)"
+}
