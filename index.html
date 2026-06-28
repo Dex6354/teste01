@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo da Forca Versus P2P</title>
+    <title>Banco Imobiliário P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
@@ -12,7 +12,7 @@
     <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-0 z-50">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex flex-col">
-                <h1 class="font-extrabold text-base tracking-wider text-amber-400">🔤 FORCA VERSUS</h1>
+                <h1 class="font-extrabold text-base tracking-wider text-blue-400">💼 BANCO P2P</h1>
                 <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
                     <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
                     <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">📋 Copiar</button>
@@ -22,107 +22,106 @@
         </div>
     </header>
 
-    <main class="flex-grow flex flex-col items-center justify-start p-3 w-full max-w-md mx-auto mb-12 space-y-4">
+    <main class="flex-grow flex flex-col items-center justify-start p-2 w-full max-w-md mx-auto mb-12 space-y-3">
         
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
-                <h2 class="text-xl font-extrabold">Aguardando Conexão</h2>
-                <p class="text-slate-400 text-xs">Compartilhe o link com seu oponente para iniciar a disputa da Forca!</p>
+                <h2 class="text-xl font-extrabold">Aguardando Jogador</h2>
+                <p class="text-slate-400 text-xs">Envie o link para o seu oponente entrar na partida de finanças!</p>
                 <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Buscando servidor...</div>
             </div>
         </div>
 
-        <div class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between text-center">
+        <div class="w-full bg-slate-800 p-2.5 rounded-xl border border-slate-700 shadow-xl flex items-center justify-between text-center text-xs">
             <div class="flex-1">
-                <span class="text-xs font-bold text-amber-400 block">Seus Pontos</span>
-                <span id="score-me" class="text-2xl font-mono font-black">0</span>
+                <span class="font-bold text-red-400 block">Seu Saldo</span>
+                <span id="cash-me" class="text-base font-mono font-black text-white">M$ 1500</span>
             </div>
-            <div class="px-3 border-x border-slate-700 flex flex-col items-center justify-center min-w-[120px]">
-                <span id="round-text" class="text-xs font-black text-indigo-400 uppercase tracking-wider">Round 1</span>
-                <span id="turn-status" class="text-[10px] text-slate-300 font-bold mt-1">Carregando...</span>
+            <div class="px-2 border-x border-slate-700 min-w-[110px]">
+                <span id="turn-text" class="font-black text-amber-400 uppercase tracking-wider block">Carregando...</span>
+                <span id="log-text" class="text-[9px] text-slate-300 block truncate mt-0.5">Jogo iniciado</span>
             </div>
             <div class="flex-1">
-                <span class="text-xs font-bold text-blue-400 block">Oponente</span>
-                <span id="score-opp" class="text-2xl font-mono font-black">0</span>
+                <span class="font-bold text-blue-400 block">Oponente</span>
+                <span id="cash-opp" class="text-base font-mono font-black text-white">M$ 1500</span>
             </div>
         </div>
 
-        <div id="screen-game" class="w-full space-y-4 hidden flex-grow flex flex-col justify-start">
+        <div id="board" class="w-full aspect-square bg-slate-950 rounded-2xl p-1 border-2 border-slate-800 grid grid-cols-5 grid-rows-5 gap-1 relative">
             
-            <div id="stage-choosing" class="w-full bg-slate-950/60 rounded-2xl p-4 border border-slate-800 space-y-3 hidden">
-                <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider text-center">Defina o Desafio</h3>
-                <div>
-                    <label class="text-[10px] text-slate-400 font-bold uppercase block mb-1">Palavra Secreta:</label>
-                    <input type="text" id="input-word" maxlength="15" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-indigo-500 uppercase font-mono tracking-widest">
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-400 font-bold uppercase block mb-1">Dica / Tema:</label>
-                    <input type="text" id="input-hint" maxlength="25" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                </div>
-                <button onclick="submitSecretWord()" class="w-full bg-indigo-600 hover:bg-indigo-700 font-bold py-2 rounded-xl text-xs uppercase tracking-wider transition">
-                    🚀 Enviar para o Oponente
-                </button>
-            </div>
-
-            <div id="stage-guessing" class="w-full flex-grow flex flex-col justify-start space-y-4 hidden">
+            <div class="row-start-2 row-end-5 col-start-2 col-end-5 bg-slate-900/90 rounded-xl p-2 flex flex-col items-center justify-center space-y-2 text-center border border-slate-800/60 z-10">
+                <div id="dice-display" class="w-10 h-10 bg-white text-slate-900 rounded-lg flex items-center justify-center text-xl font-black shadow-md border-b-4 border-slate-300">🎲</div>
                 
-                <div class="w-full bg-slate-950/60 rounded-2xl p-4 border border-slate-800 flex items-center justify-between min-h-[100px]">
-                    <div class="flex flex-col">
-                        <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Dica da Rodada</span>
-                        <span id="display-hint" class="text-sm font-bold text-amber-400 mt-1">-</span>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider block">Erros Restantes</span>
-                        <span id="display-lives" class="text-xl font-mono font-black text-red-500">❤️ ❤️ ❤️ ❤️ ❤️ ❤️</span>
+                <div id="action-panel" class="w-full space-y-1">
+                    <button id="btn-roll" onclick="rollDice()" class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-1.5 px-2 rounded-lg text-xs uppercase tracking-wider transition disabled:opacity-40">Jogar Dado</button>
+                    
+                    <div id="buy-controls" class="hidden grid grid-cols-2 gap-1">
+                        <button onclick="buyProperty(true)" class="bg-emerald-600 hover:bg-emerald-500 font-bold py-1 rounded text-[10px] uppercase">Comprar</button>
+                        <button onclick="buyProperty(false)" class="bg-slate-700 hover:bg-slate-600 font-bold py-1 rounded text-[10px] uppercase">Passar</button>
                     </div>
                 </div>
-
-                <div id="word-container" class="w-full bg-slate-800 p-5 rounded-2xl border border-slate-700 flex flex-wrap justify-center items-center gap-2 min-h-[70px] text-xl font-mono font-black tracking-widest uppercase">
-                    </div>
-
-                <div id="keyboard-container" class="w-full bg-slate-950/40 p-2 rounded-xl border border-slate-800/80 grid grid-cols-7 gap-1.5">
-                    </div>
             </div>
 
-        </div>
+            </div>
 
-        <div id="screen-round-over" class="w-full bg-slate-800 p-6 rounded-2xl border-2 border-amber-500 text-center space-y-4 hidden">
-            <h2 id="round-title" class="text-2xl font-black text-green-400">FIM DO ROUND</h2>
-            <p id="round-msg" class="text-sm text-slate-300">A palavra era: <span id="reveal-word" class="font-mono font-black tracking-wider text-white uppercase block mt-1 text-lg">-</span></p>
-            <button id="btn-next-round" onclick="advanceRound()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                Prosseguir Partida ➡️
-            </button>
+        <div id="screen-game-over" class="w-full bg-slate-800 p-6 rounded-2xl border-2 border-amber-500 text-center space-y-4 hidden">
+            <h2 id="game-over-title" class="text-3xl font-black text-green-400">🏆 VITÓRIA!</h2>
+            <p id="game-over-msg" class="text-sm text-slate-300">O oponente faliu!</p>
+            <button onclick="window.location.reload()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg transition">🔄 Nova Partida</button>
         </div>
 
     </main>
 
     <script>
         let peer = null, conn = null, myRole = '', roomCode = '';
-        let scores = { red: 0, blue: 0 };
-        let currentRound = 1;
-        
-        // Estado do round atual
-        let chooserRole = 'red'; // No Round 1, Red (Host) escolhe. Blue (Guest) adivinha.
-        let secretWord = '';
-        let currentHint = '';
-        let guessedLetters = [];
-        let wrongLettersCount = 0;
-        const maxErrors = 6;
+        let isMyTurn = false;
+        let diceValue = 1;
 
-        const screenLobby = document.getElementById('screen-lobby');
-        const screenGame = document.getElementById('screen-game');
-        const screenRoundOver = document.getElementById('screen-round-over');
+        // Estado do Jogo
+        let gameState = {
+            players: { red: { pos: 0, cash: 1500 }, blue: { pos: 0, cash: 1500 } },
+            owner: Array(16).fill(null), // null, 'red' ou 'blue'
+            currentTurn: 'red',
+            lastLog: "Aguardando começo..."
+        };
+
+        const boardSpaces = [
+            { name: "INÍCIO", type: "start", color: "bg-slate-700 text-slate-200" },
+            { name: "Leblon", type: "property", price: 100, rent: 10, color: "bg-pink-600" },
+            { name: "P. Vargas", type: "property", price: 120, rent: 12, color: "bg-pink-600" },
+            { name: "N. Senhora", type: "property", price: 140, rent: 14, color: "bg-pink-600" },
+            { name: "PRISÃO", type: "jail", color: "bg-slate-800 text-slate-400 text-[9px]" },
+            { name: "Paulista", type: "property", price: 200, rent: 20, color: "bg-blue-600" },
+            { name: "Augusta", type: "property", price: 220, rent: 22, color: "bg-blue-600" },
+            { name: "Morumbi", type: "property", price: 240, rent: 24, color: "bg-blue-600" },
+            { name: "SORTE", type: "luck", color: "bg-amber-500 text-slate-950 font-bold" },
+            { name: "Interlagos", type: "property", price: 300, rent: 30, color: "bg-emerald-600" },
+            { name: "Ipanema", type: "property", price: 320, rent: 35, color: "bg-emerald-600" },
+            { name: "Copacabana", type: "property", price: 400, rent: 50, color: "bg-emerald-600" },
+            { name: "TAXA", type: "tax", color: "bg-red-700 text-white font-bold text-[9px]" },
+            { name: "Brás", type: "property", price: 60, rent: 6, color: "bg-orange-600" },
+            { name: "25 Março", type: "property", price: 80, rent: 8, color: "bg-orange-600" },
+            { name: "Barra", type: "property", price: 160, rent: 16, color: "bg-pink-600" }
+        ];
+
+        // Mapeamento visual das posições periféricas do Grid 5x5
+        const gridCoords = [
+            "row-start-1 col-start-1", "row-start-1 col-start-2", "row-start-1 col-start-3", "row-start-1 col-start-4", "row-start-1 col-start-5",
+            "row-start-2 col-start-5", "row-start-3 col-start-5", "row-start-4 col-start-5", "row-start-5 col-start-5",
+            "row-start-5 col-start-4", "row-start-5 col-start-3", "row-start-5 col-start-2", "row-start-5 col-start-1",
+            "row-start-4 col-start-1", "row-start-3 col-start-1", "row-start-2 col-start-1"
+        ];
 
         const urlParams = new URLSearchParams(window.location.search);
         roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            const generatedCode = 'FORCA-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_forca_room', generatedCode);
+            const generatedCode = 'BANCO-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_banco_room', generatedCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
             document.getElementById('topbar-room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('hosted_forca_room')) ? 'red' : 'blue';
+            myRole = (roomCode === localStorage.getItem('hosted_banco_room')) ? 'red' : 'blue';
             if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
@@ -143,224 +142,218 @@
 
         function handleEvents() {
             conn.on('open', () => {
-                screenLobby.classList.add('hidden');
-                screenGame.classList.remove('hidden');
-                startRoundStructure();
+                document.getElementById('screen-lobby').classList.add('hidden');
+                isMyTurn = (myRole === 'red');
+                if (myRole === 'red') sendState();
+                buildBoardDOM();
+                updateUI();
             });
 
             conn.on('data', (data) => {
-                if (data.type === 'SETUP_WORD') {
-                    secretWord = data.word.toUpperCase().trim();
-                    currentHint = data.hint;
-                    guessedLetters = [];
-                    wrongLettersCount = 0;
-                    setupGuessingStageUI();
-                } else if (data.type === 'GUESS_LETTER') {
-                    processLetterGuess(data.letter);
-                } else if (data.type === 'SYNC_ROUND_OVER') {
-                    scores = data.scores;
-                    showRoundOverScreen(data.won, data.word);
-                } else if (data.type === 'NEXT_ROUND_TRIGGER') {
-                    currentRound = data.nextRound;
-                    chooserRole = data.nextChooser;
-                    startRoundStructure();
+                if (data.type === 'SYNC_STATE') {
+                    gameState = data.state;
+                    diceValue = data.dice || 1;
+                    isMyTurn = (gameState.currentTurn === myRole);
+                    checkBankruptcy();
+                    updateUI();
                 }
             });
         }
 
-        function startRoundStructure() {
-            screenRoundOver.classList.add('hidden');
-            screenGame.classList.remove('hidden');
-            
-            document.getElementById('round-text').innerText = `Round ${currentRound}`;
-            document.getElementById('score-me').innerText = myRole === 'red' ? scores.red : scores.blue;
-            document.getElementById('score-opp').innerText = myRole === 'red' ? scores.blue : scores.red;
+        function buildBoardDOM() {
+            const boardEl = document.getElementById('board');
+            // Remove elementos antigos de casas que possam existir
+            boardEl.querySelectorAll('.board-space').forEach(e => e.remove());
 
-            document.getElementById('stage-choosing').classList.add('hidden');
-            document.getElementById('stage-guessing').classList.add('hidden');
-
-            if (myRole === chooserRole) {
-                document.getElementById('turn-status').innerText = "Sua vez de escolher";
-                document.getElementById('stage-choosing').classList.remove('hidden');
-                document.getElementById('input-word').value = '';
-                document.getElementById('input-hint').value = '';
-            } else {
-                document.getElementById('turn-status').innerText = "Oponente escolhendo...";
-                document.getElementById('stage-guessing').classList.remove('hidden');
-                document.getElementById('display-hint').innerText = "Aguardando definição...";
-                document.getElementById('display-lives').innerText = "❤️ ❤️ ❤️ ❤️ ❤️ ❤️";
-                document.getElementById('word-container').innerHTML = "<span class='text-xs text-slate-500 italic'>Aguardando a palavra secreta...</span>";
-                document.getElementById('keyboard-container').innerHTML = '';
-            }
-        }
-
-        function submitSecretWord() {
-            const wordInput = document.getElementById('input-word').value.toUpperCase().trim();
-            const hintInput = document.getElementById('input-hint').value.trim();
-
-            if (!wordInput || wordInput.length < 2 || !/^[A-Z]+$/.test(wordInput)) {
-                alert("Insira uma palavra válida (apenas letras, sem espaços ou acentos).");
-                return;
-            }
-            if (!hintInput) {
-                alert("Por favor, digite uma dica ou tema.");
-                return;
-            }
-
-            secretWord = wordInput;
-            currentHint = hintInput;
-            guessedLetters = [];
-            wrongLettersCount = 0;
-
-            conn.send({
-                type: 'SETUP_WORD',
-                word: secretWord,
-                hint: currentHint
-            });
-
-            setupGuessingStageUI();
-        }
-
-        function setupGuessingStageUI() {
-            document.getElementById('stage-choosing').classList.add('hidden');
-            document.getElementById('stage-guessing').classList.remove('hidden');
-            
-            const amIGuessing = (myRole !== chooserRole);
-            document.getElementById('turn-status').innerText = amIGuessing ? "Sua vez de adivinhar!" : "Oponente adivinhando...";
-
-            document.getElementById('display-hint').innerText = currentHint;
-            updateLivesDisplay();
-            renderWordDashes();
-            renderKeyboard(amIGuessing);
-        }
-
-        function renderWordDashes() {
-            const container = document.getElementById('word-container');
-            container.innerHTML = '';
-            
-            for (let letter of secretWord) {
-                const span = document.createElement('span');
-                span.className = "border-b-4 border-white px-1.5 min-w-[24px] text-center";
-                if (guessedLetters.includes(letter)) {
-                    span.innerText = letter;
-                } else {
-                    span.innerText = " ";
-                }
-                container.appendChild(span);
-            }
-        }
-
-        function renderKeyboard(active) {
-            const container = document.getElementById('keyboard-container');
-            container.innerHTML = '';
-            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-
-            alphabet.forEach(letter => {
-                const btn = document.createElement('button');
-                btn.innerText = letter;
-                btn.className = "bg-slate-800 hover:bg-slate-700 text-sm font-bold p-2.5 rounded-lg transition disabled:opacity-30 disabled:pointer-events-none";
+            boardSpaces.forEach((space, index) => {
+                const div = document.createElement('div');
+                div.id = `space-${index}`;
+                div.className = `board-space ${gridCoords[index]} bg-slate-800 rounded-md p-1 flex flex-col justify-between items-center text-center border border-slate-700 relative overflow-hidden`;
                 
-                if (!active) {
-                    btn.disabled = true;
+                let innerHTML = '';
+                if (space.type === 'property') {
+                    innerHTML = `
+                        <div class="w-full h-2 ${space.color} rounded-sm mb-0.5"></div>
+                        <span class="text-[8px] font-bold leading-none truncate w-full">${space.name}</span>
+                        <span class="text-[7px] text-slate-400 font-mono">M$${space.price}</span>
+                        <div id="owner-mark-${index}" class="absolute bottom-0.5 right-0.5 w-2 h-2 rounded-full hidden"></div>
+                    `;
+                } else {
+                    innerHTML = `
+                        <div class="w-full h-full flex items-center justify-center rounded p-0.5 ${space.color || 'bg-slate-700'}">
+                            <span class="text-[9px] font-black leading-tight uppercase">${space.name}</span>
+                        </div>
+                    `;
                 }
-                if (guessedLetters.includes(letter)) {
-                    btn.disabled = true;
-                }
-
-                btn.onclick = () => {
-                    btn.disabled = true;
-                    guessedLetters.push(letter);
-                    conn.send({ type: 'GUESS_LETTER', letter: letter });
-                    processLetterGuess(letter);
-                };
-
-                container.appendChild(btn);
+                
+                // Div container dos pinos dos jogadores
+                innerHTML += `<div id="tokens-${index}" class="absolute bottom-1 left-1 flex space-x-0.5 z-20"></div>`;
+                
+                div.innerHTML = innerHTML;
+                boardEl.appendChild(div);
             });
         }
 
-        function processLetterGuess(letter) {
-            if (!guessedLetters.includes(letter)) {
-                guessedLetters.push(letter);
-            }
+        function updateUI() {
+            // Atualizar Saldos
+            const meCash = myRole === 'red' ? gameState.players.red.cash : gameState.players.blue.cash;
+            const oppCash = myRole === 'red' ? gameState.players.blue.cash : gameState.players.red.cash;
+            document.getElementById('cash-me').innerText = `M$ ${meCash}`;
+            document.getElementById('cash-opp').innerText = `M$ ${oppCash}`;
 
-            if (!secretWord.includes(letter)) {
-                wrongLettersCount++;
-            }
-
-            updateLivesDisplay();
-            renderWordDashes();
-            
-            if (myRole !== chooserRole) {
-                renderKeyboard(true); 
-            }
-
-            // Verifica condições de fim de round (Apenas o adivinhador valida e envia o veredito final)
-            if (myRole !== chooserRole) {
-                const playerWon = secretWord.split("").every(l => guessedLetters.includes(l));
-                const playerLost = (wrongLettersCount >= maxErrors);
-
-                if (playerWon || playerLost) {
-                    if (playerWon) {
-                        // O adivinhador ganha ponto
-                        if (myRole === 'red') scores.red++; else scores.blue++;
-                    } else {
-                        // O desafiador ganha ponto
-                        if (chooserRole === 'red') scores.red++; else scores.blue++;
-                    }
-
-                    const payload = {
-                        type: 'SYNC_ROUND_OVER',
-                        won: playerWon,
-                        word: secretWord,
-                        scores: scores
-                    };
-                    conn.send(payload);
-                    showRoundOverScreen(playerWon, secretWord);
-                }
-            }
-        }
-
-        function updateLivesDisplay() {
-            const livesEl = document.getElementById('display-lives');
-            const rem = maxErrors - wrongLettersCount;
-            livesEl.innerText = "❤️ ".repeat(Math.max(0, rem)) + "💀 ".repeat(Math.max(0, wrongLettersCount));
-        }
-
-        function showRoundOverScreen(guesserWon, word) {
-            screenGame.classList.add('hidden');
-            screenRoundOver.classList.remove('hidden');
-
-            const title = document.getElementById('round-title');
-            const msg = document.getElementById('round-msg');
-            document.getElementById('reveal-word').innerText = word;
-
-            const amIGuesser = (myRole !== chooserRole);
-
-            if (guesserWon) {
-                title.innerText = amIGuesser ? "🎉 VOCÊ ACERTOU!" : "💥 O OPP ACERTOU!";
-                title.className = "text-2xl font-black text-green-400";
+            // Turno e Logs
+            const turnText = document.getElementById('turn-text');
+            if (isMyTurn) {
+                turnText.innerText = "Sua Vez!";
+                turnText.className = "font-black text-emerald-400 uppercase tracking-wider block animate-pulse";
+                document.getElementById('btn-roll').disabled = false;
             } else {
-                title.innerText = amIGuesser ? "💀 VOCÊ FOI ENFORCADO!" : "🏆 ELE ERROU A PALAVRA!";
-                title.className = "text-2xl font-black text-red-500";
+                turnText.innerText = "Oponente...";
+                turnText.className = "font-black text-slate-400 uppercase tracking-wider block";
+                document.getElementById('btn-roll').disabled = true;
             }
+            document.getElementById('log-text').innerText = gameState.lastLog;
+            document.getElementById('dice-display').innerText = diceValue;
 
-            // Apenas o Host gerencia o botão de avançar para evitar dessincronização
-            document.getElementById('btn-next-round').style.display = (myRole === 'red') ? 'block' : 'none';
+            // Atualizar Pinos e Donos no Tabuleiro
+            boardSpaces.forEach((space, index) => {
+                // Atualizar pinos
+                const tokenContainer = document.getElementById(`tokens-${index}`);
+                if (tokenContainer) {
+                    tokenContainer.innerHTML = '';
+                    if (gameState.players.red.pos === index) {
+                        tokenContainer.innerHTML += `<div class="w-2.5 h-2.5 bg-red-500 rounded-full border border-white shadow"></div>`;
+                    }
+                    if (gameState.players.blue.pos === index) {
+                        tokenContainer.innerHTML += `<div class="w-2.5 h-2.5 bg-blue-500 rounded-full border border-white shadow"></div>`;
+                    }
+                }
+
+                // Atualizar marca de dono das propriedades
+                const ownerMark = document.getElementById(`owner-mark-${index}`);
+                if (ownerMark && space.type === 'property') {
+                    const owner = gameState.owner[index];
+                    if (owner) {
+                        ownerMark.className = `absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full border border-white ${owner === 'red' ? 'bg-red-500' : 'bg-blue-500'}`;
+                        ownerMark.classList.remove('hidden');
+                    } else {
+                        ownerMark.classList.add('hidden');
+                    }
+                }
+            });
         }
 
-        function advanceRound() {
-            if (myRole !== 'red') return;
+        function rollDice() {
+            if (!isMyTurn) return;
+            document.getElementById('btn-roll').disabled = true;
 
-            currentRound++;
-            chooserRole = (chooserRole === 'red') ? 'blue' : 'red'; // Inverte o papel
+            diceValue = Math.floor(Math.random() * 6) + 1;
+            let player = gameState.players[myRole];
+            let oldPos = player.pos;
+            let newPos = (oldPos + diceValue) % 16;
 
-            conn.send({
-                type: 'NEXT_ROUND_TRIGGER',
-                nextRound: currentRound,
-                nextChooser: chooserRole
-            });
+            player.pos = newPos;
 
-            startRoundStructure();
+            // Passou pelo Início ganha M$ 200
+            if (newPos < oldPos) {
+                player.cash += 200;
+                gameState.lastLog = `Ganhou M$200 ao passar pelo início!`;
+            }
+
+            evaluateSpace(newPos);
+        }
+
+        function evaluateSpace(pos) {
+            const space = boardSpaces[pos];
+            let oppRole = myRole === 'red' ? 'blue' : 'red';
+
+            if (space.type === 'property') {
+                const owner = gameState.owner[pos];
+                if (!owner) {
+                    // Sem dono: liberar painel de compra se tiver dinheiro
+                    if (gameState.players[myRole].cash >= space.price) {
+                        gameState.lastLog = `Caiu em ${space.name}. Comprar por M$${space.price}?`;
+                        document.getElementById('buy-controls').classList.remove('hidden');
+                        updateUI();
+                        return; // Trava o fluxo esperando a decisão do jogador
+                    } else {
+                        gameState.lastLog = `Caiu em ${space.name}, mas não tem saldo para comprar.`;
+                    }
+                } else if (owner === oppRole) {
+                    // Pagar Aluguel automático
+                    gameState.players[myRole].cash -= space.rent;
+                    gameState.players[oppRole].cash += space.rent;
+                    gameState.lastLog = `Pagou M$${space.rent} de aluguel em ${space.name}.`;
+                } else {
+                    gameState.lastLog = `Caiu na sua propriedade (${space.name}).`;
+                }
+            } else if (space.type === 'tax') {
+                gameState.players[myRole].cash -= 150;
+                gameState.lastLog = `Imposto! Pagou M$150 ao banco.`;
+            } else if (space.type === 'luck') {
+                const bonus = Math.random() > 0.5 ? 100 : -100;
+                gameState.players[myRole].cash += bonus;
+                gameState.lastLog = bonus > 0 ? `Sorte! Ganhou M$100.` : `Revés! Perdeu M$100.`;
+            } else {
+                gameState.lastLog = `Parou no(a) ${space.name}.`;
+            }
+
+            endTurn();
+        }
+
+        function buyProperty(wantsToBuy) {
+            document.getElementById('buy-controls').classList.add('hidden');
+            const pos = gameState.players[myRole].pos;
+            const space = boardSpaces[pos];
+
+            if (wantsToBuy) {
+                gameState.players[myRole].cash -= space.price;
+                gameState.owner[pos] = myRole;
+                gameState.lastLog = `Comprou ${space.name} por M$${space.price}!`;
+            } else {
+                gameState.lastLog = `Passou a compra de ${space.name}.`;
+            }
+
+            endTurn();
+        }
+
+        function endTurn() {
+            checkBankruptcy();
+            gameState.currentTurn = myRole === 'red' ? 'blue' : 'red';
+            isMyTurn = false;
+            sendState();
+            updateUI();
+        }
+
+        function sendState() {
+            if (conn && conn.open) {
+                conn.send({
+                    type: 'SYNC_STATE',
+                    state: gameState,
+                    dice: diceValue
+                });
+            }
+        }
+
+        function checkBankruptcy() {
+            if (gameState.players.red.cash <= 0 || gameState.players.blue.cash <= 0) {
+                document.getElementById('board').classList.add('hidden');
+                document.getElementById('screen-game-over').classList.remove('hidden');
+
+                const title = document.getElementById('game-over-title');
+                const msg = document.getElementById('game-over-msg');
+
+                const iFaliu = gameState.players[myRole].cash <= 0;
+                if (iFaliu) {
+                    title.innerText = "💀 FALÊNCIA!";
+                    title.className = "text-3xl font-black text-red-500";
+                    msg.innerText = "Seu dinheiro acabou e você faliu!";
+                } else {
+                    title.innerText = "🏆 VITÓRIA!";
+                    title.className = "text-3xl font-black text-green-400";
+                    msg.innerText = "O oponente faliu! Você é o novo magnata!";
+                }
+            }
         }
 
         function copyLink() {
@@ -369,7 +362,7 @@
         }
 
         function leaveRoom() {
-            localStorage.removeItem('hosted_forca_room');
+            localStorage.removeItem('hosted_banco_room');
             if (conn) conn.close();
             if (peer) peer.destroy();
             window.location.href = window.location.origin + window.location.pathname;
