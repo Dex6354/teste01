@@ -3,23 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dominó P2P Online</title>
+    <title>Jogo da Forca Versus P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-    <style>
-        .domino-hand-piece:hover { transform: translateY(-8px); }
-        /* Esconder barra de rolagem da mesa */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between select-none">
 
-    <!-- Topbar -->
     <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-0 z-50">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex flex-col">
-                <h1 class="font-extrabold text-base tracking-wider text-emerald-400">🀫 DOMINÓ P2P</h1>
+                <h1 class="font-extrabold text-base tracking-wider text-amber-400">🔤 FORCA VERSUS</h1>
                 <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
                     <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
                     <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">📋 Copiar</button>
@@ -29,79 +22,75 @@
         </div>
     </header>
 
-    <!-- Main Container -->
     <main class="flex-grow flex flex-col items-center justify-start p-3 w-full max-w-md mx-auto mb-12 space-y-4">
         
-        <!-- Lobby Overlay -->
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
                 <h2 class="text-xl font-extrabold">Aguardando Conexão</h2>
-                <p class="text-slate-400 text-xs">Compartilhe o link com seu oponente para iniciar a partida.</p>
+                <p class="text-slate-400 text-xs">Compartilhe o link com seu oponente para iniciar a disputa da Forca!</p>
                 <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Buscando servidor...</div>
             </div>
         </div>
 
-        <!-- Placar e Status -->
         <div class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between text-center">
             <div class="flex-1">
-                <span class="text-xs font-bold text-emerald-400 block">Suas Peças</span>
-                <span id="count-me" class="text-2xl font-mono font-black">0</span>
+                <span class="text-xs font-bold text-amber-400 block">Seus Pontos</span>
+                <span id="score-me" class="text-2xl font-mono font-black">0</span>
             </div>
             <div class="px-3 border-x border-slate-700 flex flex-col items-center justify-center min-w-[120px]">
-                <span id="turn-text" class="text-xs font-black text-amber-400 uppercase tracking-wider">Carregando...</span>
-                <span class="text-[9px] text-slate-400 font-mono mt-1">Dormido: <span id="count-boneyard">0</span></span>
+                <span id="round-text" class="text-xs font-black text-indigo-400 uppercase tracking-wider">Round 1</span>
+                <span id="turn-status" class="text-[10px] text-slate-300 font-bold mt-1">Carregando...</span>
             </div>
             <div class="flex-1">
                 <span class="text-xs font-bold text-blue-400 block">Oponente</span>
-                <span id="count-opp" class="text-2xl font-mono font-black">0</span>
+                <span id="score-opp" class="text-2xl font-mono font-black">0</span>
             </div>
         </div>
 
-        <!-- Tela do Jogo / Mesa -->
-        <div id="screen-game" class="w-full space-y-4 hidden flex-grow flex flex-col justify-between">
+        <div id="screen-game" class="w-full space-y-4 hidden flex-grow flex flex-col justify-start">
             
-            <!-- Mesa de Jogo (Esteira de Peças) -->
-            <div class="w-full bg-slate-950/60 rounded-2xl p-4 border border-slate-800 flex flex-col items-center justify-center min-h-[160px] relative">
-                <span class="text-[10px] uppercase font-bold text-slate-500 absolute top-2 tracking-widest">Mesa de Jogo</span>
+            <div id="stage-choosing" class="w-full bg-slate-950/60 rounded-2xl p-4 border border-slate-800 space-y-3 hidden">
+                <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider text-center">Defina o Desafio</h3>
+                <div>
+                    <label class="text-[10px] text-slate-400 font-bold uppercase block mb-1">Palavra Secreta:</label>
+                    <input type="text" id="input-word" maxlength="15" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-indigo-500 uppercase font-mono tracking-widest">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 font-bold uppercase block mb-1">Dica / Tema:</label>
+                    <input type="text" id="input-hint" maxlength="25" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <button onclick="submitSecretWord()" class="w-full bg-indigo-600 hover:bg-indigo-700 font-bold py-2 rounded-xl text-xs uppercase tracking-wider transition">
+                    🚀 Enviar para o Oponente
+                </button>
+            </div>
+
+            <div id="stage-guessing" class="w-full flex-grow flex flex-col justify-start space-y-4 hidden">
                 
-                <!-- Container de Rolagem Horizontal do Fluxo de Peças -->
-                <div id="board-flow" class="w-full flex items-center justify-center space-x-1.5 overflow-x-auto py-6 no-scrollbar min-h-[90px]">
-                    <!-- Peças jogadas entram aqui -->
+                <div class="w-full bg-slate-950/60 rounded-2xl p-4 border border-slate-800 flex items-center justify-between min-h-[100px]">
+                    <div class="flex flex-col">
+                        <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Dica da Rodada</span>
+                        <span id="display-hint" class="text-sm font-bold text-amber-400 mt-1">-</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider block">Erros Restantes</span>
+                        <span id="display-lives" class="text-xl font-mono font-black text-red-500">❤️ ❤️ ❤️ ❤️ ❤️ ❤️</span>
+                    </div>
                 </div>
 
-                <!-- Botões de Ação de Encaixe Dinâmico -->
-                <div id="placement-overlay" class="absolute inset-0 flex justify-between items-center px-4 bg-slate-950/40 rounded-2xl hidden">
-                    <button onclick="playSelectedPiece('left')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black py-2 px-3 rounded-lg shadow-lg transition">⬅️ Encaixar Esquerda</button>
-                    <button onclick="playSelectedPiece('right')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black py-2 px-3 rounded-lg shadow-lg transition">Encaixar Direita ➡️</button>
-                </div>
-            </div>
+                <div id="word-container" class="w-full bg-slate-800 p-5 rounded-2xl border border-slate-700 flex flex-wrap justify-center items-center gap-2 min-h-[70px] text-xl font-mono font-black tracking-widest uppercase">
+                    </div>
 
-            <!-- Controles Auxiliares (Comprar e Passar) -->
-            <div class="grid grid-cols-2 gap-2 w-full">
-                <button id="btn-draw" onclick="drawFromBoneyard()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider border border-slate-700 transition disabled:opacity-40">
-                    ➕ Comprar Peça
-                </button>
-                <button id="btn-pass" onclick="passTurn()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider border border-slate-700 transition disabled:opacity-40">
-                    🏳️ Passar Vez
-                </button>
-            </div>
-
-            <!-- Mão do Jogador -->
-            <div class="w-full space-y-1">
-                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block text-center">Sua Mão (Selecione uma peça para jogar)</span>
-                <div id="player-hand" class="flex flex-wrap justify-center gap-2 pt-2 bg-slate-900/40 p-2 rounded-xl min-h-[90px] border border-slate-800">
-                    <!-- Injeção via JS -->
-                </div>
+                <div id="keyboard-container" class="w-full bg-slate-950/40 p-2 rounded-xl border border-slate-800/80 grid grid-cols-7 gap-1.5">
+                    </div>
             </div>
 
         </div>
 
-        <!-- Tela de Fim de Jogo -->
-        <div id="screen-game-over" class="w-full bg-slate-800 p-6 rounded-2xl border-2 border-amber-500 text-center space-y-4 hidden">
-            <h2 id="game-over-title" class="text-3xl font-black text-green-400">🏆 VITÓRIA!</h2>
-            <p id="game-over-msg" class="text-sm text-slate-300">Você bateu o jogo!</p>
-            <button onclick="window.location.reload()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                🔄 Jogar Novamente
+        <div id="screen-round-over" class="w-full bg-slate-800 p-6 rounded-2xl border-2 border-amber-500 text-center space-y-4 hidden">
+            <h2 id="round-title" class="text-2xl font-black text-green-400">FIM DO ROUND</h2>
+            <p id="round-msg" class="text-sm text-slate-300">A palavra era: <span id="reveal-word" class="font-mono font-black tracking-wider text-white uppercase block mt-1 text-lg">-</span></p>
+            <button id="btn-next-round" onclick="advanceRound()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                Prosseguir Partida ➡️
             </button>
         </div>
 
@@ -109,27 +98,31 @@
 
     <script>
         let peer = null, conn = null, myRole = '', roomCode = '';
-        let myHand = [], boneyard = [], board = [];
-        let leftEnd = null, rightEnd = null;
-        let opponentPieceCount = 7, isMyTurn = false;
-        let selectedPieceIndex = null;
+        let scores = { red: 0, blue: 0 };
+        let currentRound = 1;
+        
+        // Estado do round atual
+        let chooserRole = 'red'; // No Round 1, Red (Host) escolhe. Blue (Guest) adivinha.
+        let secretWord = '';
+        let currentHint = '';
+        let guessedLetters = [];
+        let wrongLettersCount = 0;
+        const maxErrors = 6;
 
         const screenLobby = document.getElementById('screen-lobby');
         const screenGame = document.getElementById('screen-game');
-        const screenGameOver = document.getElementById('screen-game-over');
-        const playerHandContainer = document.getElementById('player-hand');
-        const boardFlowContainer = document.getElementById('board-flow');
+        const screenRoundOver = document.getElementById('screen-round-over');
 
         const urlParams = new URLSearchParams(window.location.search);
         roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            const generatedCode = 'DOMINO-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_domino_room', generatedCode);
+            const generatedCode = 'FORCA-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_forca_room', generatedCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
             document.getElementById('topbar-room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('hosted_domino_room')) ? 'red' : 'blue';
+            myRole = (roomCode === localStorage.getItem('hosted_forca_room')) ? 'red' : 'blue';
             if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
@@ -152,237 +145,222 @@
             conn.on('open', () => {
                 screenLobby.classList.add('hidden');
                 screenGame.classList.remove('hidden');
-                if (myRole === 'red') setupNewGame();
+                startRoundStructure();
             });
 
             conn.on('data', (data) => {
-                if (data.type === 'START_GAME') {
-                    myHand = data.guestHand;
-                    boneyard = data.boneyard;
-                    opponentPieceCount = data.hostHandCount;
-                    isMyTurn = data.yourTurn;
-                    updateUI();
-                } else if (data.type === 'PIECE_PLAYED') {
-                    board = data.board;
-                    leftEnd = data.leftEnd;
-                    rightEnd = data.rightEnd;
-                    opponentPieceCount = data.oppHandCount;
-                    isMyTurn = data.yourTurn;
-                    checkGameOver();
-                    updateUI();
-                } else if (data.type === 'OPPONENT_ACTION') {
-                    boneyard = data.boneyard;
-                    opponentPieceCount = data.oppHandCount;
-                    isMyTurn = data.yourTurn;
-                    updateUI();
+                if (data.type === 'SETUP_WORD') {
+                    secretWord = data.word.toUpperCase().trim();
+                    currentHint = data.hint;
+                    guessedLetters = [];
+                    wrongLettersCount = 0;
+                    setupGuessingStageUI();
+                } else if (data.type === 'GUESS_LETTER') {
+                    processLetterGuess(data.letter);
+                } else if (data.type === 'SYNC_ROUND_OVER') {
+                    scores = data.scores;
+                    showRoundOverScreen(data.won, data.word);
+                } else if (data.type === 'NEXT_ROUND_TRIGGER') {
+                    currentRound = data.nextRound;
+                    chooserRole = data.nextChooser;
+                    startRoundStructure();
                 }
             });
         }
 
-        function setupNewGame() {
-            let deck = [];
-            for (let i = 0; i <= 6; i++) {
-                for (let j = i; j <= 6; j++) {
-                    deck.push({ v1: i, v2: j });
-                }
-            }
-            deck.sort(() => Math.random() - 0.5);
-
-            myHand = deck.splice(0, 7);
-            let guestHand = deck.splice(0, 7);
-            boneyard = deck;
-
-            isMyTurn = true; 
-            opponentPieceCount = 7;
-
-            conn.send({
-                type: 'START_GAME',
-                guestHand: guestHand,
-                boneyard: boneyard,
-                hostHandCount: myHand.length,
-                yourTurn: false
-            });
-
-            updateUI();
-        }
-
-        function updateUI() {
-            document.getElementById('count-me').innerText = myHand.length;
-            document.getElementById('count-opp').innerText = opponentPieceCount;
-            document.getElementById('count-boneyard').innerText = boneyard.length;
-
-            const turnText = document.getElementById('turn-text');
-            if (isMyTurn) {
-                turnText.innerText = "Sua Vez!";
-                turnText.className = "text-xs font-black text-emerald-400 uppercase tracking-wider animate-pulse";
-            } else {
-                turnText.innerText = "Vez do Outro";
-                turnText.className = "text-xs font-black text-slate-400 uppercase tracking-wider";
-            }
-
-            document.getElementById('btn-draw').disabled = !isMyTurn || boneyard.length === 0;
-            document.getElementById('btn-pass').disabled = !isMyTurn;
-
-            document.getElementById('placement-overlay').classList.add('hidden');
-            selectedPieceIndex = null;
-
-            renderBoard();
-            renderHand();
-        }
-
-        function renderBoard() {
-            boardFlowContainer.innerHTML = '';
-            if (board.length === 0) {
-                boardFlowContainer.innerHTML = `<span class="text-xs text-slate-500 italic">Mesa vazia. Comece jogando qualquer peça!</span>`;
-                return;
-            }
-
-            board.forEach(piece => {
-                const div = document.createElement('div');
-                div.className = `flex bg-white text-slate-900 font-mono font-black border border-slate-300 rounded shadow px-2 py-3 text-sm items-center divide-x divide-slate-400 min-w-[54px] justify-center`;
-                div.innerHTML = `<span class="px-1">${piece.v1}</span><span class="px-1">${piece.v2}</span>`;
-                boardFlowContainer.appendChild(div);
-            });
-        }
-
-        function renderHand() {
-            playerHandContainer.innerHTML = '';
-            myHand.forEach((piece, index) => {
-                const btn = document.createElement('button');
-                btn.className = `flex bg-white text-slate-900 font-mono font-black border border-slate-400 rounded-lg shadow-md px-3 py-4 text-base items-center divide-x divide-slate-400 transition-transform domino-hand-piece`;
-                if (selectedPieceIndex === index) {
-                    btn.className += " ring-4 ring-amber-400 border-transparent transform -translate-y-2";
-                }
-                btn.innerHTML = `<span class="px-1.5">${piece.v1}</span><span class="px-1.5">${piece.v2}</span>`;
-                btn.onclick = () => selectPiece(index);
-                playerHandContainer.appendChild(btn);
-            });
-        }
-
-        function selectPiece(index) {
-            if (!isMyTurn) return;
-
-            if (selectedPieceIndex === index) {
-                selectedPieceIndex = null;
-                document.getElementById('placement-overlay').classList.add('hidden');
-                renderHand();
-                return;
-            }
-
-            selectedPieceIndex = index;
-            renderHand();
-
-            if (board.length === 0) {
-                playSelectedPiece('left'); // Primeira peça entra direto
-            } else {
-                document.getElementById('placement-overlay').classList.remove('hidden');
-            }
-        }
-
-        function playSelectedPiece(side) {
-            if (selectedPieceIndex === null) return;
-            const piece = myHand[selectedPieceIndex];
-
-            let valid = false;
-            let orientedPiece = { ...piece };
-
-            if (board.length === 0) {
-                leftEnd = piece.v1;
-                rightEnd = piece.v2;
-                board.push(orientedPiece);
-                valid = true;
-            } else if (side === 'left') {
-                if (piece.v2 === leftEnd) {
-                    leftEnd = piece.v1;
-                    board.unshift(orientedPiece);
-                    valid = true;
-                } else if (piece.v1 === leftEnd) {
-                    orientedPiece = { v1: piece.v2, v2: piece.v1 };
-                    leftEnd = piece.v2;
-                    board.unshift(orientedPiece);
-                    valid = true;
-                }
-            } else if (side === 'right') {
-                if (piece.v1 === rightEnd) {
-                    rightEnd = piece.v2;
-                    board.push(orientedPiece);
-                    valid = true;
-                } else if (piece.v2 === rightEnd) {
-                    orientedPiece = { v1: piece.v2, v2: piece.v1 };
-                    rightEnd = piece.v1;
-                    board.push(orientedPiece);
-                    valid = true;
-                }
-            }
-
-            if (valid) {
-                myHand.splice(selectedPieceIndex, 1);
-                isMyTurn = false;
-
-                conn.send({
-                    type: 'PIECE_PLAYED',
-                    board: board,
-                    leftEnd: leftEnd,
-                    rightEnd: rightEnd,
-                    oppHandCount: myHand.length,
-                    yourTurn: true
-                });
-
-                checkGameOver();
-                updateUI();
-            } else {
-                alert("Essa peça não encaixa nesta extremidade!");
-            }
-        }
-
-        function drawFromBoneyard() {
-            if (!isMyTurn || boneyard.length === 0) return;
+        function startRoundStructure() {
+            screenRoundOver.classList.add('hidden');
+            screenGame.classList.remove('hidden');
             
-            const piece = boneyard.pop();
-            myHand.push(piece);
+            document.getElementById('round-text').innerText = `Round ${currentRound}`;
+            document.getElementById('score-me').innerText = myRole === 'red' ? scores.red : scores.blue;
+            document.getElementById('score-opp').innerText = myRole === 'red' ? scores.blue : scores.red;
 
-            conn.send({
-                type: 'OPPONENT_ACTION',
-                boneyard: boneyard,
-                oppHandCount: myHand.length,
-                yourTurn: false // Mantém o turno com o jogador atual para ele verificar se pode jogar a nova peça
-            });
+            document.getElementById('stage-choosing').classList.add('hidden');
+            document.getElementById('stage-guessing').classList.add('hidden');
 
-            updateUI();
+            if (myRole === chooserRole) {
+                document.getElementById('turn-status').innerText = "Sua vez de escolher";
+                document.getElementById('stage-choosing').classList.remove('hidden');
+                document.getElementById('input-word').value = '';
+                document.getElementById('input-hint').value = '';
+            } else {
+                document.getElementById('turn-status').innerText = "Oponente escolhendo...";
+                document.getElementById('stage-guessing').classList.remove('hidden');
+                document.getElementById('display-hint').innerText = "Aguardando definição...";
+                document.getElementById('display-lives').innerText = "❤️ ❤️ ❤️ ❤️ ❤️ ❤️";
+                document.getElementById('word-container').innerHTML = "<span class='text-xs text-slate-500 italic'>Aguardando a palavra secreta...</span>";
+                document.getElementById('keyboard-container').innerHTML = '';
+            }
         }
 
-        function passTurn() {
-            if (!isMyTurn) return;
-            isMyTurn = false;
+        function submitSecretWord() {
+            const wordInput = document.getElementById('input-word').value.toUpperCase().trim();
+            const hintInput = document.getElementById('input-hint').value.trim();
+
+            if (!wordInput || wordInput.length < 2 || !/^[A-Z]+$/.test(wordInput)) {
+                alert("Insira uma palavra válida (apenas letras, sem espaços ou acentos).");
+                return;
+            }
+            if (!hintInput) {
+                alert("Por favor, digite uma dica ou tema.");
+                return;
+            }
+
+            secretWord = wordInput;
+            currentHint = hintInput;
+            guessedLetters = [];
+            wrongLettersCount = 0;
 
             conn.send({
-                type: 'OPPONENT_ACTION',
-                boneyard: boneyard,
-                oppHandCount: myHand.length,
-                yourTurn: true
+                type: 'SETUP_WORD',
+                word: secretWord,
+                hint: currentHint
             });
 
-            updateUI();
+            setupGuessingStageUI();
         }
 
-        function checkGameOver() {
-            if (myHand.length === 0 || opponentPieceCount === 0) {
-                screenGame.classList.add('hidden');
-                screenGameOver.classList.remove('hidden');
+        function setupGuessingStageUI() {
+            document.getElementById('stage-choosing').classList.add('hidden');
+            document.getElementById('stage-guessing').classList.remove('hidden');
+            
+            const amIGuessing = (myRole !== chooserRole);
+            document.getElementById('turn-status').innerText = amIGuessing ? "Sua vez de adivinhar!" : "Oponente adivinhando...";
 
-                const title = document.getElementById('game-over-title');
-                const msg = document.getElementById('game-over-msg');
+            document.getElementById('display-hint').innerText = currentHint;
+            updateLivesDisplay();
+            renderWordDashes();
+            renderKeyboard(amIGuessing);
+        }
 
-                if (myHand.length === 0) {
-                    title.innerText = "🏆 VITÓRIA!";
-                    title.className = "text-3xl font-black text-green-400";
-                    msg.innerText = "Sensacional! Você bateu todas as suas peças e venceu!";
+        function renderWordDashes() {
+            const container = document.getElementById('word-container');
+            container.innerHTML = '';
+            
+            for (let letter of secretWord) {
+                const span = document.createElement('span');
+                span.className = "border-b-4 border-white px-1.5 min-w-[24px] text-center";
+                if (guessedLetters.includes(letter)) {
+                    span.innerText = letter;
                 } else {
-                    title.innerText = "💀 DERROTA!";
-                    title.className = "text-3xl font-black text-red-500";
-                    msg.innerText = "O oponente usou todas as peças primeiro.";
+                    span.innerText = " ";
+                }
+                container.appendChild(span);
+            }
+        }
+
+        function renderKeyboard(active) {
+            const container = document.getElementById('keyboard-container');
+            container.innerHTML = '';
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+            alphabet.forEach(letter => {
+                const btn = document.createElement('button');
+                btn.innerText = letter;
+                btn.className = "bg-slate-800 hover:bg-slate-700 text-sm font-bold p-2.5 rounded-lg transition disabled:opacity-30 disabled:pointer-events-none";
+                
+                if (!active) {
+                    btn.disabled = true;
+                }
+                if (guessedLetters.includes(letter)) {
+                    btn.disabled = true;
+                }
+
+                btn.onclick = () => {
+                    btn.disabled = true;
+                    guessedLetters.push(letter);
+                    conn.send({ type: 'GUESS_LETTER', letter: letter });
+                    processLetterGuess(letter);
+                };
+
+                container.appendChild(btn);
+            });
+        }
+
+        function processLetterGuess(letter) {
+            if (!guessedLetters.includes(letter)) {
+                guessedLetters.push(letter);
+            }
+
+            if (!secretWord.includes(letter)) {
+                wrongLettersCount++;
+            }
+
+            updateLivesDisplay();
+            renderWordDashes();
+            
+            if (myRole !== chooserRole) {
+                renderKeyboard(true); 
+            }
+
+            // Verifica condições de fim de round (Apenas o adivinhador valida e envia o veredito final)
+            if (myRole !== chooserRole) {
+                const playerWon = secretWord.split("").every(l => guessedLetters.includes(l));
+                const playerLost = (wrongLettersCount >= maxErrors);
+
+                if (playerWon || playerLost) {
+                    if (playerWon) {
+                        // O adivinhador ganha ponto
+                        if (myRole === 'red') scores.red++; else scores.blue++;
+                    } else {
+                        // O desafiador ganha ponto
+                        if (chooserRole === 'red') scores.red++; else scores.blue++;
+                    }
+
+                    const payload = {
+                        type: 'SYNC_ROUND_OVER',
+                        won: playerWon,
+                        word: secretWord,
+                        scores: scores
+                    };
+                    conn.send(payload);
+                    showRoundOverScreen(playerWon, secretWord);
                 }
             }
+        }
+
+        function updateLivesDisplay() {
+            const livesEl = document.getElementById('display-lives');
+            const rem = maxErrors - wrongLettersCount;
+            livesEl.innerText = "❤️ ".repeat(Math.max(0, rem)) + "💀 ".repeat(Math.max(0, wrongLettersCount));
+        }
+
+        function showRoundOverScreen(guesserWon, word) {
+            screenGame.classList.add('hidden');
+            screenRoundOver.classList.remove('hidden');
+
+            const title = document.getElementById('round-title');
+            const msg = document.getElementById('round-msg');
+            document.getElementById('reveal-word').innerText = word;
+
+            const amIGuesser = (myRole !== chooserRole);
+
+            if (guesserWon) {
+                title.innerText = amIGuesser ? "🎉 VOCÊ ACERTOU!" : "💥 O OPP ACERTOU!";
+                title.className = "text-2xl font-black text-green-400";
+            } else {
+                title.innerText = amIGuesser ? "💀 VOCÊ FOI ENFORCADO!" : "🏆 ELE ERROU A PALAVRA!";
+                title.className = "text-2xl font-black text-red-500";
+            }
+
+            // Apenas o Host gerencia o botão de avançar para evitar dessincronização
+            document.getElementById('btn-next-round').style.display = (myRole === 'red') ? 'block' : 'none';
+        }
+
+        function advanceRound() {
+            if (myRole !== 'red') return;
+
+            currentRound++;
+            chooserRole = (chooserRole === 'red') ? 'blue' : 'red'; // Inverte o papel
+
+            conn.send({
+                type: 'NEXT_ROUND_TRIGGER',
+                nextRound: currentRound,
+                nextChooser: chooserRole
+            });
+
+            startRoundStructure();
         }
 
         function copyLink() {
@@ -391,7 +369,7 @@
         }
 
         function leaveRoom() {
-            localStorage.removeItem('hosted_domino_room');
+            localStorage.removeItem('hosted_forca_room');
             if (conn) conn.close();
             if (peer) peer.destroy();
             window.location.href = window.location.origin + window.location.pathname;
