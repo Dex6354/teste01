@@ -330,9 +330,9 @@
     @media (max-width: 560px) {
       .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 14px 32px; }
       .filters { padding: 0 14px 16px; }
-      nav { padding: 0 14px; }
+      nav { padding: 0 14px; gap: 10px; }
       .hero { padding: 32px 14px 24px; }
-      .nav-center { display: none; }
+      .nav-logo-text { display: none; } /* Esconde o texto longo do logo para dar espaço à busca */
     }
 
     @media (max-width: 380px) {
@@ -545,9 +545,7 @@
   <div class="footer-logo">Jogos<span>Da</span>Galera</div>
   <div class="footer-links">
     <a href="#">Apoie</a>
-    <a href="#">Solicitar Jogos</a>
-    <a href="#">Melhorias</a>
-    <a href="#">Erros</a>
+    <a href="#">Sugestões/Melhorias</a>
   </div>
   <div class="footer-copy">© 2026 Jogos da Galera · ♥️</div>
 </footer>
@@ -557,7 +555,6 @@
   const cards = document.querySelectorAll('.card');
   let activeCategory = 'todos';
 
-  // Lógica centralizada para atualizar a visibilidade baseado em Busca + Categoria ativa
   function updateGames() {
     const query = searchInput.value.toLowerCase().trim();
 
@@ -568,15 +565,12 @@
       const matchCategory = activeCategory === 'todos' || cardCategory === activeCategory;
       const matchSearch = query.length === 0 || cardName.includes(query);
 
-      // Oculta o card se não passar em ambos os critérios simultaneamente
       card.classList.toggle('hidden', !(matchCategory && matchSearch));
     });
   }
 
-  // Evento de digitação na busca
   searchInput.addEventListener('input', updateGames);
 
-  // Evento de clique nos botões de filtro
   function filterGames(category, btn) {
     activeCategory = category;
 
