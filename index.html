@@ -434,12 +434,6 @@
   </div>
 </div>
 
-<!-- ONLINE BAR -->
-<div class="online-bar">
-  <span class="online-dot"></span>
-  <strong id="onlineCount">847</strong> jogadores online agora
-</div>
-
 <!-- FILTERS -->
 <div class="filters">
   <button class="filter-btn active" onclick="filterGames('todos', this)">Todos</button>
@@ -672,17 +666,7 @@
       const searchMatch = q.length === 0 || name.includes(q);
       card.classList.toggle('hidden', !(catMatch && searchMatch));
     });
-  }
-
-  // ── Fake online counter ─────────────────────────────────
-  const counter = document.getElementById('onlineCount');
-  let count = 847;
-
-  setInterval(() => {
-    count += Math.floor(Math.random() * 11) - 5;
-    count = Math.max(600, Math.min(1200, count));
-    counter.textContent = count.toLocaleString('pt-BR');
-  }, 3500);
+  }  
 </script>
 </body>
 </html>
