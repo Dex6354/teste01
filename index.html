@@ -10,20 +10,17 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* Alterado de verde (#2ecc71) para amarelo (#f1c40f) */
-      --yellow:       #f1c40f;
-      /* Alterado de verde-escuro (#27ae60) para amarelo-escuro/dourado (#f39c12) */
-      --yellow-dark:  #f39c12;
-      /* Alterado rgba(46, 204, 113, 0.18) para rgba(241, 196, 15, 0.18) */
-      --yellow-glow:  rgba(241, 196, 15, 0.18);
+      /* Alterado para Azul (#3498db) */
+      --blue:         #3498db;
+      --blue-dark:    #2980b9;
+      --blue-glow:    rgba(52, 152, 219, 0.18);
       --bg:           #0f1923;
       --bg-card:      #162230;
       --bg-card-hov:  #1c2d3f;
       --border:       rgba(255,255,255,0.07);
       --text:         #e8edf2;
       --text-muted:   #7a92a8;
-      /* Alterado rgba(46,204,113,0.13) para rgba(241,196,15,0.13) */
-      --tag-bg:       rgba(241, 196, 15, 0.13);
+      --tag-bg:       rgba(52, 152, 219, 0.13);
       --radius-card:  14px;
       --font:         'Nunito', sans-serif;
     }
@@ -64,7 +61,7 @@
     .nav-logo-icon {
       width: 32px;
       height: 32px;
-      background: var(--yellow);
+      background: var(--blue);
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -79,7 +76,7 @@
       letter-spacing: -0.5px;
     }
 
-    .nav-logo-text span { color: var(--yellow); }
+    .nav-logo-text span { color: var(--blue); }
 
     .nav-center {
       flex: 1;
@@ -100,7 +97,7 @@
       transition: border-color .2s;
     }
 
-    .nav-search:focus { border-color: var(--yellow); }
+    .nav-search:focus { border-color: var(--blue); }
     .nav-search::placeholder { color: var(--text-muted); }
 
     .nav-search-icon {
@@ -138,8 +135,7 @@
     .hero {
       text-align: center;
       padding: 48px 24px 36px;
-      /* Alterado rgba(46,204,113,0.12) para rgba(241,196,15,0.12) */
-      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(241,196,15,0.12) 0%, transparent 70%);
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(52, 152, 219, 0.12) 0%, transparent 70%);
     }
 
     .hero h1 {
@@ -151,7 +147,7 @@
       letter-spacing: -0.5px;
     }
 
-    .hero h1 span { color: var(--yellow); }
+    .hero h1 span { color: var(--blue); }
 
     .hero p {
       font-size: 15px;
@@ -170,9 +166,8 @@
 
     .badge {
       background: var(--tag-bg);
-      /* Alterado rgba(46,204,113,0.3) para rgba(241,196,15,0.3) */
-      border: 1px solid rgba(241,196,15,0.3);
-      color: var(--yellow);
+      border: 1px solid rgba(52, 152, 219, 0.3);
+      color: var(--blue);
       border-radius: 20px;
       padding: 5px 14px;
       font-size: 13px;
@@ -204,8 +199,8 @@
     }
 
     .filter-btn:hover, .filter-btn.active {
-      background: var(--yellow);
-      border-color: var(--yellow);
+      background: var(--blue);
+      border-color: var(--blue);
       color: #0f1923;
     }
 
@@ -241,8 +236,8 @@
 
     .card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 12px 36px rgba(0,0,0,0.4), 0 0 0 1px var(--yellow);
-      border-color: var(--yellow);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.4), 0 0 0 1px var(--blue);
+      border-color: var(--blue);
     }
 
     .card-thumb {
@@ -296,9 +291,8 @@
 
     .tag {
       background: var(--tag-bg);
-      /* Alterado rgba(46,204,113,0.2) para rgba(241,196,15,0.2) */
-      border: 1px solid rgba(241, 196, 15, 0.2);
-      color: var(--yellow);
+      border: 1px solid rgba(52, 152, 219, 0.2);
+      color: var(--blue);
       border-radius: 5px;
       padding: 2px 8px;
       font-size: 11px;
@@ -328,7 +322,7 @@
       color: #fff;
       letter-spacing: -0.5px;
     }
-    .footer-logo span { color: var(--yellow); }
+    .footer-logo span { color: var(--blue); }
 
     .footer-links {
       display: flex;
@@ -343,7 +337,7 @@
       text-decoration: none;
       transition: color .15s;
     }
-    .footer-links a:hover { color: var(--yellow); }
+    .footer-links a:hover { color: var(--blue); }
 
     .footer-copy {
       color: var(--text-muted);
@@ -355,7 +349,7 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--yellow);
+      background: var(--blue);
       display: inline-block;
       animation: pulse 2s infinite;
       margin-right: 5px;
@@ -368,11 +362,9 @@
 
     /* ── PLAYERS ONLINE BAR ──────────────────────────────── */
     .online-bar {
-      /* Alterado rgba(46,204,113,0.08) para rgba(241,196,15,0.08) */
-      background: rgba(241, 196, 15, 0.08);
-      /* Alterado rgba(46,204,113,0.15) para rgba(241,196,15,0.15) */
-      border-top: 1px solid rgba(241, 196, 15, 0.15);
-      border-bottom: 1px solid rgba(241, 196, 15, 0.15);
+      background: rgba(52, 152, 219, 0.08);
+      border-top: 1px solid rgba(52, 152, 219, 0.15);
+      border-bottom: 1px solid rgba(52, 152, 219, 0.15);
       padding: 8px 24px;
       font-size: 13px;
       color: var(--text-muted);
@@ -381,7 +373,7 @@
       gap: 6px;
     }
 
-    .online-bar strong { color: var(--yellow); }
+    .online-bar strong { color: var(--blue); }
 
     /* ── SEARCH HIGHLIGHT ────────────────────────────────── */
     .card.hidden { display: none; }
@@ -405,7 +397,6 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav>
   <a class="nav-logo" href="#">
     <div class="nav-logo-icon">🎮</div>
@@ -422,7 +413,6 @@
   </div>
 </nav>
 
-<!-- HERO -->
 <div class="hero">
   <h1>Jogue <span>Grátis</span> com Amigos</h1>
   <p>Jogos multiplayer no navegador, sem cadastro. Convide amigos, desconhecidos ou bots e jogue agora!</p>
@@ -434,13 +424,11 @@
   </div>
 </div>
 
-<!-- ONLINE BAR -->
 <div class="online-bar">
   <span class="online-dot"></span>
   <strong id="onlineCount">847</strong> jogadores online agora
 </div>
 
-<!-- FILTERS -->
 <div class="filters">
   <button class="filter-btn active" onclick="filterGames('todos', this)">Todos</button>
   <button class="filter-btn" onclick="filterGames('palavras', this)">Palavras</button>
@@ -451,13 +439,10 @@
   <button class="filter-btn" onclick="filterGames('dados', this)">Dados</button>
 </div>
 
-<!-- SECTION LABEL -->
 <div class="section-label">Todos os Jogos</div>
 
-<!-- GAME GRID -->
 <div class="grid" id="gameGrid">
 
-  <!-- Wordrace -->
   <a class="card" href="https://bloob.io/pt/wordrace" target="_blank" data-category="palavras" data-name="wordrace corrida palavras">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#1a3a5c,#0d2137);">📝</div>
     <div class="card-body">
@@ -470,7 +455,6 @@
     </div>
   </a>
 
-  <!-- Blomber -->
   <a class="card" href="https://bloob.io/pt/blomber" target="_blank" data-category="acao" data-name="blomber bomba bomberman acao">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#3d1a00,#7a2800);">💣</div>
     <div class="card-body">
@@ -483,7 +467,6 @@
     </div>
   </a>
 
-  <!-- Batalha Naval -->
   <a class="card" href="https://bloob.io/pt/battleship" target="_blank" data-category="tabuleiro" data-name="batalha naval tabuleiro battleship">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#001a3d,#002966);">🚢</div>
     <div class="card-body">
@@ -496,7 +479,6 @@
     </div>
   </a>
 
-  <!-- 8 Ball Pool -->
   <a class="card" href="https://bloob.io/pt/8ballpool" target="_blank" data-category="sinuca" data-name="sinuca 8 bolas bilhar pool">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#0a1f0a,#0d3b0d);">🎱</div>
     <div class="card-body">
@@ -509,7 +491,6 @@
     </div>
   </a>
 
-  <!-- 9 Ball Pool -->
   <a class="card" href="https://bloob.io/pt/9ballpool" target="_blank" data-category="sinuca" data-name="sinuca 9 bolas bilhar pool">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#1a0f00,#3d2500);">🟡</div>
     <div class="card-body">
@@ -522,7 +503,6 @@
     </div>
   </a>
 
-  <!-- Cutthroat Pool -->
   <a class="card" href="https://bloob.io/pt/cutthroatpool" target="_blank" data-category="sinuca" data-name="sinuca cutthroat bilhar pool 3 jogadores">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#0d002e,#1e0052);">🎯</div>
     <div class="card-body">
@@ -535,7 +515,6 @@
     </div>
   </a>
 
-  <!-- Straight Pool -->
   <a class="card" href="https://bloob.io/pt/straightpool" target="_blank" data-category="sinuca" data-name="straight pool sinuca bilhar pontos">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#001a0d,#003320);">🟢</div>
     <div class="card-body">
@@ -548,7 +527,6 @@
     </div>
   </a>
 
-  <!-- Damas -->
   <a class="card" href="https://bloob.io/pt/checkers" target="_blank" data-category="tabuleiro" data-name="damas checkers tabuleiro clássico">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#1a0000,#3d0000);">⬛</div>
     <div class="card-body">
@@ -561,7 +539,6 @@
     </div>
   </a>
 
-  <!-- Damas Canadenses -->
   <a class="card" href="https://bloob.io/pt/canadiancheckers" target="_blank" data-category="tabuleiro" data-name="damas canadenses checkers tabuleiro variante">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#1a0000,#330014);">🍁</div>
     <div class="card-body">
@@ -574,7 +551,6 @@
     </div>
   </a>
 
-  <!-- Party Checkers -->
   <a class="card" href="https://bloob.io/pt/partycheckers" target="_blank" data-category="tabuleiro" data-name="party checkers damas festa 4 jogadores">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#1a001a,#33004d);">🎉</div>
     <div class="card-body">
@@ -587,7 +563,6 @@
     </div>
   </a>
 
-  <!-- Iate (Yacht) -->
   <a class="card" href="https://bloob.io/pt/yacht" target="_blank" data-category="dados" data-name="iate yacht dados yatzy">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#001a2e,#003352);">🎲</div>
     <div class="card-body">
@@ -600,7 +575,6 @@
     </div>
   </a>
 
-  <!-- Quiz Trivia Co-op -->
   <a class="card" href="https://bloob.io/pt/trivia-coop" target="_blank" data-category="quiz" data-name="quiz trivia cooperativo perguntas co-op">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#0d1a00,#1a3300);">🧠</div>
     <div class="card-body">
@@ -613,7 +587,6 @@
     </div>
   </a>
 
-  <!-- Wordbattle -->
   <a class="card" href="https://bloob.io/pt/wordbattle" target="_blank" data-category="palavras" data-name="wordbattle batalha palavras word">
     <div class="card-thumb-fallback" style="background:linear-gradient(135deg,#002233,#003d5c);">🔤</div>
     <div class="card-body">
@@ -628,7 +601,6 @@
 
 </div>
 
-<!-- FOOTER -->
 <footer>
   <div class="footer-logo">Bloo<span>b</span>.io</div>
   <div class="footer-links">
