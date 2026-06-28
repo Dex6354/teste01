@@ -10,17 +10,17 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* Alterado para Azul (#3498db) */
-      --blue:         #3498db;
-      --blue-dark:    #2980b9;
-      --blue-glow:    rgba(52, 152, 219, 0.18);
+      /* Alterado para Laranja (#e67e22) */
+      --orange:       #e67e22;
+      --orange-dark:  #d35400;
+      --orange-glow:  rgba(230, 126, 34, 0.18);
       --bg:           #0f1923;
       --bg-card:      #162230;
       --bg-card-hov:  #1c2d3f;
       --border:       rgba(255,255,255,0.07);
       --text:         #e8edf2;
       --text-muted:   #7a92a8;
-      --tag-bg:       rgba(52, 152, 219, 0.13);
+      --tag-bg:       rgba(230, 126, 34, 0.13);
       --radius-card:  14px;
       --font:         'Nunito', sans-serif;
     }
@@ -61,7 +61,7 @@
     .nav-logo-icon {
       width: 32px;
       height: 32px;
-      background: var(--blue);
+      background: var(--orange);
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -76,7 +76,7 @@
       letter-spacing: -0.5px;
     }
 
-    .nav-logo-text span { color: var(--blue); }
+    .nav-logo-text span { color: var(--orange); }
 
     .nav-center {
       flex: 1;
@@ -97,7 +97,7 @@
       transition: border-color .2s;
     }
 
-    .nav-search:focus { border-color: var(--blue); }
+    .nav-search:focus { border-color: var(--orange); }
     .nav-search::placeholder { color: var(--text-muted); }
 
     .nav-search-icon {
@@ -135,7 +135,7 @@
     .hero {
       text-align: center;
       padding: 48px 24px 36px;
-      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(52, 152, 219, 0.12) 0%, transparent 70%);
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(230, 126, 34, 0.12) 0%, transparent 70%);
     }
 
     .hero h1 {
@@ -147,7 +147,7 @@
       letter-spacing: -0.5px;
     }
 
-    .hero h1 span { color: var(--blue); }
+    .hero h1 span { color: var(--orange); }
 
     .hero p {
       font-size: 15px;
@@ -166,8 +166,8 @@
 
     .badge {
       background: var(--tag-bg);
-      border: 1px solid rgba(52, 152, 219, 0.3);
-      color: var(--blue);
+      border: 1px solid rgba(230, 126, 34, 0.3);
+      color: var(--orange);
       border-radius: 20px;
       padding: 5px 14px;
       font-size: 13px;
@@ -199,8 +199,8 @@
     }
 
     .filter-btn:hover, .filter-btn.active {
-      background: var(--blue);
-      border-color: var(--blue);
+      background: var(--orange);
+      border-color: var(--orange);
       color: #0f1923;
     }
 
@@ -236,8 +236,8 @@
 
     .card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 12px 36px rgba(0,0,0,0.4), 0 0 0 1px var(--blue);
-      border-color: var(--blue);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.4), 0 0 0 1px var(--orange);
+      border-color: var(--orange);
     }
 
     .card-thumb {
@@ -291,8 +291,8 @@
 
     .tag {
       background: var(--tag-bg);
-      border: 1px solid rgba(52, 152, 219, 0.2);
-      color: var(--blue);
+      border: 1px solid rgba(230, 126, 34, 0.2);
+      color: var(--orange);
       border-radius: 5px;
       padding: 2px 8px;
       font-size: 11px;
@@ -322,7 +322,7 @@
       color: #fff;
       letter-spacing: -0.5px;
     }
-    .footer-logo span { color: var(--blue); }
+    .footer-logo span { color: var(--orange); }
 
     .footer-links {
       display: flex;
@@ -337,7 +337,7 @@
       text-decoration: none;
       transition: color .15s;
     }
-    .footer-links a:hover { color: var(--blue); }
+    .footer-links a:hover { color: var(--orange); }
 
     .footer-copy {
       color: var(--text-muted);
@@ -349,7 +349,7 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--blue);
+      background: var(--orange);
       display: inline-block;
       animation: pulse 2s infinite;
       margin-right: 5px;
@@ -362,9 +362,9 @@
 
     /* ── PLAYERS ONLINE BAR ──────────────────────────────── */
     .online-bar {
-      background: rgba(52, 152, 219, 0.08);
-      border-top: 1px solid rgba(52, 152, 219, 0.15);
-      border-bottom: 1px solid rgba(52, 152, 219, 0.15);
+      background: rgba(230, 126, 34, 0.08);
+      border-top: 1px solid rgba(230, 126, 34, 0.15);
+      border-bottom: 1px solid rgba(230, 126, 34, 0.15);
       padding: 8px 24px;
       font-size: 13px;
       color: var(--text-muted);
@@ -373,7 +373,7 @@
       gap: 6px;
     }
 
-    .online-bar strong { color: var(--blue); }
+    .online-bar strong { color: var(--orange); }
 
     /* ── SEARCH HIGHLIGHT ────────────────────────────────── */
     .card.hidden { display: none; }
