@@ -391,7 +391,7 @@
 </div>
 
 <main class="grid" id="gameGrid">
-  </main>
+</main>
 
 <footer>
   <div class="footer-logo">Jogos<span>Da</span>Galera</div>
@@ -406,12 +406,16 @@
 </footer>
 
 <script>
-  const GITHUB_USER = 'gymbr';
-  const GITHUB_REPO = 'jogosdagalera';
-  
   const searchInput = document.getElementById('searchInput');
   const gameGrid = document.getElementById('gameGrid');
   let activeCategory = 'todos';
+
+  // ── DETECÇÃO AUTOMÁTICA DO REPOSITÓRIO VIA URL ──────────
+  const isGitHubPages = window.location.hostname.endsWith('.github.io');
+  
+  // Se estiver no GitHub Pages, pega os dados da URL. Se for localhost, usa o padrão.
+  const GITHUB_USER = isGitHubPages ? window.location.hostname.split('.')[0] : 'gymbr';
+  const GITHUB_REPO = isGitHubPages ? window.location.pathname.split('/').filter(Boolean)[0] : 'jogosdagalera';
 
   function updateGames() {
     const query = searchInput.value.toLowerCase().trim();
@@ -441,27 +445,23 @@
 
   // ── RENDERIZADOR AUTOMÁTICO DE PASTAS ───────────────────
   async function loadGames() {
-    if (GITHUB_USER === 'SEU_LOG_DO_GITHUB' || GITHUB_REPO === 'SEU_REPOSITORIO_AQUI') {
-      gameGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 20px;">Por favor, altere as variáveis GITHUB_USER e GITHUB_REPO no script do seu HTML para carregar os jogos.</p>';
+    if (!GITHUB_USER || !GITHUB_REPO) {
+      gameGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 20px;">Não foi possível identificar o repositório automaticamente.</p>';
       return;
     }
 
     try {
-      // Faz requisição para a API do GitHub buscando o conteúdo da raiz
       const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`);
       if (!response.ok) throw new Error('Falha ao acessar repositório do GitHub');
       
       const contents = await response.json();
-      
-      // Filtra itens que são diretórios, ignorando pastas ocultas (.github, etc)
       const folders = contents.filter(item => item.type === 'dir' && !item.name.startsWith('.') && !item.name.startsWith('_'));
       
-      gameGrid.innerHTML = ''; // Limpa elementos estáticos anteriores
+      gameGrid.innerHTML = '';
 
       for (const folder of folders) {
         const folderName = folder.name;
         
-        // Dados padrões (Fallback se a pasta não tiver metadata.json)
         let metadata = {
           title: folderName.charAt(0).toUpperCase() + folderName.slice(1).replace(/-/g, ' '),
           description: 'Jogue agora este incrível jogo multiplayer direto do seu navegador.',
@@ -471,7 +471,6 @@
           background: 'linear-gradient(135deg,#1a2635,#0f1923)'
         };
 
-        // Tenta buscar metadados customizados locais de dentro da pasta do jogo
         try {
           const metaResponse = await fetch(`./${folderName}/metadata.json`);
           if (metaResponse.ok) {
@@ -479,10 +478,9 @@
             metadata = { ...metadata, ...customMeta };
           }
         } catch (err) {
-          // Mantém o padrão caso não encontre o JSON
+          // Mantém o padrão caso falte o arquivo
         }
 
-        // Constrói o elemento do Card
         const card = document.createElement('a');
         card.className = 'card';
         card.href = `./${folderName}/`;
@@ -506,7 +504,7 @@
         gameGrid.appendChild(card);
       }
 
-      updateGames(); // Força atualização com base em filtros selecionados
+      updateGames();
 
     } catch (error) {
       console.error(error);
