@@ -3,374 +3,350 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Trunfo P2P Online</title>
+    <title>Quiz Show P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between select-none">
 
-    <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-0 z-50">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <div class="flex flex-col">
-                <h1 class="font-extrabold text-base tracking-wider text-amber-500">🏎️ SUPER TRUNFO</h1>
-                <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
-                    <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
-                    <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">📋 Copiar</button>
-                </div>
+    <div id="screen-tv" class="hidden flex-grow flex flex-col justify-between p-8 h-screen w-full max-w-5xl mx-auto">
+        <div class="flex justify-between items-center border-b-2 border-slate-700 pb-4">
+            <div>
+                <h1 class="text-4xl font-black tracking-wider text-amber-500">📺 QUIZ SHOW TV</h1>
+                <p class="text-slate-400 text-sm mt-1">Abra o link abaixo nos telemóveis para jogar</p>
             </div>
-            <button onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-[11px] font-bold py-1 px-2.5 rounded-lg transition">➡️ Sair</button>
-        </div>
-    </header>
-
-    <main class="flex-grow flex flex-col items-center justify-start p-3 w-full max-w-md mx-auto mb-12 space-y-3">
-        
-        <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
-            <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
-                <h2 class="text-xl font-extrabold">Aguardando Desafiante</h2>
-                <p class="text-slate-400 text-xs">Compartilhe o link para disputar quem tem as melhores cartas!</p>
-                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Conectando...</div>
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-right">
+                <span class="text-xs text-slate-400 font-mono block">CÓDIGO DA SALA</span>
+                <span id="tv-room-code" class="text-3xl font-black text-indigo-400 tracking-widest">...</span>
             </div>
         </div>
 
-        <div class="w-full bg-slate-800 p-2.5 rounded-xl border border-slate-700 shadow-xl flex items-center justify-between text-center text-xs">
-            <div class="flex-1">
-                <span class="font-bold text-emerald-400 block">Suas Cartas</span>
-                <span id="cards-me" class="text-xl font-mono font-black">0</span>
-            </div>
-            <div class="px-3 border-x border-slate-700 min-w-[130px] flex flex-col items-center justify-center">
-                <span id="turn-text" class="font-black text-amber-400 uppercase tracking-wider text-[11px]">Carregando...</span>
-                <span id="round-log" class="text-[9px] text-slate-300 mt-0.5 block truncate max-w-[120px]">Preparando baralho</span>
-            </div>
-            <div class="flex-1">
-                <span class="font-bold text-blue-400 block">Oponente</span>
-                <span id="cards-opp" class="text-xl font-mono font-black">0</span>
-            </div>
-        </div>
-
-        <div id="screen-game" class="w-full hidden flex flex-col space-y-4">
+        <div class="flex-grow flex flex-col items-center justify-center my-6 relative">
             
-            <div class="grid grid-cols-2 gap-3 items-start">
-                
-                <div class="bg-gradient-to-b from-slate-800 to-slate-850 rounded-2xl border-2 border-emerald-500 shadow-xl overflow-hidden p-2 flex flex-col space-y-2 relative">
-                    <div class="bg-emerald-600 text-center py-1 rounded-lg">
-                        <span id="card-me-name" class="text-xs font-black tracking-wide block truncate">---</span>
-                    </div>
-                    <div class="bg-slate-950/80 rounded-xl aspect-[4/3] flex items-center justify-center text-3xl shadow-inner border border-slate-800">🏎️</div>
-                    
-                    <div id="attrs-container-me" class="space-y-1 text-[11px]">
-                        </div>
+            <div id="tv-lobby" class="text-center space-y-6">
+                <h2 class="text-3xl font-bold animate-pulse text-amber-400">Aguardando Conexões...</h2>
+                <div class="flex justify-center space-x-12 mt-4">
+                    <div id="tv-p1-status" class="bg-slate-800 p-6 rounded-2xl border-2 border-dashed border-slate-600 w-52 text-center text-slate-500 font-bold">Jogador 1<br><span class="text-xs font-normal">Desconectado</span></div>
+                    <div id="tv-p2-status" class="bg-slate-800 p-6 rounded-2xl border-2 border-dashed border-slate-600 w-52 text-center text-slate-500 font-bold">Jogador 2<br><span class="text-xs font-normal">Desconectado</span></div>
                 </div>
-
-                <div id="card-opponent" class="bg-gradient-to-b from-slate-800 to-slate-850 rounded-2xl border-2 border-slate-700 shadow-xl overflow-hidden p-2 flex flex-col space-y-2 relative min-h-[220px]">
-                    <div id="card-opp-back" class="absolute inset-0 bg-indigo-950 flex flex-col items-center justify-center p-4 text-center z-10 rounded-2xl border-2 border-slate-700">
-                        <span class="text-3xl animate-bounce mb-1">🎴</span>
-                        <span class="text-[10px] font-bold text-indigo-300 uppercase tracking-wider">Carta do Oponente</span>
-                    </div>
-
-                    <div class="bg-blue-600 text-center py-1 rounded-lg">
-                        <span id="card-opp-name" class="text-xs font-black tracking-wide block truncate">---</span>
-                    </div>
-                    <div class="bg-slate-950/80 rounded-xl aspect-[4/3] flex items-center justify-center text-3xl border border-slate-800">🏎️</div>
-                    
-                    <div id="attrs-container-opp" class="space-y-1 text-[11px] pointer-events-none">
-                        </div>
-                </div>
-
+                <button id="btn-start-quiz" onclick="startQuiz()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black px-8 py-3 rounded-xl text-lg uppercase hidden shadow-lg transition">Começar o Show 🚀</button>
             </div>
 
-            <button id="btn-next-round" onclick="advanceNextRound()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-lg transition hidden">
-                Próxima Rodada ➡️
-            </button>
+            <div id="tv-gameplay" class="w-full hidden space-y-8 text-center">
+                <div class="relative">
+                    <div id="tv-timer" class="w-20 h-20 bg-amber-500 text-slate-900 rounded-full flex items-center justify-center text-3xl font-black mx-auto border-4 border-white shadow-xl">15</div>
+                </div>
+                <h2 id="tv-question-text" class="text-4xl font-extrabold max-w-4xl mx-auto leading-snug">Carregando pergunta...</h2>
+                
+                <div class="grid grid-cols-2 gap-4 w-full max-w-4xl mx-auto text-left text-xl font-bold">
+                    <div class="bg-red-600 p-5 rounded-2xl flex items-center shadow-lg border-b-4 border-red-800"><span class="bg-white/20 w-10 h-10 rounded-full flex items-center justify-center mr-4">A</span> <span id="tv-opt-A">Opção A</span></div>
+                    <div class="bg-blue-600 p-5 rounded-2xl flex items-center shadow-lg border-b-4 border-blue-800"><span class="bg-white/20 w-10 h-10 rounded-full flex items-center justify-center mr-4">B</span> <span id="tv-opt-B">Opção B</span></div>
+                    <div class="bg-emerald-600 p-5 rounded-2xl flex items-center shadow-lg border-b-4 border-emerald-800"><span class="bg-white/20 w-10 h-10 rounded-full flex items-center justify-center mr-4">C</span> <span id="tv-opt-C">Opção C</span></div>
+                    <div class="bg-amber-600 p-5 rounded-2xl flex items-center shadow-lg border-b-4 border-amber-800"><span class="bg-white/20 w-10 h-10 rounded-full flex items-center justify-center mr-4">D</span> <span id="tv-opt-D">Opção D</span></div>
+                </div>
+            </div>
+
+            <div id="tv-results" class="w-full hidden text-center space-y-6">
+                <h2 class="text-5xl font-black text-amber-400">Tempo Esgotado!</h2>
+                <p class="text-xl text-slate-300">A resposta correta era: <strong id="tv-correct-answer" class="text-emerald-400 text-2xl font-black">---</strong></p>
+                
+                <div class="bg-slate-800 p-6 rounded-2xl max-w-md mx-auto border border-slate-700 shadow-xl space-y-4">
+                    <h3 class="text-lg font-bold uppercase tracking-wider text-slate-400">Placar Atual</h3>
+                    <div class="flex justify-between items-center text-xl font-mono">
+                        <span class="text-red-400 font-sans font-bold">🔴 Jogador 1:</span>
+                        <span id="tv-score-p1" class="font-black">0 pts</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xl font-mono border-t border-slate-700 pt-2">
+                        <span class="text-blue-400 font-sans font-bold">🔵 Jogador 2:</span>
+                        <span id="tv-score-p2" class="font-black">0 pts</span>
+                    </div>
+                </div>
+                <button onclick="nextQuestion()" class="bg-indigo-600 hover:bg-indigo-500 font-bold px-8 py-3 rounded-xl shadow-md uppercase transition text-sm tracking-wider">Avançar ➡️</button>
+            </div>
 
         </div>
+    </div>
 
-        <div id="screen-game-over" class="w-full bg-slate-800 p-6 rounded-2xl border-2 border-amber-500 text-center space-y-4 hidden">
-            <h2 id="game-over-title" class="text-3xl font-black text-green-400">🏆 VITÓRIA!</h2>
-            <p id="game-over-msg" class="text-sm text-slate-300">Você conquistou todo o baralho!</p>
-            <button onclick="window.location.reload()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                🔄 Jogar Novamente
-            </button>
+
+    <div id="screen-player" class="hidden flex-grow flex flex-col justify-between p-4 max-w-md mx-auto w-full h-screen">
+        <header class="bg-slate-800 p-3 rounded-xl border border-slate-700 flex justify-between items-center">
+            <div>
+                <span id="player-tag" class="text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-slate-700 text-slate-300">Conectando...</span>
+            </div>
+            <div class="text-right">
+                <span class="text-[10px] text-slate-400 block font-mono">PONTUAÇÃO</span>
+                <span id="player-score-display" class="font-black font-mono text-amber-400 text-sm">0 pts</span>
+            </div>
+        </header>
+
+        <div class="flex-grow flex flex-col items-center justify-center my-4">
+            <div id="player-wait-screen" class="text-center space-y-2">
+                <span class="text-4xl block animate-bounce">📱</span>
+                <h2 id="player-wait-title" class="text-lg font-bold">Aguardando início na TV...</h2>
+                <p class="text-xs text-slate-400 px-6">Olhe para a tela grande. O jogo será controlado por aqui assim que a partida começar.</p>
+            </div>
+
+            <div id="player-gamepad" class="w-full h-full hidden grid grid-cols-2 gap-3 py-2">
+                <button onclick="submitAnswer('A')" id="btn-opt-A" class="bg-red-600 hover:bg-red-500 active:scale-95 text-white text-3xl font-black rounded-2xl border-b-8 border-red-800 shadow-lg transition flex items-center justify-center">A</button>
+                <button onclick="submitAnswer('B')" id="btn-opt-B" class="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-3xl font-black rounded-2xl border-b-8 border-blue-800 shadow-lg transition flex items-center justify-center">B</button>
+                <button onclick="submitAnswer('C')" id="btn-opt-C" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-3xl font-black rounded-2xl border-b-8 border-emerald-800 shadow-lg transition flex items-center justify-center">C</button>
+                <button onclick="submitAnswer('D')" id="btn-opt-D" class="bg-amber-600 hover:bg-amber-500 active:scale-95 text-white text-3xl font-black rounded-2xl border-b-8 border-amber-800 shadow-lg transition flex items-center justify-center">D</button>
+            </div>
         </div>
+    </div>
 
-    </main>
 
     <script>
-        let peer = null, conn = null, myRole = '', roomCode = '';
-        let myDeck = [], oppCardCount = 0;
-        let isMyTurn = false;
+        let peer = null, conn = null;
+        let isTV = false;
+        let roomCode = '';
         
-        // Estado temporário da rodada para revelação
-        let currentRoundChosenAttr = null;
-        let localTopCard = null;
-        let receivedOppCard = null;
+        // Dados de jogo (TV Controla)
+        let playersConnected = []; // Conexões PeerJS
+        let scores = { p1: 0, p2: 0 };
+        let currentQuestionIdx = 0;
+        let timerInterval = null;
+        let timeLeft = 15;
+        let currentAnswersReceived = {}; // { p1: 'A', p2: 'B' }
 
-        const baseDeck = [
-            { name: "Bugatti Chiron", vel: 420, pot: 1500, acc: 2.4, price: 3000000 },
-            { name: "Koenigsegg Jesko", vel: 480, pot: 1600, acc: 2.5, price: 2800000 },
-            { name: "Ferrari SF90", vel: 340, pot: 1000, acc: 2.5, price: 500000 },
-            { name: "Tesla Model S Plaid", vel: 322, pot: 1020, acc: 2.1, price: 130000 },
-            { name: "McLaren 765LT", vel: 330, pot: 765, acc: 2.8, price: 380000 },
-            { name: "Porsche 911 Turbo S", vel: 330, pot: 650, acc: 2.7, price: 220000 },
-            { name: "Lamborghini Revuelto", vel: 350, pot: 1015, acc: 2.5, price: 600000 },
-            { name: "Aston Martin Valkyrie", vel: 355, pot: 1160, acc: 2.6, price: 3500000 },
-            { name: "Pagani Huayra R", vel: 380, pot: 850, acc: 2.8, price: 3100000 },
-            { name: "Nissan GT-R Nismo", vel: 315, pot: 600, acc: 2.8, price: 210000 },
-            { name: "Audi R8 V10 Performance", vel: 331, pot: 620, acc: 3.1, price: 170000 },
-            { name: "Chevrolet Corvette Z06", vel: 312, pot: 670, acc: 2.6, price: 110000 }
+        const questions = [
+            { q: "Qual é a capital estrutural do Brasil?", a: "Brasília", options: ["Rio de Janeiro", "São Paulo", "Brasília", "Salvador"], correct: "C" },
+            { q: "Quantos planetas existem no nosso Sistema Solar?", a: "8 Planetas", options: ["7", "8", "9", "10"], correct: "B" },
+            { q: "Quem pintou a famosa obra 'Mona Lisa'?", a: "Leonardo da Vinci", options: ["Van Gogh", "Picasso", "Da Vinci", "Claude Monet"], correct: "C" },
+            { q: "Qual é o oceano mais profundo do planeta?", a: "Oceano Pacífico", options: ["Atlântico", "Índico", "Glacial Ártico", "Pacífico"], correct: "D" }
         ];
 
-        const attrNames = {
-            vel: { label: "Vel. Máxima", unit: "km/h", lowWins: false },
-            pot: { label: "Potência", unit: "cv", lowWins: false },
-            acc: { label: "0-100 km/h", unit: "s", lowWins: true }, // Atenção: Menor tempo ganha!
-            price: { label: "Preço", unit: "$", lowWins: false }
-        };
-
+        // Identificação de papéis por URL
         const urlParams = new URLSearchParams(window.location.search);
         roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            const generatedCode = 'TRUNFO-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_trunfo_room', generatedCode);
-            window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
+            // NENHUM PARÂMETRO -> Dispositivo é a TV (HOST)
+            isTV = true;
+            roomCode = 'QUIZ-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            document.getElementById('screen-tv').classList.remove('hidden');
+            document.getElementById('tv-room-code').innerText = roomCode;
+            initTVServer(roomCode);
         } else {
-            document.getElementById('topbar-room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('hosted_trunfo_room')) ? 'red' : 'blue';
-            if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
+            // PARAMETRO EXISTE -> Dispositivo é o TELEMÓVEL (CLIENTE)
+            isTV = false;
+            document.getElementById('screen-player').classList.remove('hidden');
+            initPlayerClient(roomCode);
         }
 
-        function initHost(code) {
+        // ==================== ENGINE DA TV (HOST) ====================
+        function initTVServer(code) {
             peer = new Peer(code);
-            peer.on('open', () => document.getElementById('connection-status').innerText = "Aguardando Oponente...");
-            peer.on('connection', (connection) => { conn = connection; handleEvents(); });
+            peer.on('connection', (connection) => {
+                if (playersConnected.length >= 2) {
+                    connection.on('open', () => connection.send({ type: 'ROOM_FULL' }));
+                    setTimeout(() => connection.close(), 500);
+                    return;
+                }
+
+                playersConnected.push(connection);
+                const pSlot = playersConnected.length; // 1 ou 2
+
+                connection.on('open', () => {
+                    connection.send({ type: 'ASSIGN_ROLE', role: pSlot });
+                    updateTVLobbyUI();
+                });
+
+                connection.on('data', (data) => {
+                    if (data.type === 'SUBMIT_ANSWER') {
+                        currentAnswersReceived[`p${pSlot}`] = data.choice;
+                        // Se ambos responderam antes do tempo acabar, encerra a rodada
+                        if (Object.keys(currentAnswersReceived).length === playersConnected.length) {
+                            evaluateRound();
+                        }
+                    }
+                });
+
+                connection.on('close', () => {
+                    playersConnected = playersConnected.filter(c => c !== connection);
+                    updateTVLobbyUI();
+                });
+            });
         }
 
-        function initGuest(code) {
+        function updateTVLobbyUI() {
+            const p1Box = document.getElementById('tv-p1-status');
+            const p2Box = document.getElementById('tv-p2-status');
+            const startBtn = document.getElementById('btn-start-quiz');
+
+            if (playersConnected[0]) {
+                p1Box.className = "bg-red-600 p-6 rounded-2xl border-2 border-red-400 w-52 text-center text-white font-black shadow-lg";
+                p1Box.innerHTML = "🔴 JOGADOR 1<br><span class='text-xs font-mono font-normal text-red-200'>Pronto!</span>";
+            } else {
+                p1Box.className = "bg-slate-800 p-6 rounded-2xl border-2 border-dashed border-slate-600 w-52 text-center text-slate-500 font-bold";
+                p1Box.innerHTML = "Jogador 1<br><span class='text-xs font-normal'>Desconectado</span>";
+            }
+
+            if (playersConnected[1]) {
+                p2Box.className = "bg-blue-600 p-6 rounded-2xl border-2 border-blue-400 w-52 text-center text-white font-black shadow-lg";
+                p2Box.innerHTML = "🔵 JOGADOR 2<br><span class='text-xs font-mono font-normal text-blue-200'>Pronto!</span>";
+            } else {
+                p2Box.className = "bg-slate-800 p-6 rounded-2xl border-2 border-dashed border-slate-600 w-52 text-center text-slate-500 font-bold";
+                p2Box.innerHTML = "Jogador 2<br><span class='text-xs font-normal'>Desconectado</span>";
+            }
+
+            if (playersConnected.length > 0) {
+                startBtn.classList.remove('hidden');
+            } else {
+                startBtn.classList.add('hidden');
+            }
+        }
+
+        function startQuiz() {
+            document.getElementById('tv-lobby').classList.add('hidden');
+            document.getElementById('tv-gameplay').classList.remove('hidden');
+            
+            // Avisar jogadores para liberar gamepad
+            playersConnected.forEach(conn => conn.send({ type: 'GAME_START' }));
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            currentAnswersReceived = {};
+            document.getElementById('tv-results').classList.add('hidden');
+            document.getElementById('tv-gameplay').classList.remove('hidden');
+
+            let q = questions[currentQuestionIdx];
+            document.getElementById('tv-question-text').innerText = q.q;
+            document.getElementById('tv-opt-A').innerText = q.options[0];
+            document.getElementById('tv-opt-B').innerText = q.options[1];
+            document.getElementById('tv-opt-C').innerText = q.options[2];
+            document.getElementById('tv-opt-D').innerText = q.options[3];
+
+            timeLeft = 15;
+            document.getElementById('tv-timer').innerText = timeLeft;
+
+            // Enviar gatilho de nova rodada pros controles limparem tela
+            playersConnected.forEach(conn => conn.send({ type: 'NEXT_QUESTION' }));
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('tv-timer').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    evaluateRound();
+                }
+            }, 1000);
+        }
+
+        function evaluateRound() {
+            clearInterval(timerInterval);
+            document.getElementById('tv-gameplay').classList.add('hidden');
+            document.getElementById('tv-results').classList.remove('hidden');
+
+            let q = questions[currentQuestionIdx];
+            document.getElementById('tv-correct-answer').innerText = `${q.correct}) ${q.a}`;
+
+            // Validar acertos
+            if (currentAnswersReceived.p1 === q.correct) scores.p1 += 100;
+            if (currentAnswersReceived.p2 === q.correct) scores.p2 += 100;
+
+            // Atualizar placar visual na TV
+            document.getElementById('tv-score-p1').innerText = `${scores.p1} pts`;
+            document.getElementById('tv-score-p2').innerText = `${scores.p2} pts`;
+
+            // Enviar sync de pontos pros telemóveis atualizar seus scores individuais
+            if (playersConnected[0]) playersConnected[0].send({ type: 'SCORE_SYNC', score: scores.p1 });
+            if (playersConnected[1]) playersConnected[1].send({ type: 'SCORE_SYNC', score: scores.p2 });
+        }
+
+        function nextQuestion() {
+            currentQuestionIdx++;
+            if (currentQuestionIdx >= questions.length) {
+                // Fim de jogo total na TV
+                document.getElementById('tv-results').innerHTML = `
+                    <h2 class="text-6xl font-black text-amber-400">Fim de Show!</h2>
+                    <p class="text-2xl text-slate-300">Obrigado por jogar!</p>
+                    <div class="bg-slate-800 p-8 rounded-3xl border-2 border-indigo-500 shadow-2xl max-w-sm mx-auto text-2xl font-black font-mono">
+                         ${scores.p1 > scores.p2 ? '🏆 JOGADOR 1 VENCEU!' : scores.p2 > scores.p1 ? '🏆 JOGADOR 2 VENCEU!' : '🤝 EMPATE TÉCNICO!'}
+                    </div>
+                    <button onclick="window.location.reload()" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-2 rounded-xl text-sm font-bold uppercase tracking-wider transition">Reiniciar Jogo</button>
+                `;
+                playersConnected.forEach(conn => conn.send({ type: 'GAME_OVER' }));
+            } else {
+                loadQuestion();
+            }
+        }
+
+
+        // ==================== ENGINE DO JOGADOR (CLIENTE) ====================
+        function initPlayerClient(code) {
             peer = new Peer();
             peer.on('open', () => {
-                document.getElementById('connection-status').innerText = "Conectando ao Host...";
                 conn = peer.connect(code);
-                handleEvents();
+                
+                conn.on('data', (data) => {
+                    if (data.type === 'ASSIGN_ROLE') {
+                        const tag = document.getElementById('player-tag');
+                        if (data.role === 1) {
+                            tag.innerText = "🔴 JOGADOR 1";
+                            tag.className = "text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-red-600 text-white shadow";
+                        } else {
+                            tag.innerText = "🔵 JOGADOR 2";
+                            tag.className = "text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-blue-600 text-white shadow";
+                        }
+                    } else if (data.type === 'GAME_START') {
+                        document.getElementById('player-wait-screen').classList.add('hidden');
+                        document.getElementById('player-gamepad').classList.remove('hidden');
+                    } else if (data.type === 'NEXT_QUESTION') {
+                        // Desbloquear botões para a nova pergunta
+                        unlockGamepadButtons();
+                    } else if (data.type === 'SCORE_SYNC') {
+                        document.getElementById('player-score-display').innerText = `${data.score} pts`;
+                    } else if (data.type === 'ROOM_FULL') {
+                        alert('Esta sala já possui 2 jogadores ativos.');
+                        window.location.href = window.location.origin + window.location.pathname;
+                    } else if (data.type === 'GAME_OVER') {
+                        document.getElementById('player-gamepad').classList.add('hidden');
+                        document.getElementById('player-wait-screen').classList.remove('hidden');
+                        document.getElementById('player-wait-title').innerText = "Fim de Jogo! Olhe a TV.";
+                    }
+                });
             });
         }
 
-        function handleEvents() {
-            conn.on('open', () => {
-                document.getElementById('screen-lobby').classList.add('hidden');
-                document.getElementById('screen-game').classList.remove('hidden');
-                if (myRole === 'red') setupNewGame();
-            });
-
-            conn.on('data', (data) => {
-                if (data.type === 'START_GAME') {
-                    myDeck = data.guestDeck;
-                    oppCardCount = data.hostCardCount;
-                    isMyTurn = data.yourTurn;
-                    updateUI();
-                } else if (data.type === 'PICK_ATTR') {
-                    currentRoundChosenAttr = data.attr;
-                    receivedOppCard = data.card;
-                    resolveBattle();
-                } else if (data.type === 'REPLY_CARD') {
-                    receivedOppCard = data.card;
-                    resolveBattle();
+        function submitAnswer(choice) {
+            // Trava os botões visualmente após a escolha
+            const buttons = ['A', 'B', 'C', 'D'];
+            buttons.forEach(b => {
+                const btn = document.getElementById(`btn-opt-${b}`);
+                btn.disabled = true;
+                if (b === choice) {
+                    btn.className = "bg-slate-700 text-slate-400 text-3xl font-black rounded-2xl border-b-4 border-slate-900 flex items-center justify-center ring-4 ring-indigo-500 scale-95";
+                } else {
+                    btn.className = "bg-slate-800 text-slate-600 text-3xl font-black rounded-2xl border-b-4 border-slate-900 opacity-30 flex items-center justify-center pointer-events-none";
                 }
             });
+
+            // Envia a resposta direto para a TV processar
+            if (conn && conn.open) {
+                conn.send({ type: 'SUBMIT_ANSWER', choice: choice });
+            }
         }
 
-        function setupNewGame() {
-            let deck = [...baseDeck].sort(() => Math.random() - 0.5);
-            myDeck = deck.splice(0, 6);
-            let guestDeck = deck; 
+        function unlockGamepadButtons() {
+            const configs = {
+                A: "bg-red-600 hover:bg-red-500 border-red-800",
+                B: "bg-blue-600 hover:bg-blue-500 border-blue-800",
+                C: "bg-emerald-600 hover:bg-emerald-500 border-emerald-800",
+                D: "bg-amber-600 hover:bg-amber-500 border-amber-800"
+            };
 
-            isMyTurn = true;
-            oppCardCount = guestDeck.length;
-
-            conn.send({
-                type: 'START_GAME',
-                guestDeck: guestDeck,
-                hostCardCount: myDeck.length,
-                yourTurn: false
+            Object.keys(configs).forEach(b => {
+                const btn = document.getElementById(`btn-opt-${b}`);
+                btn.disabled = false;
+                btn.className = `${configs[b]} active:scale-95 text-white text-3xl font-black rounded-2xl border-b-8 shadow-lg transition flex items-center justify-center`;
             });
-
-            updateUI();
-        }
-
-        function updateUI() {
-            document.getElementById('cards-me').innerText = myDeck.length;
-            document.getElementById('cards-opp').innerText = oppCardCount;
-
-            const turnText = document.getElementById('turn-text');
-            if (isMyTurn) {
-                turnText.innerText = "Sua Vez!";
-                turnText.className = "font-black text-emerald-400 uppercase tracking-wider text-[11px] animate-pulse";
-                document.getElementById('round-log').innerText = "Escolha um atributo";
-            } else {
-                turnText.innerText = "Oponente...";
-                turnText.className = "font-black text-slate-400 uppercase tracking-wider text-[11px]";
-                document.getElementById('round-log').innerText = "Aguardando escolha";
-            }
-
-            // Oculta visualmente a carta do oponente
-            document.getElementById('card-opp-back').classList.remove('hidden');
-            document.getElementById('btn-next-round').classList.add('hidden');
-
-            if (myDeck.length > 0) {
-                localTopCard = myDeck[0];
-                renderLocalCard();
-            }
-        }
-
-        function renderLocalCard() {
-            document.getElementById('card-me-name').innerText = localTopCard.name;
-            const container = document.getElementById('attrs-container-me');
-            container.innerHTML = '';
-
-            Object.keys(attrNames).forEach(key => {
-                const attr = attrNames[key];
-                const btn = document.createElement('button');
-                btn.disabled = !isMyTurn;
-                btn.className = `w-full flex justify-between items-center p-2 rounded-lg font-mono transition text-left border ${isMyTurn ? 'bg-slate-800 border-slate-700 hover:bg-emerald-950 hover:border-emerald-500' : 'bg-slate-800/50 border-slate-800'}`;
-                
-                btn.innerHTML = `
-                    <span class="text-slate-400 font-sans">${attr.label}:</span>
-                    <span class="font-bold text-white">${localTopCard[key]}${attr.unit}</span>
-                `;
-
-                btn.onclick = () => selectAttribute(key);
-                container.appendChild(btn);
-            });
-        }
-
-        function selectAttribute(key) {
-            if (!isMyTurn) return;
-            currentRoundChosenAttr = key;
-
-            // Desabilita cliques extras imediatos travando a interface
-            isMyTurn = false;
-            document.getElementById('turn-text').innerText = "Analisando...";
-
-            conn.send({
-                type: 'PICK_ATTR',
-                attr: key,
-                card: localTopCard
-            });
-        }
-
-        function resolveBattle() {
-            // Se eu escolhi o atributo, avisei o oponente e ele me respondeu com a carta dele via REPLY_CARD.
-            // Se o oponente escolheu o atributo, ele me mandou PICK_ATTR contendo o atributo e a carta dele.
-            if (myRole !== roomCode && receivedOppCard && !isMyTurn && myDeck.length > 0 && !document.getElementById('btn-next-round').classList.contains('hidden')) {
-                // Prevenção de loop ou chamadas duplicadas tardias
-            }
-
-            // Se fui eu que escolhi e ainda não recebi a resposta do oponente, solicito a carta dele
-            if (!receivedOppCard) {
-                conn.send({
-                    type: 'REPLY_CARD',
-                    card: localTopCard
-                });
-                return;
-            }
-
-            // Mostrar a carta do oponente na tela
-            document.getElementById('card-opp-back').classList.add('hidden');
-            document.getElementById('card-opp-name').innerText = receivedOppCard.name;
-            
-            const containerOpp = document.getElementById('attrs-container-opp');
-            containerOpp.innerHTML = '';
-
-            Object.keys(attrNames).forEach(key => {
-                const attr = attrNames[key];
-                const isTarget = (key === currentRoundChosenAttr);
-                const div = document.createElement('div');
-                div.className = `w-full flex justify-between items-center p-2 rounded-lg font-mono border ${isTarget ? 'bg-indigo-950 border-indigo-500 font-bold ring-1 ring-indigo-400' : 'bg-slate-800/40 border-slate-800/80'}`;
-                div.innerHTML = `
-                    <span class="text-slate-400 font-sans">${attr.label}:</span>
-                    <span class="text-white">${receivedOppCard[key]}${attr.unit}</span>
-                `;
-                containerOpp.appendChild(div);
-            });
-
-            // Lógica de Comparação
-            const config = attrNames[currentRoundChosenAttr];
-            let myValue = localTopCard[currentRoundChosenAttr];
-            let oppValue = receivedOppCard[currentRoundChosenAttr];
-
-            let iWon = false;
-            let tie = false;
-
-            if (myValue === oppValue) {
-                tie = true;
-            } else if (config.lowWins) {
-                iWon = (myValue < oppValue);
-            } else {
-                iWon = (myValue > oppValue);
-            }
-
-            // Remover do topo
-            myDeck.shift();
-
-            if (tie) {
-                document.getElementById('round-log').innerText = "Empate!";
-                // Volta para o fundo do próprio deck
-                myDeck.push(localTopCard);
-            } else if (iWon) {
-                document.getElementById('round-log').innerText = "Você Venceu!";
-                myDeck.push(localTopCard);
-                myDeck.push(receivedOppCard);
-                isMyTurn = true; // Mantém ou ganha o turno
-            } else {
-                document.getElementById('round-log').innerText = "Você Perdeu!";
-                isMyTurn = false;
-            }
-
-            oppCardCount = baseDeck.length - myDeck.length; // Ajusta contagem baseada no baralho global estável
-            if (tie) oppCardCount = baseDeck.length / 2; // Correção aproximada rápida visual se empatar antes de syncs completos
-
-            // Exibir botão de avançar de fase de forma limpa
-            document.getElementById('btn-next-round').classList.remove('hidden');
-        }
-
-        function advanceNextRound() {
-            receivedOppCard = null;
-            currentRoundChosenAttr = null;
-
-            if (myDeck.length === 0 || myDeck.length === baseDeck.length) {
-                checkGameOver();
-            } else {
-                updateUI();
-            }
-        }
-
-        function checkGameOver() {
-            document.getElementById('screen-game').classList.add('hidden');
-            document.getElementById('screen-game-over').classList.remove('hidden');
-
-            const title = document.getElementById('game-over-title');
-            const msg = document.getElementById('game-over-msg');
-
-            if (myDeck.length === baseDeck.length) {
-                title.innerText = "🏆 VITÓRIA!";
-                title.className = "text-3xl font-black text-green-400";
-                msg.innerText = "Incrível! Você tomou todas as cartas do oponente.";
-            } else {
-                title.innerText = "💀 DERROTA!";
-                title.className = "text-3xl font-black text-red-500";
-                msg.innerText = "Você ficou sem cartas no baralho.";
-            }
         }
 
         function copyLink() {
             const shareLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
-            navigator.clipboard.writeText(shareLink).then(() => alert('Link copiado!'));
-        }
-
-        function leaveRoom() {
-            localStorage.removeItem('hosted_trunfo_room');
-            if (conn) conn.close();
-            if (peer) peer.destroy();
-            window.location.href = window.location.origin + window.location.pathname;
+            navigator.clipboard.writeText(shareLink).then(() => alert('Link da sala copiado! Compartilhe com os comandos.'));
         }
 
         window.addEventListener('beforeunload', () => {
