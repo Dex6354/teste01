@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PPTLS P2P</title>
+    <title>Jogo da Velha P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
@@ -13,7 +13,7 @@
         <div class="max-w-md mx-auto">
             <div class="flex justify-between items-center relative">
                 <div class="flex flex-col">
-                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">PPTLS Competitivo</h1>
+                    <h1 class="font-extrabold text-sm tracking-wider uppercase text-amber-400">Velha P2P</h1>
                     <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
                         <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
                         <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">📋 Compartilhar</button>
@@ -29,15 +29,15 @@
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
                 <h2 class="text-xl font-extrabold mb-2">Aguardando Oponente</h2>
-                <p class="text-slate-400 text-xs">Envie o link para o oponente entrar na sala de duelo.</p>
-                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Conectando ao P2P...</div>
+                <p class="text-slate-400 text-xs">Envie o link da sala para o outro jogador se conectar.</p>
+                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">Conectando ao servidor P2P...</div>
                 <div id="loading-peer" class="hidden text-amber-400 text-xs font-medium animate-pulse">Configurando sala...</div>
             </div>
         </div>
 
         <div id="game-scoreboard" class="w-full bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between mb-4">
             <div class="text-center">
-                <span class="text-red-400 font-black text-xs block">P1 (Vermelho)</span>
+                <span class="text-red-400 font-black text-xs block">P1 (X Vermelho)</span>
                 <div class="flex items-center space-x-1 mt-0.5 justify-center">
                     <span id="status-dot-p1" class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                     <span id="status-text-p1" class="text-[10px] text-rose-400 font-bold font-mono">Offline</span>
@@ -49,7 +49,7 @@
                 <span id="score-blue" class="bg-slate-950 px-2.5 py-1 rounded text-white font-mono text-sm font-bold">0</span>
             </div>
             <div class="text-center">
-                <span class="text-blue-400 font-black text-xs block">P2 (Azul)</span>
+                <span class="text-blue-400 font-black text-xs block">P2 (O Azul)</span>
                 <div class="flex items-center space-x-1 mt-0.5 justify-center">
                     <span id="status-text-p2" class="text-[10px] text-rose-400 font-bold font-mono">Offline</span>
                     <span id="status-dot-p2" class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
@@ -60,88 +60,55 @@
         <div id="screen-game" class="w-full space-y-4">
             <div id="btn-turn" class="w-full text-center font-bold py-2.5 rounded-xl text-xs border border-slate-700 bg-slate-800 transition">Carregando...</div>
 
-            <div id="round-arena" class="bg-slate-950 border border-slate-800 p-4 rounded-2xl h-28 flex items-center justify-around text-center shadow-inner">
-                <div>
-                    <span class="text-[10px] text-slate-500 uppercase block font-bold">Sua Escolha</span>
-                    <span id="arena-my-choice" class="text-4xl mt-1 block">❓</span>
+            <div id="board-grid" class="grid grid-cols-3 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 shadow-2xl aspect-square">
                 </div>
-                <div id="arena-vs" class="text-xs font-black italic text-slate-600">VS</div>
-                <div>
-                    <span class="text-[10px] text-slate-500 uppercase block font-bold">Oponente</span>
-                    <span id="arena-opp-choice" class="text-4xl mt-1 block">❓</span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-5 gap-2">
-                <button onclick="makeChoice('pedra')" class="choice-btn bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 p-3 rounded-xl flex flex-col items-center transition active:scale-95">
-                    <span class="text-2xl">✊</span><span class="text-[9px] font-bold mt-1 text-slate-400">Pedra</span>
-                </button>
-                <button onclick="makeChoice('papel')" class="choice-btn bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 p-3 rounded-xl flex flex-col items-center transition active:scale-95">
-                    <span class="text-2xl">✋</span><span class="text-[9px] font-bold mt-1 text-slate-400">Papel</span>
-                </button>
-                <button onclick="makeChoice('tesoura')" class="choice-btn bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 p-3 rounded-xl flex flex-col items-center transition active:scale-95">
-                    <span class="text-2xl">✌️</span><span class="text-[9px] font-bold mt-1 text-slate-400">Tesoura</span>
-                </button>
-                <button onclick="makeChoice('lagarto')" class="choice-btn bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 p-3 rounded-xl flex flex-col items-center transition active:scale-95">
-                    <span class="text-2xl">🦎</span><span class="text-[9px] font-bold mt-1 text-slate-400">Lagarto</span>
-                </button>
-                <button onclick="makeChoice('spock')" class="choice-btn bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 p-3 rounded-xl flex flex-col items-center transition active:scale-95">
-                    <span class="text-2xl">🖖</span><span class="text-[9px] font-bold mt-1 text-slate-400">Spock</span>
-                </button>
-            </div>
-            <p class="text-[10px] text-center text-slate-500 italic">Primeiro a marcar 5 pontos vence a partida.</p>
         </div>
 
         <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center">
             <div class="border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl" id="game-over-box">
                 <h2 id="game-over-title" class="text-3xl font-black tracking-wide"></h2>
                 <p id="game-over-msg" class="text-sm text-slate-300 font-medium"></p>
-                <button id="btn-next-game" onclick="requestNewGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">🔄 Jogar Revanche</button>
+                <button id="btn-next-game" onclick="requestNewGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">🔄 Próxima Partida</button>
                 <p id="waiting-opponent-next" class="hidden text-amber-400 text-xs animate-pulse font-medium">Aguardando oponente...</p>
                 <p id="opponent-requested-rematch" class="hidden text-amber-400 text-xs animate-pulse font-medium">Oponente solicitou revanche...</p>
             </div>
         </div>
     </main>
 
-    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">⚡ Conexão P2P Direta • Sincronização Secreta</footer>
+    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">⚡ Conexão P2P Direta</footer>
 
     <script>
-        let peer = null, conn = null, myRole = '';
+        let peer = null, conn = null, myRole = '', isMyTurn = false;
         let score = { red: 0, blue: 0 };
         let localPlayerReadyForNext = false, opponentReadyForNext = false;
-
-        let myCurrentChoice = null;
-        let oppCurrentChoice = null;
-        let lockRound = false;
-
-        const emojis = { pedra: '✊', papel: '✋', tesoura: '✌️', lagarto: '🦎', spock: '🖖' };
-        const winRules = {
-            pedra: ['tesoura', 'lagarto'],
-            papel: ['pedra', 'spock'],
-            tesoura: ['papel', 'lagarto'],
-            lagarto: ['spock', 'papel'],
-            spock: ['tesoura', 'pedra']
-        };
+        
+        let board = Array(9).fill(null);
+        const winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Horizontais
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Verticais
+            [0, 4, 8], [2, 4, 6]             // Diagonais
+        ];
 
         const screenLobby = document.getElementById('screen-lobby');
         const topbar = document.getElementById('topbar');
+        const gridContainer = document.getElementById('board-grid');
         const urlParams = new URLSearchParams(window.location.search);
         let roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            const generatedCode = 'PPTLS-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_room_pptls', generatedCode);
+            const generatedCode = 'VELHA-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_room_velha', generatedCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
             document.getElementById('topbar-room-id').innerText = roomCode;
-            myRole = (roomCode === localStorage.getItem('hosted_room_pptls')) ? 'red' : 'blue';
+            myRole = (roomCode === localStorage.getItem('hosted_room_velha')) ? 'red' : 'blue';
             loadGameState();
             setupTheme();
             if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
-        function saveGameState() { if (roomCode) localStorage.setItem(`pptls_score_${roomCode}`, JSON.stringify(score)); }
-        function loadGameState() { const s = localStorage.getItem(`pptls_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
+        function saveGameState() { if (roomCode) localStorage.setItem(`velha_score_${roomCode}`, JSON.stringify(score)); }
+        function loadGameState() { const s = localStorage.getItem(`velha_score_${roomCode}`); if (s) score = JSON.parse(s); updateScoreboardVisual(); }
         function setupTheme() { topbar.className = myRole === 'red' ? "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white" : "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white"; }
         function updateScoreboardVisual() { document.getElementById('score-red').innerText = score.red; document.getElementById('score-blue').innerText = score.blue; }
 
@@ -171,19 +138,13 @@
 
         function handleEvents() {
             const cur = conn;
-            const onOpen = () => { if (conn !== cur) return; updatePresenceUI(true, true); screenLobby.classList.add('hidden'); startNewRound(); };
+            const onOpen = () => { if (conn !== cur) return; updatePresenceUI(true, true); screenLobby.classList.add('hidden'); resetBoardState(); };
             if (cur.open) onOpen(); else cur.on('open', onOpen);
 
             cur.on('data', data => {
                 if (conn !== cur) return;
-                if (data.type === 'CHOICE') {
-                    oppCurrentChoice = data.choice;
-                    checkRoundResolution();
-                } else if (data.type === 'NEXT_GAME_READY') {
-                    opponentReadyForNext = true;
-                    document.getElementById('opponent-requested-rematch').classList.remove('hidden');
-                    checkNextGameTransition();
-                }
+                if (data.type === 'MOVE') { applyMove(data.index, data.role); isMyTurn = true; updateTurnUI(); }
+                else if (data.type === 'NEXT_GAME_READY') { opponentReadyForNext = true; document.getElementById('opponent-requested-rematch').classList.remove('hidden'); checkNextGameTransition(); }
             });
 
             cur.on('close', () => {
@@ -194,94 +155,85 @@
             });
         }
 
-        function startNewRound() {
-            myCurrentChoice = null;
-            oppCurrentChoice = null;
-            lockRound = false;
+        function resetBoardState() {
+            board.fill(null);
+            localPlayerReadyForNext = false; opponentReadyForNext = false;
+            isMyTurn = ((score.red + score.blue) % 2 === 0) ? (myRole === 'red') : (myRole === 'blue');
 
-            document.getElementById('arena-my-choice').innerText = '❓';
-            document.getElementById('arena-opp-choice').innerText = '❓';
-            document.getElementById('arena-vs').innerText = 'VS';
-            document.getElementById('arena-vs').className = "text-xs font-black italic text-slate-600";
-
-            const b = document.getElementById('btn-turn');
-            b.className = "w-full bg-emerald-600 text-white font-black py-2.5 rounded-xl text-xs shadow-lg animate-pulse text-center";
-            b.innerText = "🟢 SUA VEZ! Escolha uma opção em segredo";
-
-            toggleButtons(false);
+            gridContainer.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('button');
+                cell.id = `cell-${i}`;
+                cell.onclick = () => selectCell(i);
+                cell.className = "bg-slate-800 border border-slate-700 rounded-2xl flex items-center justify-center text-4xl font-black transition duration-200 aspect-square hover:bg-slate-700/50 active:scale-95";
+                gridContainer.appendChild(cell);
+            }
+            document.getElementById('game-over-screen').classList.add('hidden');
+            updateTurnUI();
         }
 
-        function makeChoice(choice) {
-            if (lockRound || myCurrentChoice !== null) return;
-            myCurrentChoice = choice;
-
-            document.getElementById('arena-my-choice').innerText = '🔒';
-            
+        function updateTurnUI() {
             const b = document.getElementById('btn-turn');
-            b.className = "w-full bg-slate-800 text-slate-400 font-bold py-2.5 rounded-xl text-xs border border-slate-700/50 text-center animate-none";
-            b.innerText = "⏳ AGUARDANDO ESCOLA DO OPONENTE...";
-
-            toggleButtons(true);
-
-            if (conn && conn.open) conn.send({ type: 'CHOICE', choice: choice });
-            checkRoundResolution();
-        }
-
-        function checkRoundResolution() {
-            if (myCurrentChoice !== null && oppCurrentChoice !== null) {
-                lockRound = true;
-                
-                document.getElementById('arena-my-choice').innerText = emojis[myCurrentChoice];
-                document.getElementById('arena-opp-choice').innerText = emojis[oppCurrentChoice];
-
-                const b = document.getElementById('btn-turn');
-
-                if (myCurrentChoice === oppCurrentChoice) {
-                    b.className = "w-full bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs text-center";
-                    b.innerText = "🤝 EMPATE NESSA RODADA!";
-                    document.getElementById('arena-vs').className = "text-sm font-black text-amber-500 animate-bounce";
-                    document.getElementById('arena-vs').innerText = "EMPATE";
-                } else if (winRules[myCurrentChoice].includes(oppCurrentChoice)) {
-                    b.className = "w-full bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs text-center";
-                    b.innerText = "🎉 VOCÊ PONTOU!";
-                    document.getElementById('arena-vs').className = "text-sm font-black text-green-500 animate-bounce";
-                    document.getElementById('arena-vs').innerText = "GANHOU";
-                    if (myRole === 'red') score.red++; else score.blue++;
-                } else {
-                    b.className = "w-full bg-rose-600 text-white font-bold py-2.5 rounded-xl text-xs text-center";
-                    b.innerText = "❌ OPONENTE PONTOU!";
-                    document.getElementById('arena-vs').className = "text-sm font-black text-rose-500 animate-bounce";
-                    document.getElementById('arena-vs').innerText = "PERDEU";
-                    if (myRole === 'red') score.blue++; else score.red++;
-                }
-
-                updateScoreboardVisual();
-                saveGameState();
-
-                if (score.red >= 5 || score.blue >= 5) {
-                    setTimeout(() => triggerGameOver(score.red >= 5 ? 'red' : 'blue'), 1500);
-                } else {
-                    setTimeout(startNewRound, 2500);
-                }
+            if (isMyTurn) {
+                b.className = "w-full bg-emerald-600 text-white font-black py-2.5 rounded-xl text-xs shadow-lg animate-pulse text-center";
+                b.innerText = "🟢 SUA VEZ! Clique em um quadrante vazio";
+            } else {
+                b.className = "w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl text-xs border border-slate-700/50 text-center";
+                b.innerText = "⏳ VEZ DO OPONENTE...";
             }
         }
 
-        function toggleButtons(disable) {
-            document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = disable);
+        function selectCell(index) {
+            if (!isMyTurn || board[index] !== null) return;
+            applyMove(index, myRole);
+            isMyTurn = false;
+            updateTurnUI();
+            if (conn && conn.open) conn.send({ type: 'MOVE', index: index, role: myRole });
+        }
+
+        function applyMove(index, role) {
+            board[index] = role;
+            const cell = document.getElementById(`cell-${index}`);
+            cell.disabled = true;
+            if (role === 'red') {
+                cell.innerText = 'X';
+                cell.className = "bg-red-950/40 border-2 border-red-500 text-red-500 rounded-2xl flex items-center justify-center text-4xl font-black aspect-square scale-95 transition-all duration-200 shadow-lg shadow-red-500/10";
+            } else {
+                cell.innerText = 'O';
+                cell.className = "bg-blue-950/40 border-2 border-blue-500 text-blue-500 rounded-2xl flex items-center justify-center text-4xl font-black aspect-square scale-95 transition-all duration-200 shadow-lg shadow-blue-500/10";
+            }
+            checkWinCondition();
+        }
+
+        function checkWinCondition() {
+            for (let pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return triggerGameOver(board[a]);
+                }
+            }
+            if (!board.includes(null)) triggerGameOver('draw');
         }
 
         function triggerGameOver(winner) {
             const box = document.getElementById('game-over-box');
             const title = document.getElementById('game-over-title');
             const msg = document.getElementById('game-over-msg');
-            box.className = `${myRole === 'red' ? 'bg-red-950' : 'bg-blue-950'} border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl ` + (winner === myRole ? 'border-green-500' : 'border-red-500');
+            box.className = `${myRole === 'red' ? 'bg-red-950' : 'bg-blue-950'} border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl ` + (winner === 'draw' ? 'border-amber-500' : (winner === myRole ? 'border-green-500' : 'border-red-500'));
 
-            if (winner === myRole) {
-                title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce"; msg.innerText = "Você alcançou 5 pontos primeiro!";
+            if (winner === 'draw') {
+                title.innerText = "🤝 EMPATE!"; title.className = "text-2xl font-black text-amber-400"; msg.innerText = "Velha! Ninguém conseguiu alinhar três.";
             } else {
-                title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500"; msg.innerText = "O oponente venceu o duelo desta vez.";
+                if (!localPlayerReadyForNext && !opponentReadyForNext) {
+                    if (winner === 'red') score.red++; else score.blue++;
+                    updateScoreboardVisual(); saveGameState();
+                }
+                if (winner === myRole) {
+                    title.innerText = "🏆 VITÓRIA!"; title.className = "text-3xl font-black text-green-400 animate-bounce"; msg.innerText = "Você fechou uma linha primeiro!";
+                } else {
+                    title.innerText = "💀 DERROTA"; title.className = "text-3xl font-black text-red-500"; msg.innerText = "O oponente fechou a trinca antes.";
+                }
             }
-
             document.getElementById('btn-next-game').className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm cursor-pointer";
             document.getElementById('btn-next-game').disabled = false;
             document.getElementById('waiting-opponent-next').classList.add('hidden');
@@ -297,17 +249,9 @@
             checkNextGameTransition();
         }
 
-        function checkNextGameTransition() { 
-            if (localPlayerReadyForNext && opponentReadyForNext) {
-                score = { red: 0, blue: 0 };
-                updateScoreboardVisual();
-                saveGameState();
-                document.getElementById('game-over-screen').classList.add('hidden');
-                startNewRound();
-            } 
-        }
+        function checkNextGameTransition() { if (localPlayerReadyForNext && opponentReadyForNext) resetBoardState(); }
         function copyLink() { navigator.clipboard.writeText(window.location.origin + window.location.pathname + '?room=' + roomCode).then(() => alert('Link copiado!')); }
-        function leaveRoom() { if (roomCode) localStorage.removeItem(`pptls_score_${roomCode}`); localStorage.removeItem('hosted_room_pptls'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
+        function leaveRoom() { if (roomCode) localStorage.removeItem(`velha_score_${roomCode}`); localStorage.removeItem('hosted_room_velha'); if (conn) conn.close(); if (peer) peer.destroy(); window.location.href = window.location.origin + window.location.pathname; }
     </script>
 </body>
 </html>
