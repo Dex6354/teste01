@@ -463,7 +463,7 @@
     <a href="#">Pedir Jogo</a>
     <a href="#">Sugestões</a>
     <a href="#">Erros</a>
-    <a href="#" id="installAppBtn">Baixar</a>
+    <a href="#">Baixar</a>
   </div>
   <div class="footer-copy">© 2026 Jogos da Galera ♥️🎮</div>
 </footer>
@@ -572,43 +572,6 @@
   }
 
   document.addEventListener('DOMContentLoaded', loadGames);
-
-  // ---------- Lógica de Adicionar à Tela Inicial (PWA) ----------
-  let deferredPrompt;
-  const installBtn = document.getElementById('installAppBtn');
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-  });
-
-  if (installBtn) {
-    installBtn.addEventListener('click', async (ev) => {
-      ev.preventDefault();
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        try {
-          const choice = await deferredPrompt.userChoice;
-          if (choice.outcome === 'accepted') {
-            alert('✅ App adicionado à tela inicial!');
-          } else {
-            alert('❌ Instalação cancelada.');
-          }
-        } catch (err) {
-          console.error('Erro aguardando userChoice:', err);
-        }
-        deferredPrompt = null;
-        return;
-      }
-
-      const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-      if (isIos) {
-        alert('No Safari do iPhone: toque no botão "Compartilhar" e escolha "Adicionar à Tela de Início".');
-      } else {
-        alert('ℹ️ Para adicionar um atalho na sua tela inicial, toque no menu (⋮ ou •••) no seu navegador e selecione a opção "Adicionar à tela inicial" ou "Instalar aplicativo".');
-      }
-    });
-  }
 </script>
 </body>
 </html>
