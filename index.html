@@ -63,24 +63,18 @@
     }
 
     .nav-logo-icon {
-      width: 120px;
+      width: auto;
       height: 32px;
-      background: var(--yellow);
-      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
     }
 
-    .nav-logo-text {
-      font-size: 20px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: -0.5px;
+    .nav-logo-icon img {
+      height: 100%;
+      width: auto;
+      display: block;
     }
-
-    .nav-logo-text span { color: var(--yellow); }
 
     .nav-right {
       display: flex;
@@ -308,13 +302,17 @@
     }
 
     .footer-logo {
-      width: 120px;
+      width: auto;
       height: 32px;
-      background: var(--yellow);
-      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    .footer-logo img {
+      height: 100%;
+      width: auto;
+      display: block;
     }
 
     .footer-links {
@@ -361,7 +359,7 @@
 <nav>
   <a class="nav-logo" href="#">
     <div class="nav-logo-icon">
-      <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera" style="height:60px;width:auto;display:block;">
+      <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera">
     </div>
   </a>
   <div class="nav-right">
@@ -401,7 +399,7 @@
 
 <footer>
   <div class="footer-logo">
-    <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera" style="height:60px;width:auto;display:block;">
+    <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera">
   </div>
   <div class="footer-links">
     <a href="#">Apoiar</a>
@@ -437,11 +435,32 @@
 
   function filterGames(category, btn) {
     activeCategory = category;
-
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-
     updateGames();
+  }
+
+  function createCard(folderName, metadata) {
+    const card = document.createElement('a');
+    card.className = 'card';
+    card.href = `./${folderName}/`;
+    card.target = '_blank';
+    card.dataset.category = metadata.category;
+    card.dataset.name = `${metadata.title.toLowerCase()} ${folderName.toLowerCase()} ${metadata.category}`;
+
+    const tagsHTML = metadata.tags.map((tag, i) => `
+      <span class="tag ${i > 0 ? 'gray' : ''}">${tag}</span>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="card-thumb-fallback" style="background: ${metadata.background};">${metadata.emoji}</div>
+      <div class="card-body">
+        <div class="card-title">${metadata.title}</div>
+        <div class="card-desc">${metadata.description}</div>
+        <div class="card-tags">${tagsHTML}</div>
+      </div>
+    `;
+    return card;
   }
 
   async function loadGames() {
@@ -455,9 +474,9 @@
       const folders = await response.json();
       gameGrid.innerHTML = '';
 
-      for (const folder of folders) {
+      // Mapeia as pastas gerando requisições em paralelo de forma performática
+      const cardPromises = folders.map(async (folder) => {
         const folderName = folder.name;
-        
         let metadata = {
           title: folderName.charAt(0).toUpperCase() + folderName.slice(1).replace(/-/g, ' '),
           description: 'Jogue agora este incrível jogo multiplayer direto do seu navegador.',
@@ -473,30 +492,16 @@
             const customMeta = await metaResponse.json();
             metadata = { ...metadata, ...customMeta };
           }
-        } catch (err) {}
+        } catch (err) {
+          // Mantém o metadado padrão caso o arquivo falhe
+        }
 
-        const card = document.createElement('a');
-        card.className = 'card';
-        card.href = `./${folderName}/`;
-        card.target = '_blank';
-        card.dataset.category = metadata.category;
-        card.dataset.name = `${metadata.title.toLowerCase()} ${folderName.toLowerCase()} ${metadata.category}`;
+        return createCard(folderName, metadata);
+      });
 
-        const tagsHTML = metadata.tags.map((tag, i) => `
-          <span class="tag ${i > 0 ? 'gray' : ''}">${tag}</span>
-        `).join('');
-
-        card.innerHTML = `
-          <div class="card-thumb-fallback" style="background: ${metadata.background};">${metadata.emoji}</div>
-          <div class="card-body">
-            <div class="card-title">${metadata.title}</div>
-            <div class="card-desc">${metadata.description}</div>
-            <div class="card-tags">${tagsHTML}</div>
-          </div>
-        `;
-
-        gameGrid.appendChild(card);
-      }
+      // Aguarda todas as promessas resolverem simultaneamente
+      const cards = await Promise.all(cardPromises);
+      cards.forEach(card => gameGrid.appendChild(card));
 
       updateGames();
 
