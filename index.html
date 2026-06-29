@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=360, initial-scale=1, maximum-scale=5, user-scalable=1" />
   <title>Jogos da Galera</title>
 
-  <!-- PWA / SEO -->
   <link rel="icon"     type="image/png" href="https://jogosdagalera.pages.dev/logowpp.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color"       content="#f1c40f">
@@ -13,15 +12,12 @@
   <meta property="og:description" content="Seus jogos favoritos">
   <meta property="og:image"       content="https://jogosdagalera.pages.dev/logowpp.png">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
 
   <style>
-    /* ── RESET ───────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── TOKENS ──────────────────────────────────────────── */
     :root {
       --yellow:      #f1c40f;
       --yellow-dark: #f39c12;
@@ -38,7 +34,6 @@
       --font:        'Nunito', sans-serif;
     }
 
-    /* ── BASE ────────────────────────────────────────────── */
     html { scroll-behavior: smooth; }
 
     body {
@@ -49,8 +44,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── SHARED: LOGO BADGE ──────────────────────────────── */
-    /* Usado no cabeçalho e no rodapé — tamanho e fundo preservados */
     .logo-badge {
       width: 120px;
       height: 32px;
@@ -60,7 +53,7 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      overflow: visible;       /* permite a imagem ultrapassar o box */
+      overflow: visible;
     }
 
     .logo-badge img {
@@ -69,7 +62,6 @@
       display: block;
     }
 
-    /* ── NAVBAR ──────────────────────────────────────────── */
     nav {
       position: sticky;
       top: 0;
@@ -106,7 +98,6 @@
       cursor: pointer;
     }
 
-    /* ── HERO ────────────────────────────────────────────── */
     .hero {
       text-align: center;
       padding: 48px 24px 36px;
@@ -149,7 +140,6 @@
       font-weight: 700;
     }
 
-    /* ── FILTERS ─────────────────────────────────────────── */
     .filters {
       display: flex;
       gap: 8px;
@@ -180,7 +170,6 @@
       color: var(--bg);
     }
 
-    /* ── SEARCH ──────────────────────────────────────────── */
     .search-container {
       padding: 0 24px 24px;
     }
@@ -217,7 +206,6 @@
       pointer-events: none;
     }
 
-    /* ── GAME GRID ──────────────────────────────────────── */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -225,7 +213,6 @@
       padding: 0 24px 40px;
     }
 
-    /* ── CARD ────────────────────────────────────────────── */
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border);
