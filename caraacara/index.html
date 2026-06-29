@@ -32,12 +32,12 @@
                     <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
                         <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
                         <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">
-                        📋Compartilhar
+                            📋Compartilhar
                         </button>
                     </div>
                 </div>
                 <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow">
-                       ➡️ Sair
+                    ➡️ Sair
                 </button>
             </div>
         </div>
@@ -273,6 +273,52 @@
         const screenGame = document.getElementById('screen-game');
         const topbar = document.getElementById('topbar');
 
+        async function loadExternalHeader() {
+            try {
+                const response = await fetch('../index.html');
+                const htmlText = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+                
+                const externalNav = doc.querySelector('nav');
+                const externalStyles = doc.querySelectorAll('style');
+                
+                if (externalStyles) {
+                    externalStyles.forEach(style => {
+                        if (style.textContent.includes('nav') || style.textContent.includes('NAVBAR')) {
+                            const newStyle = document.createElement('style');
+                            newStyle.textContent = style.textContent;
+                            document.head.appendChild(newStyle);
+                        }
+                    });
+                }
+
+                if (externalNav) {
+                    const navRight = externalNav.querySelector('.nav-right');
+                    if (navRight) {
+                        navRight.className = "nav-right flex items-center gap-3";
+                        navRight.innerHTML = `
+                            <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono">
+                                <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">${roomCode || '...'}</strong></span>
+                                <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">
+                                    📋Compartilhar
+                                </button>
+                            </div>
+                            <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow">
+                                ➡️ Sair
+                            </button>
+                        `;
+                    }
+                    const topbarEl = document.getElementById('topbar');
+                    topbarEl.innerHTML = '';
+                    topbarEl.appendChild(externalNav);
+                    setupTheme();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar o cabeçalho dinâmico:', error);
+            }
+        }
+
         function saveGameState() {
             if (!roomCode) return;
             localStorage.setItem(`cara_score_${roomCode}`, JSON.stringify(score));
@@ -341,7 +387,8 @@
             localStorage.setItem('hosted_room', generatedCode);
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
-            document.getElementById('topbar-room-id').innerText = roomCode;
+            const roomIdEl = document.getElementById('topbar-room-id');
+            if (roomIdEl) roomIdEl.innerText = roomCode;
             
             if (roomCode === localStorage.getItem('hosted_room')) {
                 myRole = 'red';
@@ -362,6 +409,8 @@
             } else {
                 initGuest(roomCode);
             }
+
+            loadExternalHeader();
         }
 
         window.addEventListener('beforeunload', () => {
@@ -381,6 +430,7 @@
             const mTextP2 = document.getElementById('modal-status-text-p2');
 
             const applyStatus = (dot, text, online) => {
+                if (!dot || !text) return;
                 if (online) {
                     dot.className = "w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shrink-0";
                     text.innerText = "Online";
@@ -567,10 +617,21 @@
         function setupTheme() {
             UX_THEME_BG = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
 
-            if (myRole === 'red') {
-                topbar.className = "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white";
+            const nav = document.querySelector('#topbar nav');
+            if (nav) {
+                if (myRole === 'red') {
+                    nav.style.backgroundColor = '#450a0a';
+                    nav.style.borderBottom = '4px solid #b91c1c';
+                } else {
+                    nav.style.backgroundColor = '#172554';
+                    nav.style.borderBottom = '4px solid #1d4ed8';
+                }
             } else {
-                topbar.className = "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white";
+                if (myRole === 'red') {
+                    topbar.className = "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white";
+                } else {
+                    topbar.className = "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white";
+                }
             }
             updateScoreboardVisual();
         }
@@ -742,7 +803,6 @@
         function syncPlacarVisuals(role, charUrl) {
             const myBgUrl = role === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
             const prefixos = role === 'red' ? ['p1-'] : ['p2-'];
-            const oponPrefixos = role === 'red' ? ['p2-'] : ['p1-'];
 
             prefixos.forEach(p => {
                 document.getElementById(`${p}avatar-bg`).style.backgroundImage = `url('${myBgUrl}')`;
@@ -750,8 +810,6 @@
                 document.getElementById(`${p}avatar`).classList.remove('hidden');
                 document.getElementById(`${p}avatar-placeholder`).classList.add('hidden');
             });
-
-            // Removido o código que ocultava o placeholder do oponente
         }
 
         function updateRemainingCount() {
