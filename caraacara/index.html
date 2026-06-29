@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" class="w-full" content="width=device-width, initial-scale=1.0">
     <title>Cara a Cara</title>
-    <link rel="icon" type="image/jpeg" href="https://caraacara.pages.dev/img/logowpp.jpg">
+    <link class="w-full" rel="icon" type="image/jpeg" href="https://caraacara.pages.dev/img/logowpp.jpg">
 
     <meta property="og:title" content="Jogue Cara a Cara Online">
     <meta property="og:image" content="https://caraacara.pages.dev/img/logowpp.jpg">
@@ -41,9 +41,8 @@
           border-bottom: 1px solid var(--border);
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          justify-content: center;
           padding: 0 24px;
-          gap: 32px;
         }
         .nav-logo {
           display: flex;
@@ -62,30 +61,31 @@
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
     <nav id="topbar">
-        <div class="flex items-center gap-4">
-            <a class="nav-logo" href="#">
-                <div class="logo-badge">
-                    <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera">
-                </div>
-            </a>
-            <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
-                <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
-                <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">
-                    📋Compartilhar
-                </button>
+        <a class="nav-logo" href="#">
+            <div class="logo-badge">
+                <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera">
             </div>
+        </a>
+    </nav>
+
+    <div class="w-full max-w-md mx-auto px-3 mt-3 flex items-center justify-between bg-slate-800/40 p-2 rounded-xl border border-slate-700/50 shadow-sm">
+        <div class="flex items-center space-x-2 text-[11px] text-slate-400 font-mono">
+            <span>Sala: <strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
+            <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">
+                📋 Compartilhar
+            </button>
         </div>
         <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow">
             ➡️ Sair
         </button>
-    </nav>
+    </div>
 
     <main class="flex-grow flex flex-col items-center justify-center p-3 w-full max-w-md mx-auto mb-12">
         
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center" style="top: 0;">
             <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
                 <h2 class="text-xl font-extrabold mb-2">Aguardando Conexão</h2>
-                <p class="text-slate-400 text-xs">Envie o link da sala para seu oponente usando o botão de compartilhar no topo. O jogo começará assim que ele entrar!</p>
+                <p class="text-slate-400 text-xs">Envie o link da sala para seu oponente usando o botão de compartilhar. O jogo começará assim que ele entrar!</p>
                 
                 <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">
                     Procurando sinal do servidor P2P...
@@ -153,7 +153,7 @@
             <div id="board-grid" class="grid grid-cols-4 gap-2 w-full"></div>
         </div>
 
-        <div id="char-confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+        <div id="char-confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-amber-500 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
                 <h3 id="char-confirm-title" class="text-lg font-black text-amber-400 tracking-wide">CONFIRMAR PERSONAGEM?</h3>
                 <p class="text-[11px] text-slate-400">Esconda a tela! Seu oponente terá que adivinhar quem você escolheu.</p>
@@ -176,14 +176,14 @@
             </div>
         </div>
 
-        <div id="confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+        <div id="confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-amber-500 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
                 <h3 class="text-lg font-black text-amber-400 tracking-wide">CONFIRMAR PALPITE FINAL?</h3>
                 <p class="text-xs text-slate-300">Você tem certeza que o personagem secreto do seu oponente é este?</p>
                 <div id="confirm-modal-img-bg" class="w-24 h-32 mx-auto rounded-lg border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shadow-inner">
                     <img id="confirm-modal-char-img" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]">
                 </div>
-                <p class="text-[10px] text-rose-400 bg-rose-950/30 p-2 rounded border border-rose-900/50 font-medium">Atenção: Se voce errar, perderá o jogo imediatamente!</p>
+                <p class="text-[10px] text-rose-400 bg-rose-950/30 p-2 rounded border border-rose-900/50 font-medium">Atenção: Se você errar, perderá o jogo imediatamente!</p>
                 <div class="flex space-x-3 pt-2">
                     <button onclick="closeConfirmModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs transition">
                         Cancelar
@@ -195,7 +195,7 @@
             </div>
         </div>
 
-        <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+        <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center">
             <div class="border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl" id="game-over-box">
                 <h2 id="game-over-title" class="text-2xl font-black tracking-wide"></h2>
                 <p id="game-over-msg" class="text-sm text-slate-300 px-2 font-medium leading-tight"></p>
@@ -779,7 +779,6 @@
         function syncPlacarVisuals(role, charUrl) {
             const myBgUrl = role === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
             const prefixos = role === 'red' ? ['p1-'] : ['p2-'];
-            const oponPrefixos = role === 'red' ? ['p2-'] : ['p1-'];
 
             prefixos.forEach(p => {
                 document.getElementById(`${p}avatar-bg`).style.backgroundImage = `url('${myBgUrl}')`;
