@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" class="w-full" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cara a Cara</title>
     <link rel="icon" type="image/jpeg" href="https://caraacara.pages.dev/img/logowpp.jpg">
 
@@ -11,27 +11,37 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-    <style>
-        .card-flipped {
-            transform: scale(0.92);
-            opacity: 0.2;
-            filter: grayscale(100%) blur(1px);
-            border-color: #334155 !important;
-        }
 
-        /* ── ESTILOS DO NOVO CABEÇALHO ── */
+    <!-- Cabeçalho styles (renomeados para evitar conflitos) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
           --yellow:      #f1c40f;
+          --bg:          #0f1923;
           --bg-input:    #1a2635;
           --border:      rgba(255, 255, 255, 0.07);
+          --text:        #e8edf2;
           --text-muted:  #7a92a8;
           --font:        'Nunito', sans-serif;
         }
 
-        nav {
+        body {
+          font-family: var(--font);
+          background: var(--bg);
+          color: var(--text);
+          min-height: 100vh;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        /* Nav do cabeçalho - renomeado para nav-jogos-galera */
+        nav.nav-jogos-galera {
           position: sticky;
           top: 0;
-          z-index: 100;
+          z-index: 200;
           height: 56px;
           background: #0c151e;
           border-bottom: 1px solid var(--border);
@@ -78,19 +88,31 @@
           padding: 5px 10px;
           color: var(--text-muted);
           font-size: 13px;
+          font-family: var(--font);
           cursor: pointer;
         }
 
+        /* RESPONSIVE do cabeçalho */
         @media (max-width: 560px) {
-          nav                  { padding: 0 14px; gap: 10px; }
+          nav.nav-jogos-galera { padding: 0 14px; gap: 10px; }
           .nav-logo            { margin-left: 0; }
+        }
+
+        /* Estilos originais do Cara a Cara */
+        .card-flipped {
+            transform: scale(0.92);
+            opacity: 0.2;
+            filter: grayscale(100%) blur(1px);
+            border-color: #334155 !important;
         }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
-    <nav>
-      <a class="nav-logo" href="#">
+    <!-- CABEÇALHO IDENTICO INSERIDO -->
+    <!-- ── NAVBAR ──────────────────────────────────────────────── -->
+    <nav class="nav-jogos-galera">
+      <a class="nav-logo" href="https://jogosdagalera.pages.dev">
         <div class="logo-badge">
           <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera">
         </div>
@@ -99,6 +121,28 @@
         <button class="nav-lang">🇧🇷 PT</button>
       </div>
     </nav>
+
+    <!-- Conteúdo original do Cara a Cara movido para baixo -->
+    <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-[56px] z-50">
+        <div class="max-w-md mx-auto">
+            <div class="flex justify-between items-center relative">
+                <div class="flex flex-col">
+                    <h1 class="font-extrabold text-sm tracking-wider">
+                        <img src="img/logo.jpg" class="w-20 h-6 object-cover object-center rounded-md" alt="Logo">
+                    </h1>
+                    <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
+                        <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
+                        <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">
+                            📋Compartilhar
+                        </button>
+                    </div>
+                </div>
+                <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow">
+                    ➡️ Sair
+                </button>
+            </div>
+        </div>
+    </header>
 
     <main class="flex-grow flex flex-col items-center justify-center p-3 w-full max-w-md mx-auto mb-12">
         
@@ -625,9 +669,9 @@
             UX_THEME_BG = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
 
             if (myRole === 'red') {
-                topbar.className = "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white";
+                topbar.className = "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-[56px] z-50 text-white";
             } else {
-                topbar.className = "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white";
+                topbar.className = "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-[56px] z-50 text-white";
             }
             updateScoreboardVisual();
         }
@@ -807,6 +851,8 @@
                 document.getElementById(`${p}avatar`).classList.remove('hidden');
                 document.getElementById(`${p}avatar-placeholder`).classList.add('hidden');
             });
+
+            // Removido o código que ocultava o placeholder do oponente
         }
 
         function updateRemainingCount() {
