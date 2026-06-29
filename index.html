@@ -303,6 +303,17 @@
       color: var(--text-muted);
     }
 
+    /* ── PARTNERS SECTION ────────────────────────────────── */
+    .section-title {
+      font-size: clamp(18px, 4vw, 24px);
+      font-weight: 900;
+      color: #fff;
+      padding: 30px 24px 10px;
+      margin-top: 10px;
+      border-top: 1px solid var(--border);
+      letter-spacing: -0.5px;
+    }
+
     /* ── FOOTER ─────────────────────────────────────────── */
     footer {
       border-top: 1px solid var(--border);
@@ -354,6 +365,7 @@
       .search-box { max-width: 100%; }
       nav { padding: 0 14px; gap: 10px; }
       .hero { padding: 32px 14px 24px; }
+      .section-title { padding: 24px 14px 8px; }
     }
 
     @media (max-width: 380px) {
@@ -406,6 +418,38 @@
 
 <main class="grid" id="gameGrid"></main>
 
+<!-- ── NOVA SEÇÃO DE PARCEIROS ── -->
+<h2 class="section-title">Parceiros</h2>
+<div class="grid" id="partnersGrid">
+  <a class="card" href="https://bloob.io/pt" target="_blank" rel="noopener noreferrer">
+    <div class="card-thumb" style="background: linear-gradient(135deg,#1a2635,#0f1923);">
+      <img src="https://jogosdagalera.pages.dev/logowpp.png" alt="Bloob.io">
+    </div>
+    <div class="card-body">
+      <div class="card-title">Bloob.io</div>
+      <div class="card-desc">Jogue jogos multiplayer incríveis diretamente do seu navegador.</div>
+      <div class="card-tags">
+        <span class="tag">Parceiro</span>
+        <span class="tag gray">Web</span>
+      </div>
+    </div>
+  </a>
+
+  <a class="card" href="https://www.crazygames.com/br/" target="_blank" rel="noopener noreferrer">
+    <div class="card-thumb" style="background: linear-gradient(135deg,#1a2635,#0f1923);">
+      <img src="https://jogosdagalera.pages.dev/logowpp.png" alt="CrazyGames">
+    </div>
+    <div class="card-body">
+      <div class="card-title">CrazyGames</div>
+      <div class="card-desc">Uma enorme variedade de jogos online gratuitos para toda a galera.</div>
+      <div class="card-tags">
+        <span class="tag">Parceiro</span>
+        <span class="tag gray">Jogos</span>
+      </div>
+    </div>
+  </a>
+</div>
+
 <footer>
   <div class="footer-logo">
     <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera" style="height:60px;width:auto;display:block;">
@@ -427,7 +471,7 @@
 
   function updateGames() {
     const query = searchInput.value.toLowerCase().trim();
-    const cards = document.querySelectorAll('.card');
+    const cards = document.querySelectorAll('#gameGrid .card'); // Restringe busca apenas aos jogos dinâmicos
 
     cards.forEach(card => {
       const cardCategory = card.dataset.category || '';
