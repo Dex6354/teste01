@@ -1,0 +1,24 @@
+{
+  "name": "Jogos da Galera",
+  "short_name": "Jogos da Galera",
+  "description": "Seus jogos favoritos multiplayer no navegador.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f1923",
+  "theme_color": "#f1c40f",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://jogosdagalera.pages.dev/logowpp.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://jogosdagalera.pages.dev/logowpp.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
