@@ -303,15 +303,19 @@
       color: var(--text-muted);
     }
 
-    /* ── PARTNERS SECTION ────────────────────────────────── */
-    .section-title {
-      font-size: clamp(18px, 4vw, 24px);
+    /* ── PARTNERS SECTION BAR ───────────────────────────── */
+    .section-title-bar {
+      background: var(--yellow);
+      color: #0f1923;
+      padding: 10px 18px;
+      margin: 20px 24px 20px;
+      border-radius: 8px;
+      font-size: clamp(15px, 4vw, 18px);
       font-weight: 900;
-      color: #fff;
-      padding: 30px 24px 10px;
-      margin-top: 10px;
-      border-top: 1px solid var(--border);
-      letter-spacing: -0.5px;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(241, 196, 15, 0.15);
     }
 
     /* ── FOOTER ─────────────────────────────────────────── */
@@ -365,7 +369,7 @@
       .search-box { max-width: 100%; }
       nav { padding: 0 14px; gap: 10px; }
       .hero { padding: 32px 14px 24px; }
-      .section-title { padding: 24px 14px 8px; }
+      .section-title-bar { margin: 10px 14px 16px; padding: 8px 14px; }
     }
 
     @media (max-width: 380px) {
@@ -418,8 +422,9 @@
 
 <main class="grid" id="gameGrid"></main>
 
-<!-- ── NOVA SEÇÃO DE PARCEIROS ── -->
-<h2 class="section-title">Parceiros</h2>
+<!-- ── BARRA DE SEÇÃO PARCEIROS ── -->
+<h2 class="section-title-bar">🤝 Parceiros</h2>
+
 <div class="grid" id="partnersGrid">
   <a class="card" href="https://bloob.io/pt" target="_blank" rel="noopener noreferrer">
     <div class="card-thumb" style="background: linear-gradient(135deg,#1a2635,#0f1923);">
@@ -471,7 +476,7 @@
 
   function updateGames() {
     const query = searchInput.value.toLowerCase().trim();
-    const cards = document.querySelectorAll('#gameGrid .card'); // Restringe busca apenas aos jogos dinâmicos
+    const cards = document.querySelectorAll('#gameGrid .card');
 
     cards.forEach(card => {
       const cardCategory = card.dataset.category || '';
