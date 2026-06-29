@@ -18,14 +18,35 @@
             filter: grayscale(100%) blur(1px);
             border-color: #334155 !important;
         }
+        /* Correção e ajuste do CSS do cabeçalho externo importado */
+        #home-header-container nav {
+            position: sticky !important;
+            top: 0 !important;
+            background: #0c151e !important;
+        }
+        #home-header-container .nav-logo-icon {
+            background: #f1c40f !important;
+            width: 120px !important;
+            height: 32px !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            overflow: hidden !important;
+        }
+        #home-header-container .nav-logo-icon img {
+            height: 100% !important;
+            max-height: 32px !important;
+            width: auto !important;
+            display: block !important;
+            object-fit: contain !important;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
-    <!-- Container do cabeçalho fixo no topo ao rolar a página -->
     <div id="home-header-container" class="sticky top-0 z-[60] bg-slate-900 shadow-md"></div>
 
-    <!-- Barra de ferramentas do jogo posicionada logo abaixo do cabeçalho externo -->
     <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-[56px] z-50">
         <div class="max-w-md mx-auto">
             <div class="flex justify-between items-center relative">
@@ -347,7 +368,7 @@
                 card.id = `select-card-${char.id}`;
                 card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center shadow";
                 card.innerHTML = `
-                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full aspect-[3/4] rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center text-center">
+                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full max-w-[76px] aspect-[3/4] mx-auto rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center text-center">
                         <img src="${char.url}" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
                     </div>
                 `;
@@ -650,7 +671,7 @@
                 card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-all shadow";
                 card.onclick = () => selectCharacter(char.id);
                 card.innerHTML = `
-                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full aspect-[3/4] rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center text-center">
+                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full max-w-[76px] aspect-[3/4] mx-auto rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center text-center">
                         <img src="${char.url}" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
                     </div>
                 `;
@@ -821,7 +842,7 @@
                 card.className = `bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer transition-all ${highlightBorder} shadow`;
                 card.onclick = () => handleCardClick(char.id);
                 card.innerHTML = `
-                    <div style="background-image: url('${myBgUrl}'); background-size: cover; background-position: center;" class="w-full aspect-[3/4] rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center pointer-events-none">
+                    <div style="background-image: url('${myBgUrl}'); background-size: cover; background-position: center;" class="w-full max-w-[76px] aspect-[3/4] mx-auto rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center pointer-events-none">
                         <img src="${char.url}" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" />
                     </div>
                 `;
