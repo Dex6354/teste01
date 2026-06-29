@@ -437,13 +437,11 @@
 
   async function loadGames() {
     try {
-      // Faz requisição interna para a nossa Cloudflare Function segura
       const response = await fetch('/api/games');
       if (!response.ok) throw new Error('Falha ao acessar a API interna');
       
-      const contents = await response.json();
-      
-      const folders = contents.filter(item => item.type === 'dir' && !item.name.startsWith('.') && !item.name.startsWith('_'));
+      // Recebe apenas o array mapeado [{ name: "nome-do-jogo" }]
+      const folders = await response.json();
       
       gameGrid.innerHTML = '';
 
