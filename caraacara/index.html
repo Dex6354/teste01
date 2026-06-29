@@ -22,8 +22,8 @@
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
-    <!-- Container onde o cabeçalho do Home será injetado automaticamente -->
-    <div id="home-header-container"></div>
+    <!-- Container do cabeçalho fixo no topo ao rolar a página -->
+    <div id="home-header-container" class="sticky top-0 z-[60] bg-slate-900 shadow-md"></div>
 
     <!-- Barra de ferramentas do jogo posicionada logo abaixo do cabeçalho externo -->
     <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-[56px] z-50">
@@ -226,7 +226,6 @@
     </footer>
 
     <script>
-        // Função para buscar e renderizar o cabeçalho dinâmico vindo da Home
         async function loadHomeHeader() {
             try {
                 const response = await fetch('../');
@@ -348,8 +347,8 @@
                 card.id = `select-card-${char.id}`;
                 card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center shadow";
                 card.innerHTML = `
-                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden text-center">
-                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
+                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full aspect-[3/4] rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center text-center">
+                        <img src="${char.url}" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
                     </div>
                 `;
                 selectGrid.appendChild(card);
@@ -651,8 +650,8 @@
                 card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-all shadow";
                 card.onclick = () => selectCharacter(char.id);
                 card.innerHTML = `
-                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden text-center">
-                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
+                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full aspect-[3/4] rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center text-center">
+                        <img src="${char.url}" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
                     </div>
                 `;
                 selectGrid.appendChild(card);
@@ -822,8 +821,8 @@
                 card.className = `bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer transition-all ${highlightBorder} shadow`;
                 card.onclick = () => handleCardClick(char.id);
                 card.innerHTML = `
-                    <div style="background-image: url('${myBgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden pointer-events-none">
-                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" />
+                    <div style="background-image: url('${myBgUrl}'); background-size: cover; background-position: center;" class="w-full aspect-[3/4] rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center pointer-events-none">
+                        <img src="${char.url}" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" />
                     </div>
                 `;
                 boardGrid.appendChild(card);
