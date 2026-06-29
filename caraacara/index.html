@@ -23,7 +23,7 @@
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
     <!-- Cabeçalho compartilhado com home.html — preenchido automaticamente via JS -->
-    <div id="shared-nav-container"></div>
+    <div id="shared-nav-container" style="position: sticky; top: 0; z-index: 100;"></div>
 
     <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky z-40" style="top: 56px;">
         <div class="max-w-md mx-auto">
@@ -303,13 +303,15 @@
                     }
                 }
 
-                // Injeta os estilos do home.html (necessários para o nav renderizar corretamente)
+                // Injeta apenas as regras de CSS relevantes ao nav (variáveis :root + .nav-* + nav)
+                // Isso evita que classes genéricas do home.html (ex: .grid, .card) afetem o jogo
                 if (!document.getElementById('shared-nav-styles')) {
                     const homeStyle = doc.querySelector('style');
                     if (homeStyle) {
+                        const navCSS = extractNavCSS(homeStyle.textContent);
                         const styleEl = document.createElement('style');
                         styleEl.id = 'shared-nav-styles';
-                        styleEl.textContent = homeStyle.textContent;
+                        styleEl.textContent = navCSS;
                         document.head.appendChild(styleEl);
                     }
                 }
@@ -317,18 +319,45 @@
                 // Injeta o HTML do nav
                 container.innerHTML = nav.outerHTML;
 
-                // Ajusta o topbar para ficar logo abaixo do nav injetado
+                // O container já é sticky (top:0), então o nav interno não precisa ser sticky também
+                const navEl = container.querySelector('nav');
+                if (navEl) navEl.style.position = 'relative';
+
+                // Ajusta o topbar para ficar logo abaixo do container sticky do nav
                 requestAnimationFrame(() => {
-                    const navEl = container.querySelector('nav');
-                    if (navEl) {
-                        topbar.style.top = navEl.offsetHeight + 'px';
-                    }
+                    topbar.style.top = container.offsetHeight + 'px';
                 });
             } catch (err) {
                 console.warn('Cabeçalho compartilhado indisponível:', err);
                 // Fallback: topbar sobe para o topo normalmente
                 topbar.style.top = '0px';
             }
+        }
+
+        // Extrai apenas as regras CSS relevantes ao nav do home.html:
+        // variáveis :root + seletores que começam com "nav" ou ".nav-"
+        // Isso evita poluir o CSS do jogo com classes genéricas como .grid, .card, etc.
+        function extractNavCSS(cssText) {
+            const parts = [];
+
+            // Captura o bloco :root { ... }
+            const rootMatch = cssText.match(/:root\s*\{[^}]*\}/);
+            if (rootMatch) parts.push(rootMatch[0]);
+
+            // Captura regras individuais (sem @media) cujo seletor seja nav ou .nav-*
+            const ruleRegex = /([^{@]+)\{([^}]+)\}/g;
+            let match;
+            while ((match = ruleRegex.exec(cssText)) !== null) {
+                const selector = match[1].trim();
+                if (
+                    (selector.startsWith('nav') || selector.startsWith('.nav-')) &&
+                    !selector.startsWith(':root')
+                ) {
+                    parts.push(match[0].trim());
+                }
+            }
+
+            return parts.join('\n');
         }
 
         loadSharedNav();
