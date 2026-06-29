@@ -499,7 +499,6 @@
     updateGames();
   }
 
-  // Ativa a exibição imediatamente quando chamada
   function revealPartners() {
     const title = document.getElementById('partnersTitle');
     const grid = document.getElementById('partnersGrid');
@@ -563,12 +562,12 @@
       }
 
       updateGames();
-      revealPartners(); // Executa logo após injetar os jogos
+      revealPartners();
 
     } catch (error) {
       console.error(error);
       gameGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #ff4a4a; padding: 20px;">Erro: ${error.message}</p>`;
-      revealPartners(); // Garante o carregamento mesmo se a API falhar
+      revealPartners();
     }
   }
 
