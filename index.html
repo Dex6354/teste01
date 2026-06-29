@@ -467,7 +467,7 @@
         
         let metadata = {
           title: folderName.charAt(0).toUpperCase() + folderName.slice(1).replace(/-/g, ' '),
-          description: 'Jogue agora este incrível jogo multiplayer direto do seu navegador.',
+          description: 'Jogue agora este jogo multiplayer direto no navegador.',
           category: 'acao',
           image: `./${folderName}/thumb.png`,
           tags: ['Multiplayer', 'Web'],
@@ -485,7 +485,6 @@
         const card = document.createElement('a');
         card.className = 'card';
         card.href = `./${folderName}/`;
-        card.target = '_blank';
         card.dataset.category = metadata.category;
         card.dataset.name = `${metadata.title.toLowerCase()} ${folderName.toLowerCase()} ${metadata.category}`;
 
