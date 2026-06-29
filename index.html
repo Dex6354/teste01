@@ -4,32 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=360, initial-scale=1, maximum-scale=5, user-scalable=1" />
   <title>Jogos da Galera</title>
-  <link rel="icon" type="image/png" href="https://jogosdagalera.pages.dev/logowpp.png">
+
+  <!-- PWA / SEO -->
+  <link rel="icon"     type="image/png" href="https://jogosdagalera.pages.dev/logowpp.png">
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#f1c40f">
-  <meta property="og:title" content="Jogos da Galera">
+  <meta name="theme-color"       content="#f1c40f">
+  <meta property="og:title"       content="Jogos da Galera">
   <meta property="og:description" content="Seus jogos favoritos">
-  <meta property="og:image" content="https://jogosdagalera.pages.dev/logowpp.png">
+  <meta property="og:image"       content="https://jogosdagalera.pages.dev/logowpp.png">
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
   <style>
+    /* ── RESET ───────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── TOKENS ──────────────────────────────────────────── */
     :root {
-      --yellow:       #f1c40f;
-      --yellow-dark:  #f39c12;
-      --yellow-glow:  rgba(241, 196, 15, 0.18);
-      --bg:           #0f1923;
-      --bg-card:      #162230;
-      --bg-card-hov:  #1c2d3f;
-      --border:       rgba(255,255,255,0.07);
-      --text:         #e8edf2;
-      --text-muted:   #7a92a8;
-      --tag-bg:       rgba(241, 196, 15, 0.13);
-      --radius-card:  14px;
-      --font:         'Nunito', sans-serif;
+      --yellow:      #f1c40f;
+      --yellow-dark: #f39c12;
+      --yellow-glow: rgba(241, 196, 15, 0.18);
+      --bg:          #0f1923;
+      --bg-card:     #162230;
+      --bg-card-hov: #1c2d3f;
+      --bg-input:    #1a2635;
+      --border:      rgba(255, 255, 255, 0.07);
+      --text:        #e8edf2;
+      --text-muted:  #7a92a8;
+      --tag-bg:      rgba(241, 196, 15, 0.13);
+      --radius-card: 14px;
+      --font:        'Nunito', sans-serif;
     }
 
+    /* ── BASE ────────────────────────────────────────────── */
     html { scroll-behavior: smooth; }
 
     body {
@@ -40,18 +49,38 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── NAVBAR ─────────────────────────────────────────── */
+    /* ── SHARED: LOGO BADGE ──────────────────────────────── */
+    /* Usado no cabeçalho e no rodapé — tamanho e fundo preservados */
+    .logo-badge {
+      width: 120px;
+      height: 32px;
+      background: var(--yellow);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: visible;       /* permite a imagem ultrapassar o box */
+    }
+
+    .logo-badge img {
+      height: 60px;
+      width: auto;
+      display: block;
+    }
+
+    /* ── NAVBAR ──────────────────────────────────────────── */
     nav {
       position: sticky;
       top: 0;
       z-index: 100;
+      height: 56px;
       background: #0c151e;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 24px;
-      height: 56px;
       gap: 32px;
     }
 
@@ -60,39 +89,14 @@
       align-items: center;
       gap: 8px;
       text-decoration: none;
-      flex-shrink: 0;
       margin-left: 20px;
     }
 
-    .nav-logo-icon {
-      width: 120px;
-      height: 32px;
-      background: var(--yellow);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-
-    .nav-logo-text {
-      font-size: 20px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: -0.5px;
-    }
-
-    .nav-logo-text span { color: var(--yellow); }
-
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
-    }
-
     .nav-lang {
-      background: #1a2635;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-input);
       border: 1px solid var(--border);
       border-radius: 7px;
       padding: 5px 10px;
@@ -100,16 +104,13 @@
       font-size: 13px;
       font-family: var(--font);
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
     }
 
     /* ── HERO ────────────────────────────────────────────── */
     .hero {
       text-align: center;
       padding: 48px 24px 36px;
-      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(241,196,15,0.12) 0%, transparent 70%);
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(241, 196, 15, 0.12) 0%, transparent 70%);
     }
 
     .hero h1 {
@@ -134,13 +135,13 @@
     .hero-badges {
       display: flex;
       justify-content: center;
-      gap: 10px;
       flex-wrap: wrap;
+      gap: 10px;
     }
 
     .badge {
       background: var(--tag-bg);
-      border: 1px solid rgba(241,196,15,0.3);
+      border: 1px solid rgba(241, 196, 15, 0.3);
       color: var(--yellow);
       border-radius: 20px;
       padding: 5px 14px;
@@ -160,7 +161,7 @@
 
     .filter-btn {
       white-space: nowrap;
-      background: #162230;
+      background: var(--bg-card);
       border: 1px solid var(--border);
       color: var(--text-muted);
       border-radius: 8px;
@@ -169,19 +170,19 @@
       font-weight: 700;
       font-family: var(--font);
       cursor: pointer;
-      transition: all .18s;
+      transition: background .18s, border-color .18s, color .18s;
     }
 
-    .filter-btn:hover, .filter-btn.active {
+    .filter-btn:hover,
+    .filter-btn.active {
       background: var(--yellow);
       border-color: var(--yellow);
-      color: #0f1923;
+      color: var(--bg);
     }
 
-    /* ── SEARCH BAR ──────────────────────────────────────── */
+    /* ── SEARCH ──────────────────────────────────────────── */
     .search-container {
       padding: 0 24px 24px;
-      display: flex;
     }
 
     .search-box {
@@ -190,9 +191,9 @@
       max-width: 380px;
     }
 
-    .nav-search {
+    .search-input {
       width: 100%;
-      background: #1a2635;
+      background: var(--bg-input);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 8px 12px 8px 38px;
@@ -203,10 +204,10 @@
       transition: border-color .2s;
     }
 
-    .nav-search:focus { border-color: var(--yellow); }
-    .nav-search::placeholder { color: var(--text-muted); }
+    .search-input:focus     { border-color: var(--yellow); }
+    .search-input::placeholder { color: var(--text-muted); }
 
-    .nav-search-icon {
+    .search-icon {
       position: absolute;
       left: 12px;
       top: 50%;
@@ -224,6 +225,7 @@
       padding: 0 24px 40px;
     }
 
+    /* ── CARD ────────────────────────────────────────────── */
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -232,19 +234,21 @@
       cursor: pointer;
       text-decoration: none;
       color: inherit;
-      transition: transform .18s, box-shadow .18s, border-color .18s;
       display: block;
+      transition: transform .18s, box-shadow .18s, border-color .18s;
     }
 
     .card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 12px 36px rgba(0,0,0,0.4), 0 0 0 1px var(--yellow);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--yellow);
       border-color: var(--yellow);
     }
 
+    .card.hidden { display: none; }
+
     .card-thumb {
       width: 100%;
-      aspect-ratio: 16/9;
+      aspect-ratio: 16 / 9;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -258,9 +262,7 @@
       display: block;
     }
 
-    .card-body {
-      padding: 12px 14px 14px;
-    }
+    .card-body { padding: 12px 14px 14px; }
 
     .card-title {
       font-size: 15px;
@@ -289,6 +291,7 @@
       gap: 5px;
     }
 
+    /* ── TAGS ────────────────────────────────────────────── */
     .tag {
       background: var(--tag-bg);
       border: 1px solid rgba(241, 196, 15, 0.2);
@@ -300,18 +303,18 @@
     }
 
     .tag.gray {
-      background: rgba(122,146,168,0.1);
-      border-color: rgba(122,146,168,0.2);
+      background: rgba(122, 146, 168, 0.1);
+      border-color: rgba(122, 146, 168, 0.2);
       color: var(--text-muted);
     }
 
-    /* ── PARTNERS SECTION BAR ───────────────────────────── */
+    /* ── SECTION TITLE BAR ───────────────────────────────── */
     .section-title-bar {
       background: var(--yellow);
-      color: #0f1923;
-      padding: 10px 18px;
-      margin: 20px 24px 20px;
+      color: var(--bg);
       border-radius: 8px;
+      margin: 20px 24px;
+      padding: 10px 18px;
       font-size: clamp(15px, 4vw, 18px);
       font-weight: 900;
       letter-spacing: -0.3px;
@@ -320,7 +323,7 @@
       box-shadow: 0 4px 15px rgba(241, 196, 15, 0.15);
     }
 
-    /* ── FOOTER ─────────────────────────────────────────── */
+    /* ── FOOTER ──────────────────────────────────────────── */
     footer {
       border-top: 1px solid var(--border);
       padding: 28px 24px;
@@ -329,16 +332,6 @@
       align-items: center;
       gap: 14px;
       text-align: center;
-    }
-
-    .footer-logo {
-      width: 120px;
-      height: 32px;
-      background: var(--yellow);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .footer-links {
@@ -354,6 +347,7 @@
       text-decoration: none;
       transition: color .15s;
     }
+
     .footer-links a:hover { color: var(--yellow); }
 
     .footer-copy {
@@ -361,39 +355,40 @@
       font-size: 12px;
     }
 
-    .card.hidden { display: none; }
-
     /* ── RESPONSIVE ──────────────────────────────────────── */
     @media (max-width: 560px) {
-      .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 14px 32px; }
-      .filters { padding: 0 14px 12px; }
-      .search-container { padding: 0 14px 20px; }
-      .search-box { max-width: 100%; }
-      nav { padding: 0 14px; gap: 10px; }
-      .hero { padding: 32px 14px 24px; }
-      .section-title-bar { margin: 10px 14px 16px; padding: 8px 14px; }
+      nav                  { padding: 0 14px; gap: 10px; }
+      .nav-logo            { margin-left: 0; }
+      .hero                { padding: 32px 14px 24px; }
+      .filters             { padding: 0 14px 12px; }
+      .search-container    { padding: 0 14px 20px; }
+      .search-box          { max-width: 100%; }
+      .grid                { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 14px 32px; }
+      .section-title-bar   { margin: 10px 14px 16px; padding: 8px 14px; }
     }
 
     @media (max-width: 380px) {
-      .grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-      .card-body { padding: 8px 10px 10px; }
+      .grid       { gap: 8px; }
+      .card-body  { padding: 8px 10px 10px; }
       .card-title { font-size: 13px; }
     }
   </style>
 </head>
 <body>
 
+<!-- ── NAVBAR ──────────────────────────────────────────────── -->
 <nav>
   <a class="nav-logo" href="#">
-    <div class="nav-logo-icon">
-      <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera" style="height:60px;width:auto;display:block;">
+    <div class="logo-badge">
+      <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera">
     </div>
   </a>
-  <div class="nav-right">
-    <div class="nav-lang">🇧🇷 PT</div>
+  <div>
+    <button class="nav-lang">🇧🇷 PT</button>
   </div>
 </nav>
 
+<!-- ── HERO ────────────────────────────────────────────────── -->
 <header class="hero">
   <h1>Jogue <span>Grátis</span> com Amigos</h1>
   <p>Jogos multiplayer no navegador, sem cadastro. Convide amigos e jogue agora!</p>
@@ -404,7 +399,8 @@
     <span class="badge">🆓 100% Grátis</span>
   </div>
 </header>
-  
+
+<!-- ── FILTERS ──────────────────────────────────────────────── -->
 <div class="filters">
   <button class="filter-btn active" onclick="filterGames('todos', this)">Todos</button>
   <button class="filter-btn" onclick="filterGames('palavras', this)">Palavras</button>
@@ -415,20 +411,23 @@
   <button class="filter-btn" onclick="filterGames('dados', this)">Dados</button>
 </div>
 
+<!-- ── SEARCH ───────────────────────────────────────────────── -->
 <div class="search-container">
   <div class="search-box">
-    <span class="nav-search-icon">🔍</span>
-    <input class="nav-search" type="text" placeholder="Buscar jogo..." id="searchInput" />
+    <span class="search-icon">🔍</span>
+    <input class="search-input" type="text" placeholder="Buscar jogo..." id="searchInput" />
   </div>
 </div>
 
+<!-- ── GAME GRID ─────────────────────────────────────────────── -->
 <main class="grid" id="gameGrid"></main>
 
-<h2 class="section-title-bar" id="partnersTitle" style="display: none;">🎮 Outros Sites de Jogos</h2>
+<!-- ── PARTNERS ──────────────────────────────────────────────── -->
+<h2 class="section-title-bar" id="partnersTitle" style="display:none;">🎮 Outros Sites de Jogos</h2>
 
-<div class="grid" id="partnersGrid" style="display: none;">
+<div class="grid" id="partnersGrid" style="display:none;">
   <a class="card" href="https://bloob.io/pt" target="_blank" rel="noopener noreferrer">
-    <div class="card-thumb" style="background: linear-gradient(135deg,#1a2635,#0f1923);">
+    <div class="card-thumb" style="background:linear-gradient(135deg,#1a2635,#0f1923);">
       <img src="https://jogosdagalera.pages.dev/logowpp.png" alt="Bloob.io">
     </div>
     <div class="card-body">
@@ -442,7 +441,7 @@
   </a>
 
   <a class="card" href="https://www.crazygames.com/br/" target="_blank" rel="noopener noreferrer">
-    <div class="card-thumb" style="background: linear-gradient(135deg,#1a2635,#0f1923);">
+    <div class="card-thumb" style="background:linear-gradient(135deg,#1a2635,#0f1923);">
       <img src="https://jogosdagalera.pages.dev/logowpp.png" alt="CrazyGames">
     </div>
     <div class="card-body">
@@ -456,170 +455,166 @@
   </a>
 </div>
 
+<!-- ── FOOTER ────────────────────────────────────────────────── -->
 <footer>
-  <div class="footer-logo">
-    <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera" style="height:60px;width:auto;display:block;">
+  <div class="logo-badge">
+    <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera">
   </div>
-  <div class="footer-links">
+  <nav class="footer-links">
     <a href="#">Apoiar</a>
     <a href="#">Pedir Jogo</a>
     <a href="#">Sugestões</a>
     <a href="#">Erros</a>
     <a href="#" id="installAppBtn">Baixar</a>
-  </div>
-  <div class="footer-copy">© 2026 Jogos da Galera ♥️🎮</div>
+  </nav>
+  <p class="footer-copy">© 2026 Jogos da Galera ♥️🎮</p>
 </footer>
 
 <script>
-  const searchInput = document.getElementById('searchInput');
-  const gameGrid = document.getElementById('gameGrid');
+  /* ── STATE ──────────────────────────────────────────────── */
+  const searchInput  = document.getElementById('searchInput');
+  const gameGrid     = document.getElementById('gameGrid');
+  const partnersTitle = document.getElementById('partnersTitle');
+  const partnersGrid  = document.getElementById('partnersGrid');
   let activeCategory = 'todos';
 
+  const FALLBACK_IMG = 'https://jogosdagalera.pages.dev/logowpp.png';
+
+  /* ── FILTER / SEARCH ────────────────────────────────────── */
   function updateGames() {
     const query = searchInput.value.toLowerCase().trim();
-    const cards = document.querySelectorAll('#gameGrid .card');
 
-    cards.forEach(card => {
-      const cardCategory = card.dataset.category || '';
-      const cardName = card.dataset.name || '';
-
-      const matchCategory = activeCategory === 'todos' || cardCategory === activeCategory;
-      const matchSearch = query.length === 0 || cardName.includes(query);
-
+    gameGrid.querySelectorAll('.card').forEach(card => {
+      const matchCategory = activeCategory === 'todos' || card.dataset.category === activeCategory;
+      const matchSearch   = !query || (card.dataset.name || '').includes(query);
       card.classList.toggle('hidden', !(matchCategory && matchSearch));
     });
   }
 
-  searchInput.addEventListener('input', updateGames);
-
   function filterGames(category, btn) {
     activeCategory = category;
-
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-
     updateGames();
   }
 
+  searchInput.addEventListener('input', updateGames);
+
+  /* ── PARTNERS ───────────────────────────────────────────── */
   function revealPartners() {
-    const title = document.getElementById('partnersTitle');
-    const grid = document.getElementById('partnersGrid');
-    if (title) title.style.display = 'flex';
-    if (grid) grid.style.display = 'grid';
+    partnersTitle.style.display = 'flex';
+    partnersGrid.style.display  = 'grid';
   }
 
+  /* ── CARD BUILDER ───────────────────────────────────────── */
+  function buildCard(folderName, meta) {
+    const tagsHTML = meta.tags
+      .map((tag, i) => `<span class="tag${i > 0 ? ' gray' : ''}">${tag}</span>`)
+      .join('');
+
+    const card = document.createElement('a');
+    card.className       = 'card';
+    card.href            = `./${folderName}/`;
+    card.dataset.category = meta.category;
+    card.dataset.name    = `${meta.title.toLowerCase()} ${folderName.toLowerCase()} ${meta.category}`;
+
+    card.innerHTML = `
+      <div class="card-thumb" style="background:${meta.background};">
+        <img src="${meta.icon}" alt="${meta.title}" onerror="this.src='${FALLBACK_IMG}'">
+      </div>
+      <div class="card-body">
+        <div class="card-title">${meta.title}</div>
+        <div class="card-desc">${meta.description}</div>
+        <div class="card-tags">${tagsHTML}</div>
+      </div>`;
+
+    return card;
+  }
+
+  /* ── LOAD GAMES ─────────────────────────────────────────── */
   async function loadGames() {
     try {
-      const response = await fetch('/api/games');
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({ error: `Status ${response.status}` }));
-        throw new Error(errData.error);
+      const res = await fetch('/api/games');
+      if (!res.ok) {
+        const { error } = await res.json().catch(() => ({ error: `Status ${res.status}` }));
+        throw new Error(error);
       }
-      
-      const folders = await response.json();
+
+      const folders = await res.json();
       gameGrid.innerHTML = '';
 
-      for (const folder of folders) {
-        const folderName = folder.name;
-        
-        let metadata = {
-          title: folderName.charAt(0).toUpperCase() + folderName.slice(1).replace(/-/g, ' '),
+      await Promise.all(folders.map(async ({ name }) => {
+        const defaultMeta = {
+          title:       name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' '),
           description: 'Jogue agora este jogo multiplayer no navegador.',
-          category: 'acao',
-          image: `./${folderName}/thumb.png`,
-          tags: ['Multiplayer', 'Web'],
-          background: 'linear-gradient(135deg,#1a2635,#0f1923)'
+          category:    'acao',
+          image:       `./${name}/thumb.png`,
+          tags:        ['Multiplayer', 'Web'],
+          background:  'linear-gradient(135deg,#1a2635,#0f1923)',
         };
 
+        let meta = defaultMeta;
         try {
-          const metaResponse = await fetch(`./${folderName}/metadata.json`);
-          if (metaResponse.ok) {
-            const customMeta = await metaResponse.json();
-            metadata = { ...metadata, ...customMeta };
-          }
-        } catch (err) {}
+          const metaRes = await fetch(`./${name}/metadata.json`);
+          if (metaRes.ok) meta = { ...defaultMeta, ...await metaRes.json() };
+        } catch (_) {}
 
-        const card = document.createElement('a');
-        card.className = 'card';
-        card.href = `./${folderName}/`;
-        card.dataset.category = metadata.category;
-        card.dataset.name = `${metadata.title.toLowerCase()} ${folderName.toLowerCase()} ${metadata.category}`;
-
-        const tagsHTML = metadata.tags.map((tag, i) => `
-          <span class="tag ${i > 0 ? 'gray' : ''}">${tag}</span>
-        `).join('');
-
-        card.innerHTML = `
-          <div class="card-thumb" style="background: ${metadata.background};">
-            <img src="${metadata.icon}" alt="${metadata.title}" onerror="this.src='https://jogosdagalera.pages.dev/logowpp.png';">
-          </div>
-          <div class="card-body">
-            <div class="card-title">${metadata.title}</div>
-            <div class="card-desc">${metadata.description}</div>
-            <div class="card-tags">${tagsHTML}</div>
-          </div>
-        `;
-
-        gameGrid.appendChild(card);
-      }
+        gameGrid.appendChild(buildCard(name, meta));
+      }));
 
       updateGames();
       revealPartners();
 
-    } catch (error) {
-      console.error(error);
-      gameGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #ff4a4a; padding: 20px;">Erro: ${error.message}</p>`;
+    } catch (err) {
+      console.error(err);
+      gameGrid.innerHTML = `
+        <p style="grid-column:1/-1;text-align:center;color:#ff4a4a;padding:20px;">
+          Erro: ${err.message}
+        </p>`;
       revealPartners();
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    loadGames();
-    
-    // Registra o Service Worker para habilitar o PWA (instalação no Android)
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(err => {
-        console.log('Service Worker não registrado (verifique se sw.js existe):', err.message);
-      });
-    }
-  });
-
-  // ---------- Lógica de Adicionar à Tela Inicial (PWA) ----------
+  /* ── PWA ────────────────────────────────────────────────── */
   let deferredPrompt;
-  const installBtn = document.getElementById('installAppBtn');
 
-  window.addEventListener('beforeinstallprompt', (e) => {
+  window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     deferredPrompt = e;
   });
 
-  if (installBtn) {
-    installBtn.addEventListener('click', async (ev) => {
-      ev.preventDefault();
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        try {
-          const choice = await deferredPrompt.userChoice;
-          if (choice.outcome === 'accepted') {
-            alert('✅ App adicionado à tela inicial!');
-          } else {
-            alert('❌ Instalação cancelada.');
-          }
-        } catch (err) {
-          console.error('Erro aguardando userChoice:', err);
-        }
-        deferredPrompt = null;
-        return;
-      }
+  document.getElementById('installAppBtn').addEventListener('click', async e => {
+    e.preventDefault();
 
-      const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-      if (isIos) {
-        alert('No Safari do iPhone: toque no botão "Compartilhar" e escolha "Adicionar à Tela de Início".');
-      } else {
-        alert('ℹ️ Para adicionar um atalho na sua tela inicial, toque no menu (⋮ ou •••) no seu navegador e selecione a opção "Adicionar à tela inicial" ou "Instalar aplicativo".');
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      try {
+        const { outcome } = await deferredPrompt.userChoice;
+        alert(outcome === 'accepted' ? '✅ App adicionado à tela inicial!' : '❌ Instalação cancelada.');
+      } catch (err) {
+        console.error('Erro aguardando userChoice:', err);
       }
-    });
-  }
+      deferredPrompt = null;
+      return;
+    }
+
+    if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+      alert('No Safari do iPhone: toque no botão "Compartilhar" e escolha "Adicionar à Tela de Início".');
+    } else {
+      alert('ℹ️ Para adicionar um atalho, toque no menu (⋮ ou •••) do navegador e selecione "Adicionar à tela inicial".');
+    }
+  });
+
+  /* ── INIT ───────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    loadGames();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(err =>
+        console.log('Service Worker não registrado:', err.message)
+      );
+    }
+  });
 </script>
 </body>
 </html>
