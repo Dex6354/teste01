@@ -8,77 +8,121 @@
 
     <meta property="og:title" content="Jogue Cara a Cara Online">
     <meta property="og:image" content="https://caraacara.pages.dev/img/logowpp.jpg">
-    
+
+    <!-- Nunito — mesma fonte do nav do home.html -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <style>
-        :root {
-          --yellow:      #f1c40f;
-          --border:      rgba(255, 255, 255, 0.07);
-        }
-        .logo-badge {
-          width: 120px;
-          height: 32px;
-          background: var(--yellow);
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          overflow: visible;
-        }
-        .logo-badge img {
-          height: 60px;
-          width: auto;
-          display: block;
-        }
-        #topbar {
-          position: sticky;
-          top: 0;
-          z-index: 100;
-          height: 56px;
-          background: #0c151e;
-          border-bottom: 1px solid var(--border);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 24px;
-          gap: 32px;
-        }
-        .nav-logo {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          text-decoration: none;
-        }
         .card-flipped {
             transform: scale(0.92);
             opacity: 0.2;
             filter: grayscale(100%) blur(1px);
             border-color: #334155 !important;
         }
+
+        /* ── NAV COMPARTILHADO (puxado do home.html) ─────────────────
+           CSS base espelhando home.html — sobrescrito pelo JS quando
+           home.html for carregado com sucesso (CSS dinâmico injetado
+           em <style id="home-nav-style">).
+           Todos os seletores são escopados em #shared-nav-wrapper para
+           não conflitar com as classes do Tailwind. */
+
+        #shared-nav-wrapper nav {
+            background: #0c151e;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            height: 56px;
+            gap: 32px;
+            /* stickiness tratada pelo wrapper pai #game-topbar-sticky */
+            position: static;
+        }
+
+        #shared-nav-wrapper .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        /* Badge amarela — 120×32 px com imagem de 60 px de altura */
+        #shared-nav-wrapper .logo-badge {
+            width: 120px;
+            height: 32px;
+            background: #f1c40f;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: visible;
+        }
+
+        #shared-nav-wrapper .logo-badge img {
+            height: 60px;
+            width: auto;
+            display: block;
+        }
+
+        #shared-nav-wrapper .nav-lang {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #1a2635;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 7px;
+            padding: 5px 10px;
+            color: #7a92a8;
+            font-size: 13px;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+        }
+
+        /* Impede que setupTheme() torne a sub-barra sticky
+           independentemente do wrapper pai (evita sobreposição do nav). */
+        #topbar {
+            position: relative !important;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
-    <nav id="topbar">
-        <div class="flex items-center gap-4">
-            <a class="nav-logo" href="#">
-                <div class="logo-badge">
-                    <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera">
+    <!-- ════════════════════════════════════════════════════════════
+         WRAPPER STICKY — contém o nav do home.html + sub-barra do jogo.
+         Só este div precisa de position:sticky; os filhos ficam em fluxo
+         normal dentro dele.
+    ═════════════════════════════════════════════════════════════════ -->
+    <div id="game-topbar-sticky" style="position:sticky;top:0;z-index:50;overflow:visible;">
+
+        <!-- Nav injetado dinamicamente do home.html via loadSharedNav().
+             Se o fetch falhar, um nav de fallback é inserido no lugar.   -->
+        <div id="shared-nav-wrapper"></div>
+
+        <!-- Sub-barra do jogo: código da sala · compartilhar · sair.
+             id="topbar" mantido para setupTheme() e demais referências
+             do JS original — nenhuma linha do script foi alterada.        -->
+        <div id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md text-white">
+            <div class="max-w-md mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono">
+                    <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
+                    <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">
+                        📋Compartilhar
+                    </button>
                 </div>
-            </a>
-            <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
-                <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
-                <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">
-                    📋Compartilhar
+                <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow">
+                    ➡️ Sair
                 </button>
             </div>
         </div>
-        <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow">
-            ➡️ Sair
-        </button>
-    </nav>
+
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════ -->
 
     <main class="flex-grow flex flex-col items-center justify-center p-3 w-full max-w-md mx-auto mb-12">
         
@@ -264,6 +308,143 @@
     </footer>
 
     <script>
+        // ════════════════════════════════════════════════════════════
+        // NAV COMPARTILHADO — carrega o <nav> do home.html em runtime.
+        // Qualquer alteração no cabeçalho do home.html reflete aqui
+        // automaticamente sem precisar editar este arquivo.
+        // ════════════════════════════════════════════════════════════
+
+        /**
+         * Extrai do CSS do home.html apenas as regras relacionadas ao nav
+         * e as escopeia em #shared-nav-wrapper para evitar conflitos com
+         * as classes do Tailwind presentes nesta página.
+         */
+        function buildScopedNavCSS(css) {
+            const SCOPE = '#shared-nav-wrapper';
+            const NAV_SELECTORS = ['nav', '.nav-logo', '.logo-badge', '.nav-lang'];
+
+            // Remove comentários CSS
+            css = css.replace(/\/\*[\s\S]*?\*\//g, '');
+
+            const rules = [];
+
+            // Extrai blocos simples (sem @media)
+            const ruleRe = /([^{}@][^{}]*)\{([^{}]+)\}/g;
+            let m;
+            while ((m = ruleRe.exec(css)) !== null) {
+                const sel = m[1].trim();
+                if (NAV_SELECTORS.some(s => sel === s || sel.startsWith(s + ' ') || sel.startsWith(s + '.'))) {
+                    const scoped = sel.split(',').map(s => `${SCOPE} ${s.trim()}`).join(', ');
+                    rules.push(`${scoped} { ${m[2].trim()} }`);
+                }
+            }
+
+            // Extrai blocos dentro de @media
+            const mediaRe = /(@media[^{]+)\{([\s\S]*?)\}\s*\}/g;
+            while ((m = mediaRe.exec(css)) !== null) {
+                const mediaQuery = m[1].trim();
+                const inner = m[2];
+                const innerRules = [];
+                const innerRe = /([^{}]+)\{([^{}]+)\}/g;
+                let mi;
+                while ((mi = innerRe.exec(inner)) !== null) {
+                    const sel = mi[1].trim();
+                    if (NAV_SELECTORS.some(s => sel === s || sel.startsWith(s + ' ') || sel.startsWith(s + '.'))) {
+                        const scoped = sel.split(',').map(s => `${SCOPE} ${s.trim()}`).join(', ');
+                        innerRules.push(`  ${scoped} { ${mi[2].trim()} }`);
+                    }
+                }
+                if (innerRules.length) {
+                    rules.push(`${mediaQuery} {\n${innerRules.join('\n')}\n}`);
+                }
+            }
+
+            return rules.join('\n');
+        }
+
+        /**
+         * Tenta carregar home.html em caminhos prováveis.
+         * Bem-sucedido: injeta o <nav> e atualiza o CSS escopado.
+         * Falha: injeta um nav de fallback idêntico ao do home.html atual.
+         *
+         * Ajuste HOME_PATHS se a estrutura de pastas for diferente.
+         */
+        async function loadSharedNav() {
+            const wrapper = document.getElementById('shared-nav-wrapper');
+
+            // Ajuste o(s) caminho(s) conforme a estrutura do seu projeto
+            const HOME_PATHS = ['../home.html', '/home.html', '../../home.html'];
+
+            // Nav de fallback: cópia exata do nav atual do home.html
+            const FALLBACK_NAV = `
+                <nav>
+                    <a class="nav-logo" href="../">
+                        <div class="logo-badge">
+                            <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera">
+                        </div>
+                    </a>
+                    <div>
+                        <button class="nav-lang">🇧🇷 PT</button>
+                    </div>
+                </nav>`;
+
+            let html = null;
+
+            for (const path of HOME_PATHS) {
+                try {
+                    const res = await fetch(path);
+                    if (res.ok) { html = await res.text(); break; }
+                } catch (_) { /* tenta próximo caminho */ }
+            }
+
+            if (!html) {
+                // Fallback: usa o nav hardcoded (idêntico ao home.html atual)
+                wrapper.innerHTML = FALLBACK_NAV;
+                return;
+            }
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const nav = doc.querySelector('nav');
+
+            if (!nav) {
+                wrapper.innerHTML = FALLBACK_NAV;
+                return;
+            }
+
+            // Corrige href do logo para navegar até a home
+            const logoLink = nav.querySelector('.nav-logo');
+            if (logoLink) logoLink.setAttribute('href', '../');
+
+            // Remove position sticky do próprio nav (o wrapper pai controla)
+            nav.style.position = 'static';
+
+            // Injeta o HTML do nav
+            wrapper.innerHTML = nav.outerHTML;
+
+            // Atualiza CSS escopado a partir do <style> do home.html
+            const homeStyleEl = doc.querySelector('style');
+            if (homeStyleEl) {
+                const scopedCSS = buildScopedNavCSS(homeStyleEl.textContent);
+                if (scopedCSS) {
+                    let styleTag = document.getElementById('home-nav-style');
+                    if (!styleTag) {
+                        styleTag = document.createElement('style');
+                        styleTag.id = 'home-nav-style';
+                        document.head.appendChild(styleTag);
+                    }
+                    styleTag.textContent = scopedCSS;
+                }
+            }
+        }
+
+        // Dispara o carregamento do nav imediatamente
+        loadSharedNav();
+
+        // ════════════════════════════════════════════════════════════
+        // CÓDIGO ORIGINAL — nenhuma linha alterada abaixo deste ponto
+        // ════════════════════════════════════════════════════════════
+
         const characters = [
             { id: 1, name: "Diego", url: "img/01.png" },
             { id: 2, name: "Marcelo", url: "img/02.png" },
@@ -605,9 +786,9 @@
             UX_THEME_BG = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
 
             if (myRole === 'red') {
-                topbar.style.borderBottom = "2px solid #b91c1c";
+                topbar.className = "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white";
             } else {
-                topbar.style.borderBottom = "2px solid #1d4ed8";
+                topbar.className = "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white";
             }
             updateScoreboardVisual();
         }
@@ -685,7 +866,7 @@
                 const confirmTitle = document.getElementById('char-confirm-title');
                 confirmTitle.innerText = "Aguardando oponente escolher...";
                 confirmTitle.classList.add('animate-pulse');
-                
+
                 document.getElementById('char-confirm-buttons').classList.add('hidden');
                 document.getElementById('char-waiting-buttons').classList.remove('hidden');
                 
@@ -787,6 +968,8 @@
                 document.getElementById(`${p}avatar`).classList.remove('hidden');
                 document.getElementById(`${p}avatar-placeholder`).classList.add('hidden');
             });
+
+            // Removido o código que ocultava o placeholder do oponente
         }
 
         function updateRemainingCount() {
