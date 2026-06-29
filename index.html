@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=360, initial-scale=1, maximum-scale=5, user-scalable=1" />
   <title>Jogos da Galera</title>
   <link rel="icon" type="image/png" href="https://jogosdagalera.pages.dev/logowpp.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#f1c40f">
   <meta property="og:title" content="Jogos da Galera">
   <meta property="og:description" content="Seus jogos favoritos">
   <meta property="og:image" content="https://jogosdagalera.pages.dev/logowpp.png">
@@ -463,7 +465,7 @@
     <a href="#">Pedir Jogo</a>
     <a href="#">Sugestões</a>
     <a href="#">Erros</a>
-    <a href="#">Baixar</a>
+    <a href="#" id="installAppBtn">Baixar</a>
   </div>
   <div class="footer-copy">© 2026 Jogos da Galera ♥️🎮</div>
 </footer>
@@ -571,7 +573,53 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', loadGames);
+  document.addEventListener('DOMContentLoaded', () => {
+    loadGames();
+    
+    // Registra o Service Worker para habilitar o PWA (instalação no Android)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(err => {
+        console.log('Service Worker não registrado (verifique se sw.js existe):', err.message);
+      });
+    }
+  });
+
+  // ---------- Lógica de Adicionar à Tela Inicial (PWA) ----------
+  let deferredPrompt;
+  const installBtn = document.getElementById('installAppBtn');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async (ev) => {
+      ev.preventDefault();
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        try {
+          const choice = await deferredPrompt.userChoice;
+          if (choice.outcome === 'accepted') {
+            alert('✅ App adicionado à tela inicial!');
+          } else {
+            alert('❌ Instalação cancelada.');
+          }
+        } catch (err) {
+          console.error('Erro aguardando userChoice:', err);
+        }
+        deferredPrompt = null;
+        return;
+      }
+
+      const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      if (isIos) {
+        alert('No Safari do iPhone: toque no botão "Compartilhar" e escolha "Adicionar à Tela de Início".');
+      } else {
+        alert('ℹ️ Para adicionar um atalho na sua tela inicial, toque no menu (⋮ ou •••) no seu navegador e selecione a opção "Adicionar à tela inicial" ou "Instalar aplicativo".');
+      }
+    });
+  }
 </script>
 </body>
 </html>
