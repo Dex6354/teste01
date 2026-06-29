@@ -308,12 +308,14 @@
     }
 
     .footer-logo {
-      font-size: 22px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: -0.5px;
+      width: 120px;
+      height: 32px;
+      background: var(--yellow);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .footer-logo span { color: var(--yellow); }
 
     .footer-links {
       display: flex;
@@ -357,10 +359,9 @@
 <body>
 
 <nav>
-<a class="nav-logo" href="#">
+  <a class="nav-logo" href="#">
     <div class="nav-logo-icon">
-    <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera"
-     style="height:60px;width:auto;display:block;">
+      <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera" style="height:60px;width:auto;display:block;">
     </div>
   </a>
   <div class="nav-right">
@@ -399,7 +400,9 @@
 <main class="grid" id="gameGrid"></main>
 
 <footer>
-  <div class="footer-logo">Jogos<span>Da</span>Galera</div>
+  <div class="footer-logo">
+    <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera" style="height:60px;width:auto;display:block;">
+  </div>
   <div class="footer-links">
     <a href="#">Apoiar</a>
     <a href="#">Pedir Jogo</a>
