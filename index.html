@@ -240,13 +240,20 @@
       border-color: var(--yellow);
     }
 
-    .card-thumb-fallback {
+    .card-thumb {
       width: 100%;
       aspect-ratio: 16/9;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 48px;
+    }
+
+    .card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .card-body {
@@ -462,7 +469,7 @@
           title: folderName.charAt(0).toUpperCase() + folderName.slice(1).replace(/-/g, ' '),
           description: 'Jogue agora este incrível jogo multiplayer direto do seu navegador.',
           category: 'acao',
-          icon: '🎮',
+          image: `./${folderName}/thumb.png`,
           tags: ['Multiplayer', 'Web'],
           background: 'linear-gradient(135deg,#1a2635,#0f1923)'
         };
@@ -487,7 +494,9 @@
         `).join('');
 
         card.innerHTML = `
-          <div class="card-thumb-fallback" style="background: ${metadata.background};">${metadata.icon}</div>
+          <div class="card-thumb" style="background: ${metadata.background};">
+            <img src="${metadata.image}" alt="${metadata.title}" onerror="this.src='https://jogosdagalera.pages.dev/logowpp.png';">
+          </div>
           <div class="card-body">
             <div class="card-title">${metadata.title}</div>
             <div class="card-desc">${metadata.description}</div>
