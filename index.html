@@ -422,7 +422,7 @@
 
 <main class="grid" id="gameGrid"></main>
 
-<h2 class="section-title-bar" id="partnersTitle" style="display: none;">🎮 Parceiros</h2>
+<h2 class="section-title-bar" id="partnersTitle" style="display: none;">🤝 Parceiros</h2>
 
 <div class="grid" id="partnersGrid" style="display: none;">
   <a class="card" href="https://bloob.io/pt" target="_blank" rel="noopener noreferrer">
@@ -499,14 +499,12 @@
     updateGames();
   }
 
-  // Função auxiliar para exibir a seção de parceiros de forma segura
+  // Ativa a exibição imediatamente quando chamada
   function revealPartners() {
-    setTimeout(() => {
-      const title = document.getElementById('partnersTitle');
-      const grid = document.getElementById('partnersGrid');
-      if (title) title.style.display = 'flex';
-      if (grid) grid.style.display = 'grid';
-    }); // Pequeno delay controlado após renderização dos jogos
+    const title = document.getElementById('partnersTitle');
+    const grid = document.getElementById('partnersGrid');
+    if (title) title.style.display = 'flex';
+    if (grid) grid.style.display = 'grid';
   }
 
   async function loadGames() {
@@ -565,12 +563,12 @@
       }
 
       updateGames();
-      revealPartners();
+      revealPartners(); // Executa logo após injetar os jogos
 
     } catch (error) {
       console.error(error);
       gameGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #ff4a4a; padding: 20px;">Erro: ${error.message}</p>`;
-      revealPartners(); // Exibe mesmo com erro de API para não prender o rodapé
+      revealPartners(); // Garante o carregamento mesmo se a API falhar
     }
   }
 
