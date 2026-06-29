@@ -338,20 +338,27 @@
         // variáveis :root + seletores que começam com "nav" ou ".nav-"
         // Isso evita poluir o CSS do jogo com classes genéricas como .grid, .card, etc.
         function extractNavCSS(cssText) {
+            // Remove comentários CSS primeiro — sem isso, "/* ── NAVBAR ── */\nnav { }"
+            // faz o seletor capturado começar com "/*" em vez de "nav", quebrando o filtro
+            const stripped = cssText.replace(/\/\*[\s\S]*?\*\//g, '');
+
             const parts = [];
 
-            // Captura o bloco :root { ... }
-            const rootMatch = cssText.match(/:root\s*\{[^}]*\}/);
+            // Captura o bloco :root { ... } (variáveis de cor, fonte, etc.)
+            const rootMatch = stripped.match(/:root\s*\{[^}]*\}/);
             if (rootMatch) parts.push(rootMatch[0]);
 
-            // Captura regras individuais (sem @media) cujo seletor seja nav ou .nav-*
+            // Captura regras cujo seletor seja exatamente "nav" ou comece com ".nav-"
             const ruleRegex = /([^{@]+)\{([^}]+)\}/g;
             let match;
-            while ((match = ruleRegex.exec(cssText)) !== null) {
+            while ((match = ruleRegex.exec(stripped)) !== null) {
                 const selector = match[1].trim();
                 if (
-                    (selector.startsWith('nav') || selector.startsWith('.nav-')) &&
-                    !selector.startsWith(':root')
+                    !selector.startsWith(':root') &&
+                    (selector === 'nav' ||
+                     selector.startsWith('nav ') ||
+                     selector.startsWith('nav,') ||
+                     selector.startsWith('.nav-'))
                 ) {
                     parts.push(match[0].trim());
                 }
