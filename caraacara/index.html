@@ -18,43 +18,26 @@
             filter: grayscale(100%) blur(1px);
             border-color: #334155 !important;
         }
-        /* Correção e ajuste do CSS do cabeçalho externo importado */
-        #home-header-container nav {
-            position: sticky !important;
-            top: 0 !important;
-            background: #0c151e !important;
-        }
-        #home-header-container .nav-logo-icon {
-            background: #f1c40f !important;
-            width: 120px !important;
-            height: 32px !important;
-            border-radius: 8px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            overflow: hidden !important;
-        }
-        #home-header-container .nav-logo-icon img {
-            height: 100% !important;
-            max-height: 32px !important;
-            width: auto !important;
-            display: block !important;
-            object-fit: contain !important;
-        }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
-    <div id="home-header-container" class="sticky top-0 z-[60] bg-slate-900 shadow-md"></div>
+    <!-- Cabeçalho compartilhado com home.html — preenchido automaticamente via JS -->
+    <div id="shared-nav-container"></div>
 
-    <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-[56px] z-50">
+    <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky z-40" style="top: 56px;">
         <div class="max-w-md mx-auto">
             <div class="flex justify-between items-center relative">
-                <div class="flex items-center space-x-3 text-[11px] text-slate-400 font-mono">
-                    <span>Sala: <strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
-                    <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">
-                        📋Compartilhar
-                    </button>
+                <div class="flex flex-col">
+                    <h1 class="font-extrabold text-sm tracking-wider">
+                        <img src="img/logo.jpg" class="w-20 h-6 object-cover object-center rounded-md" alt="Logo">
+                    </h1>
+                    <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
+                        <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
+                        <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">
+                            📋Compartilhar
+                        </button>
+                    </div>
                 </div>
                 <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow">
                     ➡️ Sair
@@ -247,29 +230,6 @@
     </footer>
 
     <script>
-        async function loadHomeHeader() {
-            try {
-                const response = await fetch('../');
-                const html = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                
-                const nav = doc.querySelector('nav');
-                if (nav) {
-                    document.getElementById('home-header-container').innerHTML = nav.outerHTML;
-                }
-                
-                doc.querySelectorAll('style').forEach(style => {
-                    const newStyle = document.createElement('style');
-                    newStyle.textContent = style.textContent;
-                    document.head.appendChild(newStyle);
-                });
-            } catch (error) {
-                console.error('Erro ao carregar o cabeçalho do home:', error);
-            }
-        }
-        loadHomeHeader();
-
         const characters = [
             { id: 1, name: "Diego", url: "img/01.png" },
             { id: 2, name: "Marcelo", url: "img/02.png" },
@@ -315,6 +275,64 @@
         const screenSelect = document.getElementById('screen-select');
         const screenGame = document.getElementById('screen-game');
         const topbar = document.getElementById('topbar');
+
+        // ── CABEÇALHO COMPARTILHADO ──────────────────────────────────────
+        // Busca o <nav> do home.html e injeta aqui automaticamente.
+        // Qualquer alteração feita no cabeçalho do home.html refletirá aqui
+        // na próxima vez que a página for carregada.
+        async function loadSharedNav() {
+            const container = document.getElementById('shared-nav-container');
+            try {
+                const res = await fetch('/');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const html = await res.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const nav = doc.querySelector('nav');
+                if (!nav) throw new Error('nav não encontrado no home.html');
+
+                // Injeta a fonte Nunito (usada pelo nav do home) se ainda não estiver carregada
+                if (!document.querySelector('link[href*="Nunito"]')) {
+                    const fontLink = doc.querySelector('link[href*="Nunito"]');
+                    if (fontLink) {
+                        const newLink = document.createElement('link');
+                        newLink.rel = 'stylesheet';
+                        newLink.href = fontLink.href;
+                        document.head.appendChild(newLink);
+                    }
+                }
+
+                // Injeta os estilos do home.html (necessários para o nav renderizar corretamente)
+                if (!document.getElementById('shared-nav-styles')) {
+                    const homeStyle = doc.querySelector('style');
+                    if (homeStyle) {
+                        const styleEl = document.createElement('style');
+                        styleEl.id = 'shared-nav-styles';
+                        styleEl.textContent = homeStyle.textContent;
+                        document.head.appendChild(styleEl);
+                    }
+                }
+
+                // Injeta o HTML do nav
+                container.innerHTML = nav.outerHTML;
+
+                // Ajusta o topbar para ficar logo abaixo do nav injetado
+                requestAnimationFrame(() => {
+                    const navEl = container.querySelector('nav');
+                    if (navEl) {
+                        topbar.style.top = navEl.offsetHeight + 'px';
+                    }
+                });
+            } catch (err) {
+                console.warn('Cabeçalho compartilhado indisponível:', err);
+                // Fallback: topbar sobe para o topo normalmente
+                topbar.style.top = '0px';
+            }
+        }
+
+        loadSharedNav();
+        // ────────────────────────────────────────────────────────────────
 
         function saveGameState() {
             if (!roomCode) return;
@@ -368,8 +386,8 @@
                 card.id = `select-card-${char.id}`;
                 card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center shadow";
                 card.innerHTML = `
-                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full max-w-[76px] aspect-[3/4] mx-auto rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center text-center">
-                        <img src="${char.url}" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
+                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden text-center">
+                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
                     </div>
                 `;
                 selectGrid.appendChild(card);
@@ -610,11 +628,17 @@
         function setupTheme() {
             UX_THEME_BG = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
 
+            // Calcula o offset do nav compartilhado para preservar o posicionamento sticky
+            const navOffset = (document.getElementById('shared-nav-container').offsetHeight || 56) + 'px';
+
             if (myRole === 'red') {
-                topbar.className = "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-[56px] z-50 text-white";
+                topbar.className = "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky z-40 text-white";
             } else {
-                topbar.className = "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-[56px] z-50 text-white";
+                topbar.className = "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky z-40 text-white";
             }
+            // Reaplica o top após a troca de className para não perder o offset do nav
+            topbar.style.top = navOffset;
+
             updateScoreboardVisual();
         }
 
@@ -671,8 +695,8 @@
                 card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-all shadow";
                 card.onclick = () => selectCharacter(char.id);
                 card.innerHTML = `
-                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full max-w-[76px] aspect-[3/4] mx-auto rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center text-center">
-                        <img src="${char.url}" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
+                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden text-center">
+                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
                     </div>
                 `;
                 selectGrid.appendChild(card);
@@ -785,6 +809,7 @@
         function syncPlacarVisuals(role, charUrl) {
             const myBgUrl = role === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
             const prefixos = role === 'red' ? ['p1-'] : ['p2-'];
+            const oponPrefixos = role === 'red' ? ['p2-'] : ['p1-'];
 
             prefixos.forEach(p => {
                 document.getElementById(`${p}avatar-bg`).style.backgroundImage = `url('${myBgUrl}')`;
@@ -792,6 +817,8 @@
                 document.getElementById(`${p}avatar`).classList.remove('hidden');
                 document.getElementById(`${p}avatar-placeholder`).classList.add('hidden');
             });
+
+            // Removido o código que ocultava o placeholder do oponente
         }
 
         function updateRemainingCount() {
@@ -842,8 +869,8 @@
                 card.className = `bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer transition-all ${highlightBorder} shadow`;
                 card.onclick = () => handleCardClick(char.id);
                 card.innerHTML = `
-                    <div style="background-image: url('${myBgUrl}'); background-size: cover; background-position: center;" class="w-full max-w-[76px] aspect-[3/4] mx-auto rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center pointer-events-none">
-                        <img src="${char.url}" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" />
+                    <div style="background-image: url('${myBgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden pointer-events-none">
+                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" />
                     </div>
                 `;
                 boardGrid.appendChild(card);
