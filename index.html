@@ -38,7 +38,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── NAVBAR ─────────────────────────────────────────── */
+    /* ── NAVBAR & LOGO ──────────────────────────────────── */
     nav {
       position: sticky;
       top: 0;
@@ -62,7 +62,7 @@
       margin-left: 20px;
     }
 
-    .nav-logo-icon {
+    .logo-box {
       width: 120px;
       height: 32px;
       background: var(--yellow);
@@ -70,17 +70,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      overflow: hidden;
     }
 
-    .nav-logo-text {
-      font-size: 20px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: -0.5px;
+    .logo-box img {
+      height: 100%;
+      width: auto;
+      display: block;
     }
-
-    .nav-logo-text span { color: var(--yellow); }
 
     .nav-right {
       display: flex;
@@ -307,16 +304,6 @@
       text-align: center;
     }
 
-    .footer-logo {
-      width: 120px;
-      height: 32px;
-      background: var(--yellow);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
     .footer-links {
       display: flex;
       gap: 18px;
@@ -360,8 +347,8 @@
 
 <nav>
   <a class="nav-logo" href="#">
-    <div class="nav-logo-icon">
-      <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera" style="height:60px;width:auto;display:block;">
+    <div class="logo-box">
+      <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera">
     </div>
   </a>
   <div class="nav-right">
@@ -400,8 +387,8 @@
 <main class="grid" id="gameGrid"></main>
 
 <footer>
-  <div class="footer-logo">
-    <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera" style="height:60px;width:auto;display:block;">
+  <div class="logo-box">
+    <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera">
   </div>
   <div class="footer-links">
     <a href="#">Apoiar</a>
@@ -417,12 +404,12 @@
   const searchInput = document.getElementById('searchInput');
   const gameGrid = document.getElementById('gameGrid');
   let activeCategory = 'todos';
+  let cachedCards = [];
 
   function updateGames() {
     const query = searchInput.value.toLowerCase().trim();
-    const cards = document.querySelectorAll('.card');
 
-    cards.forEach(card => {
+    cachedCards.forEach(card => {
       const cardCategory = card.dataset.category || '';
       const cardName = card.dataset.name || '';
 
@@ -437,10 +424,8 @@
 
   function filterGames(category, btn) {
     activeCategory = category;
-
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-
     updateGames();
   }
 
@@ -455,7 +440,8 @@
       const folders = await response.json();
       gameGrid.innerHTML = '';
 
-      for (const folder of folders) {
+      // Carrega os metadados em paralelo de forma assíncrona otimizada
+      const cardPromises = folders.map(async (folder) => {
         const folderName = folder.name;
         
         let metadata = {
@@ -495,9 +481,14 @@
           </div>
         `;
 
-        gameGrid.appendChild(card);
-      }
+        return card;
+      });
 
+      const cards = await Promise.all(cardPromises);
+      cards.forEach(card => gameGrid.appendChild(card));
+
+      // Cacheia os cards criados para otimizar o filtro de busca instantânea
+      cachedCards = document.querySelectorAll('.card');
       updateGames();
 
     } catch (error) {
