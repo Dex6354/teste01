@@ -38,6 +38,7 @@
         }
 
         /* Nav do cabeçalho - renomeado para nav-jogos-galera */
+                /* ==================== CABEÇALHO JOGOS DA GALERA ==================== */
         nav.nav-jogos-galera {
           position: sticky;
           top: 0;
@@ -69,13 +70,16 @@
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          overflow: visible;
+          overflow: visible;     /* ← Essencial para o logo vazar */
+          position: relative;
         }
 
         .logo-badge img {
-          height: 60px;
+          height: 60px;          /* mantido igual ao original */
           width: auto;
           display: block;
+          position: relative;
+          top: -14px;            /* ajuste fino para centralizar visualmente */
         }
 
         .nav-lang {
@@ -92,12 +96,11 @@
           cursor: pointer;
         }
 
-        /* RESPONSIVE do cabeçalho */
+        /* RESPONSIVE */
         @media (max-width: 560px) {
           nav.nav-jogos-galera { padding: 0 14px; gap: 10px; }
           .nav-logo            { margin-left: 0; }
         }
-
         /* Estilos originais do Cara a Cara */
         .card-flipped {
             transform: scale(0.92);
