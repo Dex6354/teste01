@@ -100,19 +100,9 @@
       padding: 5px 10px;
       color: var(--text-muted);
       font-size: 13px;
-      font-weight: 700;
       font-family: var(--font);
       cursor: pointer;
       text-decoration: none;
-      transition: background .18s, border-color .18s, color .18s;
-    }
-
-    /* Ajustado para ficar com as mesmas propriedades e cores idênticas do filtro */
-    .nav-lang:hover,
-    .nav-lang.active {
-      background: var(--yellow) !important;
-      border-color: var(--yellow) !important;
-      color: var(--bg) !important;
     }
 
     .hero {
@@ -387,7 +377,7 @@
     </div>
   </a>
   <div>
-    <a class="badge" href="/" id="homeBtn" onclick="filterGames('todos', this)">🏠 Home</a>
+    <a class="nav-lang" href="/">🏠 Home</a>
   </div>
 </nav>
 
@@ -403,7 +393,7 @@
 </header>
 
 <div class="filters">
-  <button class="filter-btn active" id="filterTodosBtn" onclick="filterGames('todos', this)">Todos</button>
+  <button class="filter-btn active" onclick="filterGames('todos', this)">Todos</button>
   <button class="filter-btn" onclick="filterGames('palavras', this)">Palavras</button>
   <button class="filter-btn" onclick="filterGames('sinuca', this)">Sinuca</button>
   <button class="filter-btn" onclick="filterGames('tabuleiro', this)">Tabuleiro</button>
@@ -473,8 +463,6 @@
   const gameGrid     = document.getElementById('gameGrid');
   const partnersTitle = document.getElementById('partnersTitle');
   const partnersGrid  = document.getElementById('partnersGrid');
-  const homeBtn      = document.getElementById('homeBtn');
-  const filterTodosBtn = document.getElementById('filterTodosBtn');
   let activeCategory = 'todos';
 
   const FALLBACK_IMG = 'https://jogosdagalera.pages.dev/logowpp.png';
@@ -492,20 +480,8 @@
 
   function filterGames(category, btn) {
     activeCategory = category;
-    
-    // Remove o destaque ativo de todos os botões e do Home
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    homeBtn.classList.remove('active');
-    
-    // Adiciona o destaque amarelo no botão clicado
     btn.classList.add('active');
-    
-    // Sincroniza os estados visuais entre o botão "Home" e o botão de filtro "Todos"
-    if (category === 'todos') {
-      homeBtn.classList.add('active');
-      filterTodosBtn.classList.add('active');
-    }
-    
     updateGames();
   }
 
