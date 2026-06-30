@@ -1,39 +1,22 @@
-const CACHE_NAME = 'jogos-da-galera-v1';
-const ASSETS = [
-  './',
-  './index.html',
-  'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap'
-];
+// Removemos a lista de ASSETS e a criação do cache
 
-// Instala o Service Worker e armazena os arquivos no cache
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    }).then(() => self.skipWaiting())
-  );
+self.addEventListener('install', () => {
+  // Pula a espera para ativar o SW imediatamente
+  self.skipWaiting();
 });
 
-// Ativa o SW e limpa caches antigos
 self.addEventListener('activate', (e) => {
+  // Limpa qualquer cache antigo existente para garantir que nada fique guardado
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
+        keys.map((key) => caches.delete(key))
       );
     }).then(() => self.clients.claim())
   );
 });
 
-// Intercepta as requisições (obrigatório para o PWA funcionar)
+// Intercepta as requisições, mas busca tudo direto da rede (Network Only)
 self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      return cachedResponse || fetch(e.request);
-    })
-  );
+  e.respondWith(fetch(e.request));
 });
