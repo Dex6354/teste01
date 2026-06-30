@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" class="w-full" content="width=device-width, initial-scale=1.0">
     <title>Cara a Cara</title>
     <link rel="icon" type="image/jpeg" href="https://caraacara.pages.dev/img/logowpp.jpg">
 
@@ -11,97 +11,7 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-
-    <!-- Cabeçalho styles -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-          --yellow:      #f1c40f;
-          --bg:          #0f1923;
-          --bg-input:    #1a2635;
-          --border:      rgba(255, 255, 255, 0.07);
-          --text:        #e8edf2;
-          --text-muted:  #7a92a8;
-          --font:        'Nunito', sans-serif;
-        }
-
-        body {
-          font-family: var(--font);
-          background: var(--bg);
-          color: var(--text);
-          min-height: 100vh;
-          -webkit-font-smoothing: antialiased;
-        }
-
-        /* ==================== CABEÇALHO JOGOS DA GALERA (Isolado) ==================== */
-        nav.nav-jogos-galera {
-          position: sticky;
-          top: 0;
-          z-index: 200;
-          height: 56px;
-          background: #0c151e;
-          border-bottom: 1px solid var(--border);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 24px;
-          gap: 32px;
-        }
-
-        .nav-logo {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          text-decoration: none;
-          margin-left: 20px;
-        }
-
-        .logo-badge {
-          width: 120px;
-          height: 32px;
-          background: var(--yellow);
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          overflow: visible;
-          position: relative;
-        }
-
-        .logo-badge img {
-          height: 60px !important;
-          width: auto !important;
-          display: block !important;
-          position: relative;
-          top: -14px;
-        }
-
-        .nav-lang {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          background: var(--bg-input);
-          border: 1px solid var(--border);
-          border-radius: 7px;
-          padding: 5px 10px;
-          color: var(--text-muted);
-          font-size: 13px;
-          font-family: var(--font);
-          cursor: pointer;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 560px) {
-          nav.nav-jogos-galera { padding: 0 14px; gap: 10px; }
-          .nav-logo            { margin-left: 0; }
-        }
-
-        /* ==================== ESTILOS ORIGINAIS DO CARA A CARA ==================== */
         .card-flipped {
             transform: scale(0.92);
             opacity: 0.2;
@@ -112,20 +22,10 @@
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
-    <!-- CABEÇALHO IDENTICO -->
-    <nav class="nav-jogos-galera">
-      <a class="nav-logo" href="https://jogosdagalera.pages.dev">
-        <div class="logo-badge">
-          <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera">
-        </div>
-      </a>
-      <div>
-        <button class="nav-lang">🇧🇷 PT</button>
-      </div>
-    </nav>
+    <!-- Cabeçalho compartilhado com home.html — preenchido automaticamente via JS -->
+    <div id="shared-nav-container" style="position: sticky; top: 0; z-index: 100;"></div>
 
-    <!-- Topbar do jogo (ajustado para ficar abaixo do cabeçalho) -->
-    <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-[56px] z-50">
+    <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky z-40" style="top: 56px;">
         <div class="max-w-md mx-auto">
             <div class="flex justify-between items-center relative">
                 <div class="flex flex-col">
@@ -160,9 +60,7 @@
             </div>
         </div>
 
-        <!-- Restante do conteúdo original mantido igual -->
         <div id="game-scoreboard" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between relative overflow-hidden mb-3">
-            <!-- ... (todo o conteúdo do scoreboard permanece igual) ... -->
             <div id="p1-avatar-bg" class="w-20 h-28 p-1 rounded-xl border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shrink-0 shadow bg-slate-950">
                 <img id="p1-avatar" src="" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)] hidden" />
                 <span id="p1-avatar-placeholder" class="text-2xl font-black text-slate-600 font-mono">?</span>
@@ -205,6 +103,7 @@
                 <h2 id="select-screen-title" class="text-base font-bold text-amber-400">Escolha o SEU Personagem Secreto</h2>
                 <p class="text-[11px] text-slate-400">Esconda a tela! Seu oponente terá que adivinhar quem você escolheu.</p>
             </div>
+            
             <div id="select-grid" class="grid grid-cols-4 gap-2 w-full text-center"></div>
         </div>
 
@@ -212,25 +111,116 @@
             <button id="btn-guess-mode" onclick="toggleGuessMode()" class="w-full bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition border border-slate-700 shadow shadow-amber-500/10">
                 🎯 Dar Palpite Final (Acusar Suspeito)
             </button>
+
             <button id="btn-turn" onclick="passTurn()" class="w-full font-bold py-2.5 rounded-xl text-xs transition border border-slate-700 shadow">
                 Carregando Turno...
             </button>
+
             <div id="board-grid" class="grid grid-cols-4 gap-2 w-full"></div>
         </div>
 
-        <!-- Modais e resto do conteúdo permanecem iguais -->
-        <!-- ... (mantive todo o resto do HTML original) ... -->
-
         <div id="char-confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-            <!-- conteúdo do modal -->
+            <div class="bg-slate-900 border-2 border-amber-500 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
+                <h3 id="char-confirm-title" class="text-lg font-black text-amber-400 tracking-wide">CONFIRMAR PERSONAGEM?</h3>
+                <p class="text-[11px] text-slate-400">Esconda a tela! Seu oponente terá que adivinhar quem você escolheu.</p>
+                <div id="char-confirm-modal-bg" class="w-24 h-32 mx-auto rounded-lg border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shadow-inner">
+                    <img id="char-confirm-modal-img" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]">
+                </div>
+                <div id="char-confirm-buttons" class="flex space-x-3 pt-2">
+                    <button onclick="closeCharConfirmModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                        Escolher outro
+                    </button>
+                    <button onclick="executeCharacterConfirmation()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-xs transition shadow-lg">
+                        Confirmar
+                    </button>
+                </div>
+                <div id="char-waiting-buttons" class="hidden pt-2">
+                    <button onclick="cancelCharacterConfirmation()" class="w-full bg-slate-700 hover:bg-red-600 text-white font-bold py-2.5 rounded-xl text-xs transition border border-slate-600">
+                        🔄 Trocar Personagem
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div id="confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-            <!-- conteúdo do modal -->
+            <div class="bg-slate-900 border-2 border-amber-500 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
+                <h3 class="text-lg font-black text-amber-400 tracking-wide">CONFIRMAR PALPITE FINAL?</h3>
+                <p class="text-xs text-slate-300">Você tem certeza que o personagem secreto do seu oponente é este?</p>
+                <div id="confirm-modal-img-bg" class="w-24 h-32 mx-auto rounded-lg border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shadow-inner">
+                    <img id="confirm-modal-char-img" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]">
+                </div>
+                <p class="text-[10px] text-rose-400 bg-rose-950/30 p-2 rounded border border-rose-900/50 font-medium">Atenção: Se voce errar, perderá o jogo imediatamente!</p>
+                <div class="flex space-x-3 pt-2">
+                    <button onclick="closeConfirmModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                        Cancelar
+                    </button>
+                    <button onclick="executeFinalAccusation()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-xs transition shadow-lg">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-            <!-- conteúdo do game over -->
+            <div class="border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl" id="game-over-box">
+                <h2 id="game-over-title" class="text-2xl font-black tracking-wide"></h2>
+                <p id="game-over-msg" class="text-sm text-slate-300 px-2 font-medium leading-tight"></p>
+                
+                <div id="game-over-guess-char-container" class="hidden text-center mx-auto my-1 flex flex-col items-center">
+                    <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Personagem Palpitado</span>
+                    <div id="game-over-guess-char-bg" class="w-16 h-20 p-1 rounded-xl border border-amber-500 bg-cover bg-center flex items-center justify-center overflow-hidden shadow mt-1 bg-slate-950">
+                        <img id="game-over-guess-char-img" src="" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" />
+                    </div>
+                </div>
+
+                <div id="modal-scoreboard" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-xl flex items-center justify-between relative overflow-hidden">
+                    <div class="flex flex-col items-center shrink-0">
+                        <div id="modal-p1-avatar-bg" class="w-20 h-28 p-1 rounded-xl border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shadow bg-slate-950">
+                            <img id="modal-p1-avatar" src="" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)] hidden" />
+                            <span id="modal-p1-avatar-placeholder" class="text-2xl font-black text-slate-600 font-mono">?</span>
+                        </div>
+                        <span id="label-p1" class="text-[10px] font-bold mt-1 uppercase tracking-wider text-slate-400">P1</span>
+                    </div>
+
+                    <div class="flex flex-col justify-between h-28 flex-1 px-3 min-w-0">
+                        <div class="flex flex-col items-start leading-tight text-left w-full">
+                            <span class="text-red-400 font-black text-xs tracking-wide whitespace-nowrap">P1 (Vermelho)</span>
+                            <div class="flex items-center space-x-1 mt-0.5 justify-start">
+                                <span id="modal-status-dot-p1" class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
+                                <span id="modal-status-text-p1" class="text-[10px] text-rose-400 font-bold font-mono">Offline</span>
+                            </div>
+                        </div>
+
+                        <div class="select-none shrink-0 py-0.5 self-center flex items-center space-x-2">
+                            <span id="modal-score-red" class="bg-slate-950 px-1.5 py-0.5 rounded text-white font-mono text-xs font-bold shrink-0">0</span>
+                            <span class="bg-gradient-to-r from-red-500 to-blue-500 text-transparent bg-clip-text font-black italic text-base tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">VS</span>
+                            <span id="modal-score-blue" class="bg-slate-950 px-1.5 py-0.5 rounded text-white font-mono text-xs font-bold shrink-0">0</span>
+                        </div>
+
+                        <div class="flex flex-col items-end leading-tight text-right w-full">
+                            <span class="text-blue-400 font-black text-xs tracking-wide whitespace-nowrap">P2 (Azul)</span>
+                            <div class="flex items-center space-x-1 mt-0.5 justify-end">
+                                <span id="modal-status-text-p2" class="text-[10px] text-rose-400 font-bold font-mono">Offline</span>
+                                <span id="modal-status-dot-p2" class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center shrink-0">
+                        <div id="modal-p2-avatar-bg" class="w-20 h-28 p-1 rounded-xl border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shadow bg-slate-950">
+                            <img id="modal-p2-avatar" src="" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)] hidden" />
+                            <span id="modal-p2-avatar-placeholder" class="text-2xl font-black text-slate-600 font-mono">?</span>
+                        </div>
+                        <span id="label-p2" class="text-[10px] font-bold mt-1 uppercase tracking-wider text-slate-400">P2</span>
+                    </div>
+                </div>
+
+                <button id="btn-next-game" onclick="requestNewGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">
+                    🔄 Jogar Nova Partida
+                </button>
+                <p id="waiting-opponent-next" class="hidden text-amber-400 text-xs animate-pulse font-medium">Aguardando oponente aceitar novo jogo...</p>
+                <p id="opponent-requested-rematch" class="hidden text-amber-400 text-xs animate-pulse font-medium">Oponente solicitou revanche...</p>
+            </div>
         </div>
 
     </main>
@@ -240,10 +230,913 @@
     </footer>
 
     <script>
-        // TODO: Todo o script original do Cara a Cara permanece exatamente igual
-        // (copie e cole o <script> completo do seu arquivo original aqui)
-        const characters = [ /* ... */ ];
-        // ... todo o JavaScript ...
+        const characters = [
+            { id: 1, name: "Diego", url: "img/01.png" },
+            { id: 2, name: "Marcelo", url: "img/02.png" },
+            { id: 3, name: "Vinícius", url: "img/03.png" },
+            { id: 4, name: "Rodrigo", url: "img/04.png" },
+            { id: 5, name: "Vanessa", url: "img/05.png" },
+            { id: 6, name: "André", url: "img/06.png" },
+            { id: 7, name: "Ricardo", url: "img/07.png" },
+            { id: 8, name: "Flávio", url: "img/08.png" },
+            { id: 9, name: "José Luis", url: "img/09.png" },
+            { id: 10, name: "Adriana", url: "img/10.png" },
+            { id: 11, name: "Rafael", url: "img/11.png" },
+            { id: 12, name: "Mário", url: "img/12.png" },
+            { id: 13, name: "Claudia", url: "img/13.png" },
+            { id: 14, name: "Bruno", url: "img/14.png" },
+            { id: 15, name: "Tiago", url: "img/15.png" },
+            { id: 16, name: "Pablo", url: "img/16.png" },
+            { id: 17, name: "Cristiane", url: "img/17.png" },
+            { id: 18, name: "Douglas", url: "img/18.png" },
+            { id: 19, name: "Leonardo", url: "img/19.png" },
+            { id: 20, name: "Fábio", url: "img/20.png" },
+            { id: 21, name: "Daniel", url: "img/21.png" },
+            { id: 22, name: "Arnaldo", url: "img/22.png" },
+            { id: 23, name: "Lucas", url: "img/23.png" },
+            { id: 24, name: "Aline", url: "img/24.png" }
+        ];
+
+        let peer = null;
+        let conn = null;
+        let myRole = ''; 
+        let selectedCharacterId = null;
+        let temporarySelectedId = null;
+        let opponentCharacterId = null;
+        let isGuessMode = false;
+        let pendingAccusationId = null;
+        let isMyTurn = false;
+        
+        let score = { red: 0, blue: 0 };
+        let localPlayerReadyForNext = false;
+        let opponentReadyForNext = false;
+
+        const screenLobby = document.getElementById('screen-lobby');
+        const screenSelect = document.getElementById('screen-select');
+        const screenGame = document.getElementById('screen-game');
+        const topbar = document.getElementById('topbar');
+
+        // ── CABEÇALHO COMPARTILHADO ──────────────────────────────────────
+        // Busca o <nav> do home.html e injeta aqui automaticamente.
+        // Qualquer alteração feita no cabeçalho do home.html refletirá aqui
+        // na próxima vez que a página for carregada.
+        async function loadSharedNav() {
+            const container = document.getElementById('shared-nav-container');
+            try {
+                const res = await fetch('/');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const html = await res.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const nav = doc.querySelector('nav');
+                if (!nav) throw new Error('nav não encontrado no home.html');
+
+                // Injeta a fonte Nunito (usada pelo nav do home) se ainda não estiver carregada
+                if (!document.querySelector('link[href*="Nunito"]')) {
+                    const fontLink = doc.querySelector('link[href*="Nunito"]');
+                    if (fontLink) {
+                        const newLink = document.createElement('link');
+                        newLink.rel = 'stylesheet';
+                        newLink.href = fontLink.href;
+                        document.head.appendChild(newLink);
+                    }
+                }
+
+                // Injeta apenas as regras de CSS relevantes ao nav (variáveis :root + .nav-* + nav)
+                // Isso evita que classes genéricas do home.html (ex: .grid, .card) afetem o jogo
+                if (!document.getElementById('shared-nav-styles')) {
+                    const homeStyle = doc.querySelector('style');
+                    if (homeStyle) {
+                        const navCSS = extractNavCSS(homeStyle.textContent);
+                        const styleEl = document.createElement('style');
+                        styleEl.id = 'shared-nav-styles';
+                        styleEl.textContent = navCSS;
+                        document.head.appendChild(styleEl);
+                    }
+                }
+
+                // Injeta o HTML do nav
+                container.innerHTML = nav.outerHTML;
+
+                // O container já é sticky (top:0), então o nav interno não precisa ser sticky também
+                const navEl = container.querySelector('nav');
+                if (navEl) navEl.style.position = 'relative';
+
+                // Ajusta o topbar para ficar logo abaixo do container sticky do nav
+                requestAnimationFrame(() => {
+                    topbar.style.top = container.offsetHeight + 'px';
+                });
+            } catch (err) {
+                console.warn('Cabeçalho compartilhado indisponível:', err);
+                // Fallback: topbar sobe para o topo normalmente
+                topbar.style.top = '0px';
+            }
+        }
+
+        // Extrai apenas as regras CSS relevantes ao nav do home.html:
+        // variáveis :root + seletores que começam com "nav" ou ".nav-"
+        // Isso evita poluir o CSS do jogo com classes genéricas como .grid, .card, etc.
+        function extractNavCSS(cssText) {
+            // Remove comentários CSS primeiro — sem isso, "/* ── NAVBAR ── */\nnav { }"
+            // faz o seletor capturado começar com "/*" em vez de "nav", quebrando o filtro
+            const stripped = cssText.replace(/\/\*[\s\S]*?\*\//g, '');
+
+            const parts = [];
+
+            // Captura o bloco :root { ... } (variáveis de cor, fonte, etc.)
+            const rootMatch = stripped.match(/:root\s*\{[^}]*\}/);
+            if (rootMatch) parts.push(rootMatch[0]);
+
+            // Captura regras cujo seletor seja exatamente "nav" ou comece com ".nav-"
+            const ruleRegex = /([^{@]+)\{([^}]+)\}/g;
+            let match;
+            while ((match = ruleRegex.exec(stripped)) !== null) {
+                const selector = match[1].trim();
+                if (
+                    !selector.startsWith(':root') &&
+                    (selector === 'nav' ||
+                     selector.startsWith('nav ') ||
+                     selector.startsWith('nav,') ||
+                     selector.startsWith('.nav-'))
+                ) {
+                    parts.push(match[0].trim());
+                }
+            }
+
+            return parts.join('\n');
+        }
+
+        loadSharedNav();
+        // ────────────────────────────────────────────────────────────────
+
+        function saveGameState() {
+            if (!roomCode) return;
+            localStorage.setItem(`cara_score_${roomCode}`, JSON.stringify(score));
+            localStorage.setItem(`cara_my_char_${roomCode}`, selectedCharacterId || '');
+            localStorage.setItem(`cara_opp_char_${roomCode}`, opponentCharacterId || '');
+            
+            const flipped = [];
+            characters.forEach(char => {
+                const card = document.getElementById(`board-card-${char.id}`);
+                if (card && card.classList.contains('card-flipped')) {
+                    flipped.push(char.id);
+                }
+            });
+            localStorage.setItem(`cara_flipped_${roomCode}`, JSON.stringify(flipped));
+        }
+
+        function loadGameState() {
+            if (!roomCode) return;
+            const savedScore = localStorage.getItem(`cara_score_${roomCode}`);
+            if (savedScore) score = JSON.parse(savedScore);
+            
+            const savedMyChar = localStorage.getItem(`cara_my_char_${roomCode}`);
+            if (savedMyChar) selectedCharacterId = parseInt(savedMyChar);
+
+            const savedOppChar = localStorage.getItem(`cara_opp_char_${roomCode}`);
+            if (savedOppChar) opponentCharacterId = parseInt(savedOppChar);
+            
+            updateScoreboardVisual();
+        }
+
+        function restoreFlippedCards() {
+            const savedFlipped = localStorage.getItem(`cara_flipped_${roomCode}`);
+            if (savedFlipped) {
+                const flippedIds = JSON.parse(savedFlipped);
+                flippedIds.forEach(id => {
+                    const card = document.getElementById(`board-card-${id}`);
+                    if (card) card.classList.add('card-flipped');
+                });
+            }
+        }
+
+        function preRenderSelectGrid() {
+            const selectGrid = document.getElementById('select-grid');
+            if (selectGrid.children.length > 0) return;
+            
+            const bgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
+            
+            characters.forEach(char => {
+                const card = document.createElement('div');
+                card.id = `select-card-${char.id}`;
+                card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center shadow";
+                card.innerHTML = `
+                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden text-center">
+                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
+                    </div>
+                `;
+                selectGrid.appendChild(card);
+            });
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let roomCode = urlParams.get('room');
+
+        if (!roomCode) {
+            const generatedCode = 'CARA-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('hosted_room', generatedCode);
+            window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
+        } else {
+            document.getElementById('topbar-room-id').innerText = roomCode;
+            
+            if (roomCode === localStorage.getItem('hosted_room')) {
+                myRole = 'red';
+            } else {
+                myRole = 'blue';
+            }
+
+            preRenderSelectGrid();
+            loadGameState();
+
+            const savedGameOver = localStorage.getItem(`cara_game_over_${roomCode}`);
+            if (savedGameOver) {
+                applyGameOver(JSON.parse(savedGameOver), true);
+            }
+
+            if (myRole === 'red') {
+                initHost(roomCode);
+            } else {
+                initGuest(roomCode);
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (conn) conn.close();
+            if (peer) peer.destroy();
+        });
+
+        function updatePresenceUI(p1Online, p2Online) {
+            const dotP1 = document.getElementById('status-dot-p1');
+            const textP1 = document.getElementById('status-text-p1');
+            const dotP2 = document.getElementById('status-dot-p2');
+            const textP2 = document.getElementById('status-text-p2');
+
+            const mDotP1 = document.getElementById('modal-status-dot-p1');
+            const mTextP1 = document.getElementById('modal-status-text-p1');
+            const mDotP2 = document.getElementById('modal-status-dot-p2');
+            const mTextP2 = document.getElementById('modal-status-text-p2');
+
+            const applyStatus = (dot, text, online) => {
+                if (online) {
+                    dot.className = "w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shrink-0";
+                    text.innerText = "Online";
+                    text.className = "text-green-400 font-bold font-mono text-[10px]";
+                } else {
+                    dot.className = "w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0";
+                    text.innerText = "Offline";
+                    text.className = "text-rose-400 font-bold font-mono text-[10px]";
+                }
+            };
+
+            applyStatus(dotP1, textP1, p1Online);
+            applyStatus(mDotP1, mTextP1, p1Online);
+            applyStatus(dotP2, textP2, p2Online);
+            applyStatus(mDotP2, mTextP2, p2Online);
+        }
+
+        function initHost(code) {
+            document.getElementById('loading-peer').classList.remove('hidden');
+            updatePresenceUI(true, false);
+            
+            if (peer && !peer.destroyed) {
+                document.getElementById('loading-peer').classList.add('hidden');
+                setupTheme();
+                return;
+            }
+
+            peer = new Peer(code);
+
+            peer.on('open', () => {
+                document.getElementById('loading-peer').classList.add('hidden');
+                document.getElementById('connection-status').innerText = "Aguardando entrada do Jogador 2...";
+                setupTheme();
+            });
+
+            peer.on('connection', (connection) => {
+                conn = connection;
+                handleEvents();
+            });
+
+            peer.on('error', (err) => {
+                if (err.type === 'unavailable-id') {
+                    setTimeout(() => initHost(code), 500);
+                }
+            });
+        }
+
+        function initGuest(code) {
+            updatePresenceUI(false, true);
+            if (peer) { try { peer.destroy(); } catch(e){} }
+            peer = new Peer();
+            
+            peer.on('open', () => {
+                document.getElementById('connection-status').innerText = "Conectando ao Jogador 1...";
+                conn = peer.connect(code);
+                handleEvents();
+            });
+
+            peer.on('error', (err) => {
+                setTimeout(() => initGuest(code), 500);
+            });
+        }
+
+        function updateOpponentSelectionBorder() {
+            const oppPrefix = myRole === 'red' ? 'p2' : 'p1';
+            const oppBg = document.getElementById(`${oppPrefix}-avatar-bg`);
+            if (oppBg) {
+                if (opponentCharacterId) {
+                    oppBg.classList.remove('border-slate-700');
+                    oppBg.classList.add('border-green-500');
+                } else {
+                    oppBg.classList.remove('border-green-500');
+                    oppBg.classList.add('border-slate-700');
+                }
+            }
+        }
+
+        function handleEvents() {
+            const currentConn = conn;
+
+            function onConnOpen() {
+                if (conn !== currentConn) return; 
+                updatePresenceUI(true, true);
+                setupTheme();
+                
+                if (selectedCharacterId) {
+                    currentConn.send({ type: 'SYNC_CHARACTER', id: selectedCharacterId, isReconnect: true });
+                }
+
+                const savedGameOver = localStorage.getItem(`cara_game_over_${roomCode}`);
+                if (savedGameOver) {
+                    applyGameOver(JSON.parse(savedGameOver), true);
+                } else if (selectedCharacterId && opponentCharacterId) {
+                    buildGameBoard();
+                    restoreFlippedCards();
+                    updateRemainingCount();
+                } else {
+                    startSelectionStage();
+                }
+            }
+
+            if (currentConn.open) {
+                onConnOpen();
+            } else {
+                currentConn.on('open', onConnOpen);
+            }
+
+            currentConn.on('data', (data) => {
+                if (conn !== currentConn) return; 
+                if (data.type === 'SYNC_CHARACTER') {
+                    opponentCharacterId = data.id;
+                    saveGameState();
+                    
+                    if (data.isReconnect && selectedCharacterId) {
+                        currentConn.send({ type: 'SYNC_CHARACTER', id: selectedCharacterId });
+                    }
+                    updateOpponentSelectionBorder();
+                    checkBothSelected();
+                } else if (data.type === 'GAME_OVER') {
+                    applyGameOver(data);
+                } else if (data.type === 'NEXT_GAME_READY') {
+                    opponentReadyForNext = true;
+                    document.getElementById('opponent-requested-rematch').classList.remove('hidden');
+                    checkNextGameTransition();
+                } else if (data.type === 'TURN_CHANGED') {
+                    isMyTurn = true;
+                    updateTurnUI();
+                } else if (data.type === 'UPDATE_COUNT') {
+                    const oppCountId = myRole === 'red' ? 'count-blue' : 'count-red';
+                    const el = document.getElementById(oppCountId);
+                    if (el) el.innerText = data.count;
+                }
+            });
+
+            currentConn.on('close', () => {
+                if (conn !== currentConn) return; 
+                if (myRole === 'red') {
+                    updatePresenceUI(true, false);
+                } else {
+                    updatePresenceUI(false, true);
+                }
+                
+                const savedGameOver = localStorage.getItem(`cara_game_over_${roomCode}`);
+                if (!savedGameOver) {
+                    if (selectedCharacterId && opponentCharacterId) {
+                        const btnTurn = document.getElementById('btn-turn');
+                        if (btnTurn) {
+                            btnTurn.disabled = true;
+                            btnTurn.innerText = "⏳ OPONENTE DESCONECTADO (Aguardando retorno...)";
+                            btnTurn.className = "w-full bg-slate-800 text-rose-400 font-bold py-2.5 rounded-xl text-xs transition border border-rose-900/50 cursor-not-allowed";
+                        }
+                    }
+                }
+                
+                if (myRole === 'blue') {
+                    setTimeout(() => { if (roomCode) initGuest(roomCode); }, 500);
+                }
+            });
+        }
+
+        function leaveRoom() {
+            if (roomCode) {
+                localStorage.removeItem(`cara_score_${roomCode}`);
+                localStorage.removeItem(`cara_my_char_${roomCode}`);
+                localStorage.removeItem(`cara_opp_char_${roomCode}`);
+                localStorage.removeItem(`cara_flipped_${roomCode}`);
+                localStorage.removeItem(`cara_game_over_${roomCode}`);
+            }
+            localStorage.removeItem('hosted_room');
+            if (conn) conn.close();
+            if (peer) peer.destroy();
+            window.location.href = window.location.origin + window.location.pathname;
+        }
+
+        function copyLink() {
+            const shareLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
+            navigator.clipboard.writeText(shareLink).then(() => {
+                alert('Link da sala copiado com sucesso!');
+            });
+        }
+
+        let UX_THEME_BG = '';
+
+        function setupTheme() {
+            UX_THEME_BG = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
+
+            // Calcula o offset do nav compartilhado para preservar o posicionamento sticky
+            const navOffset = (document.getElementById('shared-nav-container').offsetHeight || 56) + 'px';
+
+            if (myRole === 'red') {
+                topbar.className = "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky z-40 text-white";
+            } else {
+                topbar.className = "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky z-40 text-white";
+            }
+            // Reaplica o top após a troca de className para não perder o offset do nav
+            topbar.style.top = navOffset;
+
+            updateScoreboardVisual();
+        }
+
+        function updateScoreboardVisual() {
+            document.getElementById('score-red').innerText = score.red;
+            document.getElementById('score-blue').innerText = score.blue;
+            document.getElementById('modal-score-red').innerText = score.red;
+            document.getElementById('modal-score-blue').innerText = score.blue;
+        }
+
+        function startSelectionStage() {
+            if (conn && conn.open) {
+                screenLobby.classList.add('hidden');
+            } else {
+                screenLobby.classList.remove('hidden');
+            }
+            
+            screenGame.classList.add('hidden');
+            document.getElementById('game-over-screen').classList.add('hidden');
+            document.getElementById('confirm-modal').classList.add('hidden');
+            document.getElementById('char-confirm-modal').classList.add('hidden');
+            
+            document.getElementById('game-scoreboard').classList.remove('hidden');
+            document.getElementById('count-red-box').classList.add('hidden');
+            document.getElementById('count-blue-box').classList.add('hidden');
+            
+            const resetPlacar = (bg, img, placeholder) => {
+                document.getElementById(bg).style.backgroundImage = "none";
+                document.getElementById(img).classList.add('hidden');
+                document.getElementById(placeholder).classList.remove('hidden');
+            };
+
+            resetPlacar('p1-avatar-bg', 'p1-avatar', 'p1-avatar-placeholder');
+            resetPlacar('p2-avatar-bg', 'p2-avatar', 'p2-avatar-placeholder');
+            resetPlacar('modal-p1-avatar-bg', 'modal-p1-avatar', 'modal-p1-avatar-placeholder');
+            resetPlacar('modal-p2-avatar-bg', 'modal-p2-avatar', 'modal-p2-avatar-placeholder');
+
+            updateOpponentSelectionBorder();
+
+            screenSelect.classList.remove('hidden');
+            
+            const selectTitle = document.getElementById('select-screen-title');
+            selectTitle.innerText = "Escolha o SEU Personagem Secreto";
+            selectTitle.classList.remove('animate-pulse');
+
+            const selectGrid = document.getElementById('select-grid');
+            selectGrid.innerHTML = '';
+
+            const bgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
+
+            characters.forEach(char => {
+                const card = document.createElement('div');
+                card.id = `select-card-${char.id}`;
+                card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-all shadow";
+                card.onclick = () => selectCharacter(char.id);
+                card.innerHTML = `
+                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden text-center">
+                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
+                    </div>
+                `;
+                selectGrid.appendChild(card);
+            });
+
+            if (selectedCharacterId) {
+                const current = document.getElementById(`select-card-${selectedCharacterId}`);
+                if (current) current.classList.add('border-amber-400', 'bg-slate-700', 'scale-105');
+                
+                selectTitle.innerText = "Aguardando oponente escolher...";
+                selectTitle.classList.add('animate-pulse');
+                
+                temporarySelectedId = selectedCharacterId;
+                const char = characters.find(c => c.id === selectedCharacterId);
+                
+                const confirmTitle = document.getElementById('char-confirm-title');
+                confirmTitle.innerText = "Aguardando oponente escolher...";
+                confirmTitle.classList.add('animate-pulse');
+                
+                document.getElementById('char-confirm-buttons').classList.add('hidden');
+                document.getElementById('char-waiting-buttons').classList.remove('hidden');
+                
+                document.getElementById('char-confirm-modal-bg').style.backgroundImage = `url('${bgUrl}')`;
+                document.getElementById('char-confirm-modal-img').src = char.url;
+                document.getElementById('char-confirm-modal').classList.remove('hidden');
+                
+                characters.forEach(c => {
+                    const card = document.getElementById(`select-card-${c.id}`);
+                    if (card) card.onclick = null;
+                });
+            }
+        }
+
+        function selectCharacter(id) {
+            temporarySelectedId = id;
+            const char = characters.find(c => c.id === id);
+            const bgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
+            
+            const confirmTitle = document.getElementById('char-confirm-title');
+            confirmTitle.innerText = "CONFIRMAR PERSONAGEM?";
+            confirmTitle.classList.remove('animate-pulse');
+            
+            document.getElementById('char-confirm-buttons').classList.remove('hidden');
+            document.getElementById('char-waiting-buttons').classList.add('hidden');
+            
+            document.getElementById('char-confirm-modal-bg').style.backgroundImage = `url('${bgUrl}')`;
+            document.getElementById('char-confirm-modal-img').src = char.url;
+            document.getElementById('char-confirm-modal').classList.remove('hidden');
+        }
+
+        function closeCharConfirmModal() {
+            document.getElementById('char-confirm-modal').classList.add('hidden');
+            temporarySelectedId = null;
+        }
+
+        function executeCharacterConfirmation() {
+            if (!temporarySelectedId) return;
+            selectedCharacterId = temporarySelectedId;
+
+            const confirmTitle = document.getElementById('char-confirm-title');
+            confirmTitle.innerText = "Aguardando oponente escolher...";
+            confirmTitle.classList.add('animate-pulse');
+            
+            document.getElementById('char-confirm-buttons').classList.add('hidden');
+            document.getElementById('char-waiting-buttons').classList.remove('hidden');
+
+            const current = document.getElementById(`select-card-${selectedCharacterId}`);
+            if (current) current.classList.add('border-amber-400', 'bg-slate-700', 'scale-105');
+
+            if (conn && conn.open) {
+                conn.send({ type: 'SYNC_CHARACTER', id: selectedCharacterId });
+            }
+            saveGameState();
+            
+            const selectTitle = document.getElementById('select-screen-title');
+            selectTitle.innerText = "Aguardando oponente escolher...";
+            selectTitle.classList.add('animate-pulse');
+
+            characters.forEach(char => {
+                const card = document.getElementById(`select-card-${char.id}`);
+                if (char) char.onclick = null;
+            });
+
+            checkBothSelected();
+        }
+
+        function cancelCharacterConfirmation() {
+            selectedCharacterId = null;
+            temporarySelectedId = null;
+            saveGameState();
+            
+            if (conn && conn.open) {
+                conn.send({ type: 'SYNC_CHARACTER', id: null });
+            }
+            
+            document.getElementById('char-confirm-modal').classList.add('hidden');
+            startSelectionStage();
+        }
+
+        function checkBothSelected() {
+            if (selectedCharacterId && opponentCharacterId) {
+                if (screenGame.classList.contains('hidden')) {
+                    buildGameBoard();
+                    restoreFlippedCards();
+                    updateRemainingCount();
+                }
+            }
+        }
+
+        function syncPlacarVisuals(role, charUrl) {
+            const myBgUrl = role === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
+            const prefixos = role === 'red' ? ['p1-'] : ['p2-'];
+            const oponPrefixos = role === 'red' ? ['p2-'] : ['p1-'];
+
+            prefixos.forEach(p => {
+                document.getElementById(`${p}avatar-bg`).style.backgroundImage = `url('${myBgUrl}')`;
+                document.getElementById(`${p}avatar`).src = charUrl;
+                document.getElementById(`${p}avatar`).classList.remove('hidden');
+                document.getElementById(`${p}avatar-placeholder`).classList.add('hidden');
+            });
+
+            // Removido o código que ocultava o placeholder do oponente
+        }
+
+        function updateRemainingCount() {
+            const flippedCount = document.querySelectorAll('#board-grid .card-flipped').length;
+            const remaining = characters.length - flippedCount;
+            
+            const myCountId = myRole === 'red' ? 'count-red' : 'count-blue';
+            const el = document.getElementById(myCountId);
+            if (el) el.innerText = remaining;
+            
+            if (conn && conn.open) {
+                conn.send({ type: 'UPDATE_COUNT', count: remaining });
+            }
+        }
+
+        function buildGameBoard() {
+            document.getElementById('char-confirm-modal').classList.add('hidden');
+            screenLobby.classList.add('hidden'); 
+            screenSelect.classList.add('hidden');
+            document.getElementById('game-scoreboard').classList.remove('hidden');
+            document.getElementById('count-red-box').classList.remove('hidden');
+            document.getElementById('count-blue-box').classList.remove('hidden');
+            screenGame.classList.remove('hidden');
+            isGuessMode = false;
+            updateGuessButtonUI();
+
+            const totalPartidas = score.red + score.blue;
+            if (totalPartidas % 2 === 0) {
+                isMyTurn = (myRole === 'red');
+            } else {
+                isMyTurn = (myRole === 'blue');
+            }
+            updateTurnUI();
+
+            const myChar = characters.find(c => c.id === selectedCharacterId);
+            syncPlacarVisuals(myRole, myChar.url);
+
+            const boardGrid = document.getElementById('board-grid');
+            boardGrid.innerHTML = '';
+
+            const myBgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
+
+            characters.forEach(char => {
+                const card = document.createElement('div');
+                card.id = `board-card-${char.id}`;
+                const highlightBorder = myRole === 'red' ? 'hover:border-red-500' : 'hover:border-blue-500';
+                
+                card.className = `bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer transition-all ${highlightBorder} shadow`;
+                card.onclick = () => handleCardClick(char.id);
+                card.innerHTML = `
+                    <div style="background-image: url('${myBgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden pointer-events-none">
+                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" />
+                    </div>
+                `;
+                boardGrid.appendChild(card);
+            });
+        }
+
+        function handleCardClick(id) {
+            if (isGuessMode) {
+                triggerFinalAccusation(id);
+            } else {
+                document.getElementById(`board-card-${id}`).classList.toggle('card-flipped');
+                saveGameState();
+                updateRemainingCount();
+            }
+        }
+
+        function toggleGuessMode() {
+            isGuessMode = !isGuessMode;
+            updateGuessButtonUI();
+        }
+
+        function updateGuessButtonUI() {
+            const btn = document.getElementById('btn-guess-mode');
+            if (isGuessMode) {
+                btn.className = "w-full bg-amber-500 text-slate-950 font-black py-2.5 rounded-xl text-xs transition animate-pulse shadow-lg shadow-amber-500/20";
+                btn.innerText = "🎯 CLIQUE NO SUSPEITO PARA ACUSAR!";
+            } else {
+                btn.className = "w-full bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition border border-slate-700 shadow shadow-amber-500/10";
+                btn.innerText = "🎯 Dar Palpite Final (Acusar Suspeito)";
+            }
+        }
+
+        function updateTurnUI() {
+            const btnTurn = document.getElementById('btn-turn');
+            if (!conn || !conn.open) return;
+            
+            if (isMyTurn) {
+                btnTurn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 cursor-pointer";
+                btnTurn.innerText = "🟢 SUA VEZ (Finalizar Pergunta e Passar Vez)";
+                btnTurn.disabled = false;
+            } else {
+                btnTurn.className = "w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl text-xs transition border border-slate-700/50 cursor-not-allowed";
+                btnTurn.innerText = "⏳ VEZ DO OPONENTE (Aguarde...)";
+                btnTurn.disabled = true;
+            }
+        }
+
+        function passTurn() {
+            if (!isMyTurn) return;
+            isMyTurn = false;
+            updateTurnUI();
+            if (conn) {
+                conn.send({ type: 'TURN_CHANGED' });
+            }
+        }
+
+        function triggerFinalAccusation(id) {
+            pendingAccusationId = id;
+            const targetChar = characters.find(c => c.id === id);
+            
+            const myBgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
+            document.getElementById('confirm-modal-img-bg').style.backgroundImage = `url('${myBgUrl}')`;
+            document.getElementById('confirm-modal-char-img').src = targetChar.url;
+            
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            pendingAccusationId = null;
+            isGuessMode = false;
+            updateGuessButtonUI();
+        }
+
+        function executeFinalAccusation() {
+            if (!pendingAccusationId) return;
+            const id = pendingAccusationId;
+            document.getElementById('confirm-modal').classList.add('hidden');
+
+            const opponentRole = myRole === 'red' ? 'blue' : 'red';
+            const isCorrect = (id === opponentCharacterId);
+            const winner = isCorrect ? myRole : opponentRole;
+
+            const redChar = myRole === 'red' ? selectedCharacterId : opponentCharacterId;
+            const blueChar = myRole === 'blue' ? selectedCharacterId : opponentCharacterId;
+
+            const gameOverData = {
+                type: 'GAME_OVER',
+                winner: winner,
+                redCharId: redChar,
+                blueCharId: blueChar,
+                guessWasWrong: !isCorrect,
+                wrongGuessCharId: !isCorrect ? id : null,
+                guessedCharId: id,
+                guesser: myRole
+            };
+
+            if (conn && conn.open) {
+                conn.send(gameOverData);
+            }
+
+            applyGameOver(gameOverData);
+            pendingAccusationId = null;
+        }
+
+        function applyGameOver(data, isRestore = false) {
+            const winner = data.winner;
+            const redCharId = data.redCharId;
+            const blueCharId = data.blueCharId;
+            const guessWasWrong = data.guessWasWrong;
+            const wrongGuessCharId = data.wrongGuessCharId;
+            const guessedCharId = data.guessedCharId || (guessWasWrong ? wrongGuessCharId : (data.guesser === 'red' ? blueCharId : redCharId));
+            const guesser = data.guesser;
+
+            if (!isRestore) {
+                if (winner === 'red') score.red++;
+                if (winner === 'blue') score.blue++;
+                
+                updateScoreboardVisual();
+                localStorage.setItem(`cara_game_over_${roomCode}`, JSON.stringify(data));
+                saveGameState();
+            }
+
+            const box = document.getElementById('game-over-box');
+            const title = document.getElementById('game-over-title');
+            const msg = document.getElementById('game-over-msg');
+
+            const amIWinner = (winner === myRole);
+            const playerBgBox = myRole === 'red' ? 'bg-red-950' : 'bg-blue-950';
+
+            if (guessedCharId) {
+                const gChar = characters.find(c => c.id === guessedCharId);
+                const guesserBg = guesser === 'red' ? "url('img/fundovermelho.png')" : "url('img/fundoazul.png')";
+                document.getElementById('game-over-guess-char-bg').style.backgroundImage = guesserBg;
+                document.getElementById('game-over-guess-char-img').src = gChar.url;
+                document.getElementById('game-over-guess-char-container').classList.remove('hidden');
+            } else {
+                document.getElementById('game-over-guess-char-container').classList.add('hidden');
+            }
+
+            if (amIWinner) {
+                title.innerText = "🏆 VITÓRIA!";
+                title.className = "text-2xl font-black tracking-wide text-green-400 animate-bounce";
+                box.className = `${playerBgBox} border-2 border-green-500 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl shadow-green-500/10`;
+                
+                if (guessWasWrong) {
+                    msg.innerText = "Você venceu! O oponente errou o palpite.";
+                } else {
+                    msg.innerText = "Você adivinhou o personagem do adversário!";
+                }
+            } else {
+                title.innerText = "💀 DERROTA";
+                title.className = "text-2xl font-black tracking-wide text-red-500";
+                box.className = `${playerBgBox} border-2 border-red-500 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl shadow-red-500/10`;
+                
+                if (guessWasWrong) {
+                    msg.innerText = "Seu palpite foi errado! Vitória do oponente.";
+                } else {
+                    msg.innerText = "O adversário adivinhou seu personagem!";
+                }
+            }
+
+            const rChar = characters.find(c => c.id === redCharId);
+            const bChar = characters.find(c => c.id === blueCharId);
+
+            document.getElementById('modal-p1-avatar-bg').style.backgroundImage = "url('img/fundovermelho.png')";
+            document.getElementById('modal-p1-avatar').src = rChar.url;
+            document.getElementById('modal-p1-avatar').classList.remove('hidden');
+            document.getElementById('modal-p1-avatar-placeholder').classList.add('hidden');
+
+            document.getElementById('modal-p2-avatar-bg').style.backgroundImage = "url('img/fundoazul.png')";
+            document.getElementById('modal-p2-avatar').src = bChar.url;
+            document.getElementById('modal-p2-avatar').classList.remove('hidden');
+            document.getElementById('modal-p2-avatar-placeholder').classList.add('hidden');
+
+            const labelP1 = document.getElementById('label-p1');
+            const labelP2 = document.getElementById('label-p2');
+            if (myRole === 'red') {
+                labelP1.innerText = "Você";
+                labelP1.className = "text-[11px] font-black mt-1 uppercase tracking-wider text-red-400";
+                labelP2.innerText = "Oponente";
+                labelP2.className = "text-[11px] font-black mt-1 uppercase tracking-wider text-blue-400";
+            } else {
+                labelP1.innerText = "Oponente";
+                labelP1.className = "text-[11px] font-black mt-1 uppercase tracking-wider text-red-400";
+                labelP2.innerText = "Você";
+                labelP2.className = "text-[11px] font-black mt-1 uppercase tracking-wider text-blue-400";
+            }
+
+            localPlayerReadyForNext = false;
+            opponentReadyForNext = false;
+            
+            const btnNext = document.getElementById('btn-next-game');
+            btnNext.disabled = false;
+            btnNext.className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm cursor-pointer";
+            document.getElementById('waiting-opponent-next').classList.add('hidden');
+            document.getElementById('opponent-requested-rematch').classList.add('hidden');
+
+            document.getElementById('game-over-screen').classList.remove('hidden');
+        }
+
+        function requestNewGame() {
+            localPlayerReadyForNext = true;
+            conn.send({ type: 'NEXT_GAME_READY' });
+
+            const btnNext = document.getElementById('btn-next-game');
+            btnNext.disabled = true;
+            btnNext.className = "w-full bg-slate-800 text-slate-500 font-bold py-3 rounded-xl text-sm cursor-not-allowed";
+            document.getElementById('waiting-opponent-next').classList.remove('hidden');
+
+            checkNextGameTransition();
+        }
+
+        function checkNextGameTransition() {
+            if (localPlayerReadyForNext && opponentReadyForNext) {
+                selectedCharacterId = null;
+                opponentCharacterId = null;
+                temporarySelectedId = null;
+                
+                document.getElementById('board-grid').innerHTML = '';
+                
+                localStorage.removeItem(`cara_my_char_${roomCode}`);
+                localStorage.removeItem(`cara_opp_char_${roomCode}`);
+                localStorage.removeItem(`cara_flipped_${roomCode}`);
+                localStorage.removeItem(`cara_game_over_${roomCode}`);
+                
+                document.getElementById('opponent-requested-rematch').classList.add('hidden');
+                startSelectionStage();
+            }
+        }
     </script>
 </body>
 </html>
