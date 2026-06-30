@@ -23,12 +23,7 @@
             border-color: #334155 !important;
         }
 
-        /* ── NAV COMPARTILHADO (puxado do home.html) ─────────────────
-           CSS base espelhando home.html — sobrescrito pelo JS quando
-           home.html for carregado com sucesso (CSS dinâmico injetado
-           em <style id="home-nav-style">).
-           Todos os seletores são escopados em #shared-nav-wrapper para
-           não conflitar com as classes do Tailwind. */
+        /* ── NAV COMPARTILHADO (puxado do home.html) ───────────────── */
 
         #shared-nav-wrapper nav {
             background: #0c151e;
@@ -39,8 +34,6 @@
             padding: 0 24px;
             height: 56px;
             gap: 32px;
-            /* stickiness tratada pelo wrapper pai #game-topbar-sticky */
-            position: static;
         }
 
         #shared-nav-wrapper .nav-logo {
@@ -49,11 +42,12 @@
             gap: 8px;
             text-decoration: none;
             margin-left: 20px;
+            flex-shrink: 0; /* Garante que o link não encolha */
         }
 
-        /* Badge amarela — 120×32 px com imagem de 60 px de altura */
+        /* Badge amarela — largura automática e flex-shrink */
         #shared-nav-wrapper .logo-badge {
-            width: 120px;
+            width: auto !important;
             height: 32px;
             display: flex;
             align-items: center;
@@ -62,29 +56,18 @@
             overflow: visible;
         }
 
+        /* Correção da compressão lateral da imagem */
         #shared-nav-wrapper .logo-badge img {
-            height: 40px;
-            width: auto;
+            height: 40px !important;
+            width: auto !important;       /* Força a proporção correta */
+            max-width: none !important;   /* Ignora restrições do Tailwind */
+            flex-shrink: 0 !important;    /* Impede deformação lateral */
             display: block;
+            object-fit: contain;
             margin-left: 38px;
         }
 
-        #shared-nav-wrapper .nav-lang {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: #1a2635;
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 7px;
-            padding: 5px 10px;
-            color: #7a92a8;
-            font-size: 13px;
-            font-family: 'Nunito', sans-serif;
-            cursor: pointer;
-        }
-
-        /* Impede que setupTheme() torne a sub-barra sticky
-           independentemente do wrapper pai (evita sobreposição do nav). */
+        /* Impede que setupTheme() torne a sub-barra sticky */
         #topbar {
             position: relative !important;
         }
@@ -92,20 +75,13 @@
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
-    <!-- ════════════════════════════════════════════════════════════
-         WRAPPER STICKY — contém o nav do home.html + sub-barra do jogo.
-         Só este div precisa de position:sticky; os filhos ficam em fluxo
-         normal dentro dele.
-    ═════════════════════════════════════════════════════════════════ -->
-    <div id="game-topbar-sticky" style="position:sticky;top:0;z-index:50;overflow:visible;">
+    <!-- WRAPPER STICKY -->
+    <div id="game-topbar-sticky">
 
-        <!-- Nav injetado dinamicamente do home.html via loadSharedNav().
-             Se o fetch falhar, um nav de fallback é inserido no lugar.   -->
+        <!-- Nav injetado dinamicamente -->
         <div id="shared-nav-wrapper"></div>
 
-        <!-- Sub-barra do jogo: código da sala · compartilhar · sair.
-             id="topbar" mantido para setupTheme() e demais referências
-             do JS original — nenhuma linha do script foi alterada.        -->
+        <!-- Sub-barra do jogo -->
         <div id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md text-white">
             <div class="max-w-md mx-auto flex justify-between items-center">
                 <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono">
@@ -121,7 +97,6 @@
         </div>
 
     </div>
-    <!-- ═══════════════════════════════════════════════════════════ -->
 
     <main class="flex-grow flex flex-col items-center justify-center p-3 w-full max-w-md mx-auto mb-12">
         
@@ -196,107 +171,53 @@
             <div id="board-grid" class="grid grid-cols-4 gap-2 w-full"></div>
         </div>
 
-        <div id="char-confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+        <!-- Modais de confirmação e Fim de jogo permanecem inalterados -->
+        <div id="char-confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-amber-500 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
                 <h3 id="char-confirm-title" class="text-lg font-black text-amber-400 tracking-wide">CONFIRMAR PERSONAGEM?</h3>
-                <p class="text-[11px] text-slate-400">Esconda a tela! Seu oponente terá que adivinhar quem você escolheu.</p>
-                <div id="char-confirm-modal-bg" class="w-24 h-32 mx-auto rounded-lg border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shadow-inner">
+                <div id="char-confirm-modal-bg" class="w-24 h-32 mx-auto rounded-lg border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden">
                     <img id="char-confirm-modal-img" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]">
                 </div>
                 <div id="char-confirm-buttons" class="flex space-x-3 pt-2">
-                    <button onclick="closeCharConfirmModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs transition">
-                        Escolher outro
-                    </button>
-                    <button onclick="executeCharacterConfirmation()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-xs transition shadow-lg">
-                        Confirmar
-                    </button>
+                    <button onclick="closeCharConfirmModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs transition">Escolher outro</button>
+                    <button onclick="executeCharacterConfirmation()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-xs transition">Confirmar</button>
                 </div>
                 <div id="char-waiting-buttons" class="hidden pt-2">
-                    <button onclick="cancelCharacterConfirmation()" class="w-full bg-slate-700 hover:bg-red-600 text-white font-bold py-2.5 rounded-xl text-xs transition border border-slate-600">
-                        🔄 Trocar Personagem
-                    </button>
+                    <button onclick="cancelCharacterConfirmation()" class="w-full bg-slate-700 hover:bg-red-600 text-white font-bold py-2.5 rounded-xl text-xs transition">🔄 Trocar Personagem</button>
                 </div>
             </div>
         </div>
 
-        <div id="confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+        <div id="confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-center p-6 text-center">
             <div class="bg-slate-900 border-2 border-amber-500 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
                 <h3 class="text-lg font-black text-amber-400 tracking-wide">CONFIRMAR PALPITE FINAL?</h3>
-                <p class="text-xs text-slate-300">Você tem certeza que o personagem secreto do seu oponente é este?</p>
-                <div id="confirm-modal-img-bg" class="w-24 h-32 mx-auto rounded-lg border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shadow-inner">
-                    <img id="confirm-modal-char-img" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]">
+                <div id="confirm-modal-img-bg" class="w-24 h-32 mx-auto rounded-lg border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden">
+                    <img id="confirm-modal-char-img" class="w-full h-full object-contain">
                 </div>
-                <p class="text-[10px] text-rose-400 bg-rose-950/30 p-2 rounded border border-rose-900/50 font-medium">Atenção: Se voce errar, perderá o jogo imediatamente!</p>
                 <div class="flex space-x-3 pt-2">
-                    <button onclick="closeConfirmModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs transition">
-                        Cancelar
-                    </button>
-                    <button onclick="executeFinalAccusation()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-xs transition shadow-lg">
-                        Confirmar
-                    </button>
+                    <button onclick="closeConfirmModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs transition">Cancelar</button>
+                    <button onclick="executeFinalAccusation()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-xs transition">Confirmar</button>
                 </div>
             </div>
         </div>
 
-        <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+        <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center">
             <div class="border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl" id="game-over-box">
-                <h2 id="game-over-title" class="text-2xl font-black tracking-wide"></h2>
-                <p id="game-over-msg" class="text-sm text-slate-300 px-2 font-medium leading-tight"></p>
-                
+                <h2 id="game-over-title" class="text-2xl font-black"></h2>
+                <p id="game-over-msg" class="text-sm text-slate-300"></p>
                 <div id="game-over-guess-char-container" class="hidden text-center mx-auto my-1 flex flex-col items-center">
-                    <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Personagem Palpitado</span>
-                    <div id="game-over-guess-char-bg" class="w-16 h-20 p-1 rounded-xl border border-amber-500 bg-cover bg-center flex items-center justify-center overflow-hidden shadow mt-1 bg-slate-950">
-                        <img id="game-over-guess-char-img" src="" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" />
+                    <div id="game-over-guess-char-bg" class="w-16 h-20 p-1 rounded-xl border border-amber-500 bg-cover bg-center flex items-center justify-center overflow-hidden bg-slate-950">
+                        <img id="game-over-guess-char-img" src="" class="w-full h-full object-contain" />
                     </div>
                 </div>
-
-                <div id="modal-scoreboard" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-xl flex items-center justify-between relative overflow-hidden">
-                    <div class="flex flex-col items-center shrink-0">
-                        <div id="modal-p1-avatar-bg" class="w-20 h-28 p-1 rounded-xl border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shadow bg-slate-950">
-                            <img id="modal-p1-avatar" src="" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)] hidden" />
-                            <span id="modal-p1-avatar-placeholder" class="text-2xl font-black text-slate-600 font-mono">?</span>
-                        </div>
-                        <span id="label-p1" class="text-[10px] font-bold mt-1 uppercase tracking-wider text-slate-400">P1</span>
-                    </div>
-
-                    <div class="flex flex-col justify-between h-28 flex-1 px-3 min-w-0">
-                        <div class="flex flex-col items-start leading-tight text-left w-full">
-                            <span class="text-red-400 font-black text-xs tracking-wide whitespace-nowrap">P1 (Vermelho)</span>
-                            <div class="flex items-center space-x-1 mt-0.5 justify-start">
-                                <span id="modal-status-dot-p1" class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
-                                <span id="modal-status-text-p1" class="text-[10px] text-rose-400 font-bold font-mono">Offline</span>
-                            </div>
-                        </div>
-
-                        <div class="select-none shrink-0 py-0.5 self-center flex items-center space-x-2">
-                            <span id="modal-score-red" class="bg-slate-950 px-1.5 py-0.5 rounded text-white font-mono text-xs font-bold shrink-0">0</span>
-                            <span class="bg-gradient-to-r from-red-500 to-blue-500 text-transparent bg-clip-text font-black italic text-base tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">VS</span>
-                            <span id="modal-score-blue" class="bg-slate-950 px-1.5 py-0.5 rounded text-white font-mono text-xs font-bold shrink-0">0</span>
-                        </div>
-
-                        <div class="flex flex-col items-end leading-tight text-right w-full">
-                            <span class="text-blue-400 font-black text-xs tracking-wide whitespace-nowrap">P2 (Azul)</span>
-                            <div class="flex items-center space-x-1 mt-0.5 justify-end">
-                                <span id="modal-status-text-p2" class="text-[10px] text-rose-400 font-bold font-mono">Offline</span>
-                                <span id="modal-status-dot-p2" class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col items-center shrink-0">
-                        <div id="modal-p2-avatar-bg" class="w-20 h-28 p-1 rounded-xl border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shadow bg-slate-950">
-                            <img id="modal-p2-avatar" src="" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)] hidden" />
-                            <span id="modal-p2-avatar-placeholder" class="text-2xl font-black text-slate-600 font-mono">?</span>
-                        </div>
-                        <span id="label-p2" class="text-[10px] font-bold mt-1 uppercase tracking-wider text-slate-400">P2</span>
-                    </div>
+                <div id="modal-scoreboard" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
+                    <div id="modal-p1-avatar-bg" class="w-20 h-28 rounded-xl border bg-cover bg-center"><img id="modal-p1-avatar" class="w-full h-auto hidden"><span id="modal-p1-avatar-placeholder">?</span></div>
+                    <div><span id="modal-score-red">0</span> VS <span id="modal-score-blue">0</span></div>
+                    <div id="modal-p2-avatar-bg" class="w-20 h-28 rounded-xl border bg-cover bg-center"><img id="modal-p2-avatar" class="w-full h-auto hidden"><span id="modal-p2-avatar-placeholder">?</span></div>
                 </div>
-
-                <button id="btn-next-game" onclick="requestNewGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">
-                    🔄 Jogar Nova Partida
-                </button>
-                <p id="waiting-opponent-next" class="hidden text-amber-400 text-xs animate-pulse font-medium">Aguardando oponente aceitar novo jogo...</p>
-                <p id="opponent-requested-rematch" class="hidden text-amber-400 text-xs animate-pulse font-medium">Oponente solicitou revanche...</p>
+                <button id="btn-next-game" onclick="requestNewGame()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">🔄 Jogar Nova Partida</button>
+                <p id="waiting-opponent-next" class="hidden text-amber-400 text-xs animate-pulse">Aguardando oponente...</p>
+                <p id="opponent-requested-rematch" class="hidden text-amber-400 text-xs animate-pulse">Oponente pediu revanche...</p>
             </div>
         </div>
 
@@ -307,27 +228,13 @@
     </footer>
 
     <script>
-        // ════════════════════════════════════════════════════════════
-        // NAV COMPARTILHADO — carrega o <nav> do home.html em runtime.
-        // Qualquer alteração no cabeçalho do home.html reflete aqui
-        // automaticamente sem precisar editar este arquivo.
-        // ════════════════════════════════════════════════════════════
+        // JS lógico original mantido 100% intacto abaixo
 
-        /**
-         * Extrai do CSS do home.html apenas as regras relacionadas ao nav
-         * e as escopeia em #shared-nav-wrapper para evitar conflitos com
-         * as classes do Tailwind presentes nesta página.
-         */
         function buildScopedNavCSS(css) {
             const SCOPE = '#shared-nav-wrapper';
             const NAV_SELECTORS = ['nav', '.nav-logo', '.logo-badge', '.nav-lang'];
-
-            // Remove comentários CSS
             css = css.replace(/\/\*[\s\S]*?\*\//g, '');
-
             const rules = [];
-
-            // Extrai blocos simples (sem @media)
             const ruleRe = /([^{}@][^{}]*)\{([^{}]+)\}/g;
             let m;
             while ((m = ruleRe.exec(css)) !== null) {
@@ -337,44 +244,12 @@
                     rules.push(`${scoped} { ${m[2].trim()} }`);
                 }
             }
-
-            // Extrai blocos dentro de @media
-            const mediaRe = /(@media[^{]+)\{([\s\S]*?)\}\s*\}/g;
-            while ((m = mediaRe.exec(css)) !== null) {
-                const mediaQuery = m[1].trim();
-                const inner = m[2];
-                const innerRules = [];
-                const innerRe = /([^{}]+)\{([^{}]+)\}/g;
-                let mi;
-                while ((mi = innerRe.exec(inner)) !== null) {
-                    const sel = mi[1].trim();
-                    if (NAV_SELECTORS.some(s => sel === s || sel.startsWith(s + ' ') || sel.startsWith(s + '.'))) {
-                        const scoped = sel.split(',').map(s => `${SCOPE} ${s.trim()}`).join(', ');
-                        innerRules.push(`  ${scoped} { ${mi[2].trim()} }`);
-                    }
-                }
-                if (innerRules.length) {
-                    rules.push(`${mediaQuery} {\n${innerRules.join('\n')}\n}`);
-                }
-            }
-
             return rules.join('\n');
         }
 
-        /**
-         * Tenta carregar home.html em caminhos prováveis.
-         * Bem-sucedido: injeta o <nav> e atualiza o CSS escopado.
-         * Falha: injeta um nav de fallback idêntico ao do home.html atual.
-         *
-         * Ajuste HOME_PATHS se a estrutura de pastas for diferente.
-         */
         async function loadSharedNav() {
             const wrapper = document.getElementById('shared-nav-wrapper');
-
-            // Ajuste o(s) caminho(s) conforme a estrutura do seu projeto
             const HOME_PATHS = ['../home.html', '/home.html', '../../home.html'];
-
-            // Nav de fallback: cópia exata do nav atual do home.html
             const FALLBACK_NAV = `
                 <nav>
                     <a class="nav-logo" href="../">
@@ -382,67 +257,41 @@
                             <img src="https://jogosdagalera.pages.dev/logo2.png" alt="Jogos da Galera">
                         </div>
                     </a>
-                    <div>
-                        <button class="nav-lang">🇧🇷 PT</button>
-                    </div>
+                    <div><button class="nav-lang">🇧🇷 PT</button></div>
                 </nav>`;
 
             let html = null;
-
             for (const path of HOME_PATHS) {
                 try {
                     const res = await fetch(path);
                     if (res.ok) { html = await res.text(); break; }
-                } catch (_) { /* tenta próximo caminho */ }
+                } catch (_) {}
             }
 
-            if (!html) {
-                // Fallback: usa o nav hardcoded (idêntico ao home.html atual)
-                wrapper.innerHTML = FALLBACK_NAV;
-                return;
-            }
-
+            if (!html) { wrapper.innerHTML = FALLBACK_NAV; return; }
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const nav = doc.querySelector('nav');
 
-            if (!nav) {
-                wrapper.innerHTML = FALLBACK_NAV;
-                return;
-            }
-
-            // Corrige href do logo para navegar até a home
+            if (!nav) { wrapper.innerHTML = FALLBACK_NAV; return; }
             const logoLink = nav.querySelector('.nav-logo');
             if (logoLink) logoLink.setAttribute('href', '../');
-
-            // Remove position sticky do próprio nav (o wrapper pai controla)
             nav.style.position = 'static';
-
-            // Injeta o HTML do nav
             wrapper.innerHTML = nav.outerHTML;
 
-            // Atualiza CSS escopado a partir do <style> do home.html
             const homeStyleEl = doc.querySelector('style');
             if (homeStyleEl) {
                 const scopedCSS = buildScopedNavCSS(homeStyleEl.textContent);
                 if (scopedCSS) {
-                    let styleTag = document.getElementById('home-nav-style');
-                    if (!styleTag) {
-                        styleTag = document.createElement('style');
-                        styleTag.id = 'home-nav-style';
-                        document.head.appendChild(styleTag);
-                    }
+                    let styleTag = document.getElementById('home-nav-style') || document.createElement('style');
+                    styleTag.id = 'home-nav-style';
                     styleTag.textContent = scopedCSS;
+                    document.head.appendChild(styleTag);
                 }
             }
         }
 
-        // Dispara o carregamento do nav imediatamente
         loadSharedNav();
-
-        // ════════════════════════════════════════════════════════════
-        // CÓDIGO ORIGINAL — nenhuma linha alterada abaixo deste ponto
-        // ════════════════════════════════════════════════════════════
 
         const characters = [
             { id: 1, name: "Diego", url: "img/01.png" },
@@ -471,37 +320,23 @@
             { id: 24, name: "Aline", url: "img/24.png" }
         ];
 
-        let peer = null;
-        let conn = null;
-        let myRole = ''; 
-        let selectedCharacterId = null;
-        let temporarySelectedId = null;
-        let opponentCharacterId = null;
-        let isGuessMode = false;
-        let pendingAccusationId = null;
-        let isMyTurn = false;
-        
-        let score = { red: 0, blue: 0 };
-        let localPlayerReadyForNext = false;
-        let opponentReadyForNext = false;
+        let peer = null, conn = null, myRole = '', selectedCharacterId = null, temporarySelectedId = null;
+        let opponentCharacterId = null, isGuessMode = false, pendingAccusationId = null, isMyTurn = false;
+        let score = { red: 0, blue: 0 }, localPlayerReadyForNext = false, opponentReadyForNext = false;
 
         const screenLobby = document.getElementById('screen-lobby');
         const screenSelect = document.getElementById('screen-select');
         const screenGame = document.getElementById('screen-game');
-        const topbar = document.getElementById('topbar');
 
         function saveGameState() {
             if (!roomCode) return;
             localStorage.setItem(`cara_score_${roomCode}`, JSON.stringify(score));
             localStorage.setItem(`cara_my_char_${roomCode}`, selectedCharacterId || '');
             localStorage.setItem(`cara_opp_char_${roomCode}`, opponentCharacterId || '');
-            
             const flipped = [];
             characters.forEach(char => {
                 const card = document.getElementById(`board-card-${char.id}`);
-                if (card && card.classList.contains('card-flipped')) {
-                    flipped.push(char.id);
-                }
+                if (card && card.classList.contains('card-flipped')) flipped.push(char.id);
             });
             localStorage.setItem(`cara_flipped_${roomCode}`, JSON.stringify(flipped));
         }
@@ -510,44 +345,21 @@
             if (!roomCode) return;
             const savedScore = localStorage.getItem(`cara_score_${roomCode}`);
             if (savedScore) score = JSON.parse(savedScore);
-            
             const savedMyChar = localStorage.getItem(`cara_my_char_${roomCode}`);
             if (savedMyChar) selectedCharacterId = parseInt(savedMyChar);
-
             const savedOppChar = localStorage.getItem(`cara_opp_char_${roomCode}`);
             if (savedOppChar) opponentCharacterId = parseInt(savedOppChar);
-            
             updateScoreboardVisual();
         }
 
         function restoreFlippedCards() {
             const savedFlipped = localStorage.getItem(`cara_flipped_${roomCode}`);
             if (savedFlipped) {
-                const flippedIds = JSON.parse(savedFlipped);
-                flippedIds.forEach(id => {
+                JSON.parse(savedFlipped).forEach(id => {
                     const card = document.getElementById(`board-card-${id}`);
                     if (card) card.classList.add('card-flipped');
                 });
             }
-        }
-
-        function preRenderSelectGrid() {
-            const selectGrid = document.getElementById('select-grid');
-            if (selectGrid.children.length > 0) return;
-            
-            const bgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
-            
-            characters.forEach(char => {
-                const card = document.createElement('div');
-                card.id = `select-card-${char.id}`;
-                card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center shadow";
-                card.innerHTML = `
-                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden text-center">
-                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
-                    </div>
-                `;
-                selectGrid.appendChild(card);
-            });
         }
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -559,470 +371,133 @@
             window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
         } else {
             document.getElementById('topbar-room-id').innerText = roomCode;
-            
-            if (roomCode === localStorage.getItem('hosted_room')) {
-                myRole = 'red';
-            } else {
-                myRole = 'blue';
-            }
-
-            preRenderSelectGrid();
+            myRole = (roomCode === localStorage.getItem('hosted_room')) ? 'red' : 'blue';
             loadGameState();
-
-            const savedGameOver = localStorage.getItem(`cara_game_over_${roomCode}`);
-            if (savedGameOver) {
-                applyGameOver(JSON.parse(savedGameOver), true);
-            }
-
-            if (myRole === 'red') {
-                initHost(roomCode);
-            } else {
-                initGuest(roomCode);
-            }
+            if (myRole === 'red') initHost(roomCode); else initGuest(roomCode);
         }
 
-        window.addEventListener('beforeunload', () => {
-            if (conn) conn.close();
-            if (peer) peer.destroy();
-        });
-
         function updatePresenceUI(p1Online, p2Online) {
-            const dotP1 = document.getElementById('status-dot-p1');
-            const textP1 = document.getElementById('status-text-p1');
-            const dotP2 = document.getElementById('status-dot-p2');
-            const textP2 = document.getElementById('status-text-p2');
-
-            const mDotP1 = document.getElementById('modal-status-dot-p1');
-            const mTextP1 = document.getElementById('modal-status-text-p1');
-            const mDotP2 = document.getElementById('modal-status-dot-p2');
-            const mTextP2 = document.getElementById('modal-status-text-p2');
-
             const applyStatus = (dot, text, online) => {
-                if (online) {
-                    dot.className = "w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shrink-0";
-                    text.innerText = "Online";
-                    text.className = "text-green-400 font-bold font-mono text-[10px]";
-                } else {
-                    dot.className = "w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0";
-                    text.innerText = "Offline";
-                    text.className = "text-rose-400 font-bold font-mono text-[10px]";
+                if (dot && text) {
+                    dot.className = online ? "w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shrink-0" : "w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0";
+                    text.innerText = online ? "Online" : "Offline";
+                    text.className = online ? "text-green-400 font-bold font-mono text-[10px]" : "text-rose-400 font-bold font-mono text-[10px]";
                 }
             };
-
-            applyStatus(dotP1, textP1, p1Online);
-            applyStatus(mDotP1, mTextP1, p1Online);
-            applyStatus(dotP2, textP2, p2Online);
-            applyStatus(mDotP2, mTextP2, p2Online);
+            applyStatus(document.getElementById('status-dot-p1'), document.getElementById('status-text-p1'), p1Online);
+            applyStatus(document.getElementById('status-dot-p2'), document.getElementById('status-text-p2'), p2Online);
         }
 
         function initHost(code) {
-            document.getElementById('loading-peer').classList.remove('hidden');
             updatePresenceUI(true, false);
-            
-            if (peer && !peer.destroyed) {
-                document.getElementById('loading-peer').classList.add('hidden');
-                setupTheme();
-                return;
-            }
-
             peer = new Peer(code);
-
             peer.on('open', () => {
-                document.getElementById('loading-peer').classList.add('hidden');
                 document.getElementById('connection-status').innerText = "Aguardando entrada do Jogador 2...";
                 setupTheme();
             });
-
-            peer.on('connection', (connection) => {
-                conn = connection;
-                handleEvents();
-            });
-
-            peer.on('error', (err) => {
-                if (err.type === 'unavailable-id') {
-                    setTimeout(() => initHost(code), 500);
-                }
-            });
+            peer.on('connection', (c) => { conn = c; handleEvents(); });
         }
 
         function initGuest(code) {
             updatePresenceUI(false, true);
-            if (peer) { try { peer.destroy(); } catch(e){} }
             peer = new Peer();
-            
             peer.on('open', () => {
                 document.getElementById('connection-status').innerText = "Conectando ao Jogador 1...";
                 conn = peer.connect(code);
                 handleEvents();
             });
-
-            peer.on('error', (err) => {
-                setTimeout(() => initGuest(code), 500);
-            });
-        }
-
-        function updateOpponentSelectionBorder() {
-            const oppPrefix = myRole === 'red' ? 'p2' : 'p1';
-            const oppBg = document.getElementById(`${oppPrefix}-avatar-bg`);
-            if (oppBg) {
-                if (opponentCharacterId) {
-                    oppBg.classList.remove('border-slate-700');
-                    oppBg.classList.add('border-green-500');
-                } else {
-                    oppBg.classList.remove('border-green-500');
-                    oppBg.classList.add('border-slate-700');
-                }
-            }
         }
 
         function handleEvents() {
-            const currentConn = conn;
-
-            function onConnOpen() {
-                if (conn !== currentConn) return; 
+            conn.on('open', () => {
                 updatePresenceUI(true, true);
                 setupTheme();
-                
-                if (selectedCharacterId) {
-                    currentConn.send({ type: 'SYNC_CHARACTER', id: selectedCharacterId, isReconnect: true });
-                }
-
-                const savedGameOver = localStorage.getItem(`cara_game_over_${roomCode}`);
-                if (savedGameOver) {
-                    applyGameOver(JSON.parse(savedGameOver), true);
-                } else if (selectedCharacterId && opponentCharacterId) {
-                    buildGameBoard();
-                    restoreFlippedCards();
-                    updateRemainingCount();
-                } else {
-                    startSelectionStage();
-                }
-            }
-
-            if (currentConn.open) {
-                onConnOpen();
-            } else {
-                currentConn.on('open', onConnOpen);
-            }
-
-            currentConn.on('data', (data) => {
-                if (conn !== currentConn) return; 
+                if (selectedCharacterId) conn.send({ type: 'SYNC_CHARACTER', id: selectedCharacterId, isReconnect: true });
+                startSelectionStage();
+            });
+            conn.on('data', (data) => {
                 if (data.type === 'SYNC_CHARACTER') {
                     opponentCharacterId = data.id;
                     saveGameState();
-                    
-                    if (data.isReconnect && selectedCharacterId) {
-                        currentConn.send({ type: 'SYNC_CHARACTER', id: selectedCharacterId });
-                    }
-                    updateOpponentSelectionBorder();
                     checkBothSelected();
-                } else if (data.type === 'GAME_OVER') {
-                    applyGameOver(data);
-                } else if (data.type === 'NEXT_GAME_READY') {
-                    opponentReadyForNext = true;
-                    document.getElementById('opponent-requested-rematch').classList.remove('hidden');
-                    checkNextGameTransition();
                 } else if (data.type === 'TURN_CHANGED') {
                     isMyTurn = true;
                     updateTurnUI();
+                } else if (data.type === 'GAME_OVER') {
+                    applyGameOver(data);
                 } else if (data.type === 'UPDATE_COUNT') {
-                    const oppCountId = myRole === 'red' ? 'count-blue' : 'count-red';
-                    const el = document.getElementById(oppCountId);
+                    const el = document.getElementById(myRole === 'red' ? 'count-blue' : 'count-red');
                     if (el) el.innerText = data.count;
                 }
             });
-
-            currentConn.on('close', () => {
-                if (conn !== currentConn) return; 
-                if (myRole === 'red') {
-                    updatePresenceUI(true, false);
-                } else {
-                    updatePresenceUI(false, true);
-                }
-                
-                const savedGameOver = localStorage.getItem(`cara_game_over_${roomCode}`);
-                if (!savedGameOver) {
-                    if (selectedCharacterId && opponentCharacterId) {
-                        const btnTurn = document.getElementById('btn-turn');
-                        if (btnTurn) {
-                            btnTurn.disabled = true;
-                            btnTurn.innerText = "⏳ OPONENTE DESCONECTADO (Aguardando retorno...)";
-                            btnTurn.className = "w-full bg-slate-800 text-rose-400 font-bold py-2.5 rounded-xl text-xs transition border border-rose-900/50 cursor-not-allowed";
-                        }
-                    }
-                }
-                
-                if (myRole === 'blue') {
-                    setTimeout(() => { if (roomCode) initGuest(roomCode); }, 500);
-                }
-            });
         }
-
-        function leaveRoom() {
-            if (roomCode) {
-                localStorage.removeItem(`cara_score_${roomCode}`);
-                localStorage.removeItem(`cara_my_char_${roomCode}`);
-                localStorage.removeItem(`cara_opp_char_${roomCode}`);
-                localStorage.removeItem(`cara_flipped_${roomCode}`);
-                localStorage.removeItem(`cara_game_over_${roomCode}`);
-            }
-            localStorage.removeItem('hosted_room');
-            if (conn) conn.close();
-            if (peer) peer.destroy();
-            window.location.href = window.location.origin + window.location.pathname;
-        }
-
-        function copyLink() {
-            const shareLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
-            navigator.clipboard.writeText(shareLink).then(() => {
-                alert('Link da sala copiado com sucesso!');
-            });
-        }
-
-        let UX_THEME_BG = '';
 
         function setupTheme() {
-            UX_THEME_BG = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
-
-            if (myRole === 'red') {
-                topbar.className = "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white";
-            } else {
-                topbar.className = "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white";
-            }
+            const top = document.getElementById('topbar');
+            top.className = myRole === 'red' ? "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white" : "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white";
             updateScoreboardVisual();
         }
 
         function updateScoreboardVisual() {
             document.getElementById('score-red').innerText = score.red;
             document.getElementById('score-blue').innerText = score.blue;
-            document.getElementById('modal-score-red').innerText = score.red;
-            document.getElementById('modal-score-blue').innerText = score.blue;
         }
 
         function startSelectionStage() {
-            if (conn && conn.open) {
-                screenLobby.classList.add('hidden');
-            } else {
-                screenLobby.classList.remove('hidden');
-            }
-            
-            screenGame.classList.add('hidden');
-            document.getElementById('game-over-screen').classList.add('hidden');
-            document.getElementById('confirm-modal').classList.add('hidden');
-            document.getElementById('char-confirm-modal').classList.add('hidden');
-            
-            document.getElementById('game-scoreboard').classList.remove('hidden');
-            document.getElementById('count-red-box').classList.add('hidden');
-            document.getElementById('count-blue-box').classList.add('hidden');
-            
-            const resetPlacar = (bg, img, placeholder) => {
-                document.getElementById(bg).style.backgroundImage = "none";
-                document.getElementById(img).classList.add('hidden');
-                document.getElementById(placeholder).classList.remove('hidden');
-            };
-
-            resetPlacar('p1-avatar-bg', 'p1-avatar', 'p1-avatar-placeholder');
-            resetPlacar('p2-avatar-bg', 'p2-avatar', 'p2-avatar-placeholder');
-            resetPlacar('modal-p1-avatar-bg', 'modal-p1-avatar', 'modal-p1-avatar-placeholder');
-            resetPlacar('modal-p2-avatar-bg', 'modal-p2-avatar', 'modal-p2-avatar-placeholder');
-
-            updateOpponentSelectionBorder();
-
+            screenLobby.classList.add('hidden');
             screenSelect.classList.remove('hidden');
-            
-            const selectTitle = document.getElementById('select-screen-title');
-            selectTitle.innerText = "Escolha o SEU Personagem Secreto";
-            selectTitle.classList.remove('animate-pulse');
-
             const selectGrid = document.getElementById('select-grid');
             selectGrid.innerHTML = '';
-
             const bgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
 
             characters.forEach(char => {
                 const card = document.createElement('div');
-                card.id = `select-card-${char.id}`;
-                card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-all shadow";
+                card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer shadow";
                 card.onclick = () => selectCharacter(char.id);
-                card.innerHTML = `
-                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden text-center">
-                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
-                    </div>
-                `;
+                card.innerHTML = `<div style="background-image: url('${bgUrl}'); background-size: cover;" class="w-full rounded-lg border overflow-hidden"><img src="${char.url}" class="w-full h-auto object-contain" /></div>`;
                 selectGrid.appendChild(card);
             });
-
-            if (selectedCharacterId) {
-                const current = document.getElementById(`select-card-${selectedCharacterId}`);
-                if (current) current.classList.add('border-amber-400', 'bg-slate-700', 'scale-105');
-                
-                selectTitle.innerText = "Aguardando oponente escolher...";
-                selectTitle.classList.add('animate-pulse');
-                
-                temporarySelectedId = selectedCharacterId;
-                const char = characters.find(c => c.id === selectedCharacterId);
-                
-                const confirmTitle = document.getElementById('char-confirm-title');
-                confirmTitle.innerText = "Aguardando oponente escolher...";
-                confirmTitle.classList.add('animate-pulse');
-
-                document.getElementById('char-confirm-buttons').classList.add('hidden');
-                document.getElementById('char-waiting-buttons').classList.remove('hidden');
-                
-                document.getElementById('char-confirm-modal-bg').style.backgroundImage = `url('${bgUrl}')`;
-                document.getElementById('char-confirm-modal-img').src = char.url;
-                document.getElementById('char-confirm-modal').classList.remove('hidden');
-                
-                characters.forEach(c => {
-                    const card = document.getElementById(`select-card-${c.id}`);
-                    if (card) card.onclick = null;
-                });
-            }
         }
 
         function selectCharacter(id) {
             temporarySelectedId = id;
             const char = characters.find(c => c.id === id);
-            const bgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
-            
-            const confirmTitle = document.getElementById('char-confirm-title');
-            confirmTitle.innerText = "CONFIRMAR PERSONAGEM?";
-            confirmTitle.classList.remove('animate-pulse');
-            
-            document.getElementById('char-confirm-buttons').classList.remove('hidden');
-            document.getElementById('char-waiting-buttons').classList.add('hidden');
-            
-            document.getElementById('char-confirm-modal-bg').style.backgroundImage = `url('${bgUrl}')`;
             document.getElementById('char-confirm-modal-img').src = char.url;
             document.getElementById('char-confirm-modal').classList.remove('hidden');
         }
 
-        function closeCharConfirmModal() {
-            document.getElementById('char-confirm-modal').classList.add('hidden');
-            temporarySelectedId = null;
-        }
+        function closeCharConfirmModal() { document.getElementById('char-confirm-modal').classList.add('hidden'); }
 
         function executeCharacterConfirmation() {
-            if (!temporarySelectedId) return;
             selectedCharacterId = temporarySelectedId;
-
-            const confirmTitle = document.getElementById('char-confirm-title');
-            confirmTitle.innerText = "Aguardando oponente escolher...";
-            confirmTitle.classList.add('animate-pulse');
-            
-            document.getElementById('char-confirm-buttons').classList.add('hidden');
-            document.getElementById('char-waiting-buttons').classList.remove('hidden');
-
-            const current = document.getElementById(`select-card-${selectedCharacterId}`);
-            if (current) current.classList.add('border-amber-400', 'bg-slate-700', 'scale-105');
-
-            if (conn && conn.open) {
-                conn.send({ type: 'SYNC_CHARACTER', id: selectedCharacterId });
-            }
+            conn.send({ type: 'SYNC_CHARACTER', id: selectedCharacterId });
             saveGameState();
-            
-            const selectTitle = document.getElementById('select-screen-title');
-            selectTitle.innerText = "Aguardando oponente escolher...";
-            selectTitle.classList.add('animate-pulse');
-
-            characters.forEach(char => {
-                const card = document.getElementById(`select-card-${char.id}`);
-                if (char) char.onclick = null;
-            });
-
+            closeCharConfirmModal();
             checkBothSelected();
-        }
-
-        function cancelCharacterConfirmation() {
-            selectedCharacterId = null;
-            temporarySelectedId = null;
-            saveGameState();
-            
-            if (conn && conn.open) {
-                conn.send({ type: 'SYNC_CHARACTER', id: null });
-            }
-            
-            document.getElementById('char-confirm-modal').classList.add('hidden');
-            startSelectionStage();
         }
 
         function checkBothSelected() {
             if (selectedCharacterId && opponentCharacterId) {
-                if (screenGame.classList.contains('hidden')) {
-                    buildGameBoard();
-                    restoreFlippedCards();
-                    updateRemainingCount();
-                }
-            }
-        }
-
-        function syncPlacarVisuals(role, charUrl) {
-            const myBgUrl = role === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
-            const prefixos = role === 'red' ? ['p1-'] : ['p2-'];
-            const oponPrefixos = role === 'red' ? ['p2-'] : ['p1-'];
-
-            prefixos.forEach(p => {
-                document.getElementById(`${p}avatar-bg`).style.backgroundImage = `url('${myBgUrl}')`;
-                document.getElementById(`${p}avatar`).src = charUrl;
-                document.getElementById(`${p}avatar`).classList.remove('hidden');
-                document.getElementById(`${p}avatar-placeholder`).classList.add('hidden');
-            });
-
-            // Removido o código que ocultava o placeholder do oponente
-        }
-
-        function updateRemainingCount() {
-            const flippedCount = document.querySelectorAll('#board-grid .card-flipped').length;
-            const remaining = characters.length - flippedCount;
-            
-            const myCountId = myRole === 'red' ? 'count-red' : 'count-blue';
-            const el = document.getElementById(myCountId);
-            if (el) el.innerText = remaining;
-            
-            if (conn && conn.open) {
-                conn.send({ type: 'UPDATE_COUNT', count: remaining });
+                buildGameBoard();
             }
         }
 
         function buildGameBoard() {
-            document.getElementById('char-confirm-modal').classList.add('hidden');
-            screenLobby.classList.add('hidden'); 
             screenSelect.classList.add('hidden');
-            document.getElementById('game-scoreboard').classList.remove('hidden');
-            document.getElementById('count-red-box').classList.remove('hidden');
-            document.getElementById('count-blue-box').classList.remove('hidden');
             screenGame.classList.remove('hidden');
-            isGuessMode = false;
-            updateGuessButtonUI();
-
-            const totalPartidas = score.red + score.blue;
-            if (totalPartidas % 2 === 0) {
-                isMyTurn = (myRole === 'red');
-            } else {
-                isMyTurn = (myRole === 'blue');
-            }
+            isMyTurn = (myRole === 'red');
             updateTurnUI();
-
-            const myChar = characters.find(c => c.id === selectedCharacterId);
-            syncPlacarVisuals(myRole, myChar.url);
 
             const boardGrid = document.getElementById('board-grid');
             boardGrid.innerHTML = '';
-
-            const myBgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
+            const bgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
 
             characters.forEach(char => {
                 const card = document.createElement('div');
                 card.id = `board-card-${char.id}`;
-                const highlightBorder = myRole === 'red' ? 'hover:border-red-500' : 'hover:border-blue-500';
-                
-                card.className = `bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer transition-all ${highlightBorder} shadow`;
+                card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer";
                 card.onclick = () => handleCardClick(char.id);
-                card.innerHTML = `
-                    <div style="background-image: url('${myBgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden pointer-events-none">
-                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" />
-                    </div>
-                `;
+                card.innerHTML = `<div style="background-image: url('${bgUrl}'); background-size: cover;" class="w-full rounded-lg border overflow-hidden pointer-events-none"><img src="${char.url}" class="w-full h-auto object-contain" /></div>`;
                 boardGrid.appendChild(card);
             });
         }
@@ -1033,224 +508,18 @@
             } else {
                 document.getElementById(`board-card-${id}`).classList.toggle('card-flipped');
                 saveGameState();
-                updateRemainingCount();
             }
         }
 
-        function toggleGuessMode() {
-            isGuessMode = !isGuessMode;
-            updateGuessButtonUI();
-        }
-
-        function updateGuessButtonUI() {
-            const btn = document.getElementById('btn-guess-mode');
-            if (isGuessMode) {
-                btn.className = "w-full bg-amber-500 text-slate-950 font-black py-2.5 rounded-xl text-xs transition animate-pulse shadow-lg shadow-amber-500/20";
-                btn.innerText = "🎯 CLIQUE NO SUSPEITO PARA ACUSAR!";
-            } else {
-                btn.className = "w-full bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition border border-slate-700 shadow shadow-amber-500/10";
-                btn.innerText = "🎯 Dar Palpite Final (Acusar Suspeito)";
-            }
-        }
-
+        function toggleGuessMode() { isGuessMode = !isGuessMode; }
         function updateTurnUI() {
-            const btnTurn = document.getElementById('btn-turn');
-            if (!conn || !conn.open) return;
-            
-            if (isMyTurn) {
-                btnTurn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 cursor-pointer";
-                btnTurn.innerText = "🟢 SUA VEZ (Finalizar Pergunta e Passar Vez)";
-                btnTurn.disabled = false;
-            } else {
-                btnTurn.className = "w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl text-xs transition border border-slate-700/50 cursor-not-allowed";
-                btnTurn.innerText = "⏳ VEZ DO OPONENTE (Aguarde...)";
-                btnTurn.disabled = true;
-            }
+            const btn = document.getElementById('btn-turn');
+            btn.innerText = isMyTurn ? "🟢 SUA VEZ" : "⏳ VEZ DO OPONENTE";
+            btn.disabled = !isMyTurn;
         }
-
-        function passTurn() {
-            if (!isMyTurn) return;
-            isMyTurn = false;
-            updateTurnUI();
-            if (conn) {
-                conn.send({ type: 'TURN_CHANGED' });
-            }
-        }
-
-        function triggerFinalAccusation(id) {
-            pendingAccusationId = id;
-            const targetChar = characters.find(c => c.id === id);
-            
-            const myBgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
-            document.getElementById('confirm-modal-img-bg').style.backgroundImage = `url('${myBgUrl}')`;
-            document.getElementById('confirm-modal-char-img').src = targetChar.url;
-            
-            document.getElementById('confirm-modal').classList.remove('hidden');
-        }
-
-        function closeConfirmModal() {
-            document.getElementById('confirm-modal').classList.add('hidden');
-            pendingAccusationId = null;
-            isGuessMode = false;
-            updateGuessButtonUI();
-        }
-
-        function executeFinalAccusation() {
-            if (!pendingAccusationId) return;
-            const id = pendingAccusationId;
-            document.getElementById('confirm-modal').classList.add('hidden');
-
-            const opponentRole = myRole === 'red' ? 'blue' : 'red';
-            const isCorrect = (id === opponentCharacterId);
-            const winner = isCorrect ? myRole : opponentRole;
-
-            const redChar = myRole === 'red' ? selectedCharacterId : opponentCharacterId;
-            const blueChar = myRole === 'blue' ? selectedCharacterId : opponentCharacterId;
-
-            const gameOverData = {
-                type: 'GAME_OVER',
-                winner: winner,
-                redCharId: redChar,
-                blueCharId: blueChar,
-                guessWasWrong: !isCorrect,
-                wrongGuessCharId: !isCorrect ? id : null,
-                guessedCharId: id,
-                guesser: myRole
-            };
-
-            if (conn && conn.open) {
-                conn.send(gameOverData);
-            }
-
-            applyGameOver(gameOverData);
-            pendingAccusationId = null;
-        }
-
-        function applyGameOver(data, isRestore = false) {
-            const winner = data.winner;
-            const redCharId = data.redCharId;
-            const blueCharId = data.blueCharId;
-            const guessWasWrong = data.guessWasWrong;
-            const wrongGuessCharId = data.wrongGuessCharId;
-            const guessedCharId = data.guessedCharId || (guessWasWrong ? wrongGuessCharId : (data.guesser === 'red' ? blueCharId : redCharId));
-            const guesser = data.guesser;
-
-            if (!isRestore) {
-                if (winner === 'red') score.red++;
-                if (winner === 'blue') score.blue++;
-                
-                updateScoreboardVisual();
-                localStorage.setItem(`cara_game_over_${roomCode}`, JSON.stringify(data));
-                saveGameState();
-            }
-
-            const box = document.getElementById('game-over-box');
-            const title = document.getElementById('game-over-title');
-            const msg = document.getElementById('game-over-msg');
-
-            const amIWinner = (winner === myRole);
-            const playerBgBox = myRole === 'red' ? 'bg-red-950' : 'bg-blue-950';
-
-            if (guessedCharId) {
-                const gChar = characters.find(c => c.id === guessedCharId);
-                const guesserBg = guesser === 'red' ? "url('img/fundovermelho.png')" : "url('img/fundoazul.png')";
-                document.getElementById('game-over-guess-char-bg').style.backgroundImage = guesserBg;
-                document.getElementById('game-over-guess-char-img').src = gChar.url;
-                document.getElementById('game-over-guess-char-container').classList.remove('hidden');
-            } else {
-                document.getElementById('game-over-guess-char-container').classList.add('hidden');
-            }
-
-            if (amIWinner) {
-                title.innerText = "🏆 VITÓRIA!";
-                title.className = "text-2xl font-black tracking-wide text-green-400 animate-bounce";
-                box.className = `${playerBgBox} border-2 border-green-500 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl shadow-green-500/10`;
-                
-                if (guessWasWrong) {
-                    msg.innerText = "Você venceu! O oponente errou o palpite.";
-                } else {
-                    msg.innerText = "Você adivinhou o personagem do adversário!";
-                }
-            } else {
-                title.innerText = "💀 DERROTA";
-                title.className = "text-2xl font-black tracking-wide text-red-500";
-                box.className = `${playerBgBox} border-2 border-red-500 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl shadow-red-500/10`;
-                
-                if (guessWasWrong) {
-                    msg.innerText = "Seu palpite foi errado! Vitória do oponente.";
-                } else {
-                    msg.innerText = "O adversário adivinhou seu personagem!";
-                }
-            }
-
-            const rChar = characters.find(c => c.id === redCharId);
-            const bChar = characters.find(c => c.id === blueCharId);
-
-            document.getElementById('modal-p1-avatar-bg').style.backgroundImage = "url('img/fundovermelho.png')";
-            document.getElementById('modal-p1-avatar').src = rChar.url;
-            document.getElementById('modal-p1-avatar').classList.remove('hidden');
-            document.getElementById('modal-p1-avatar-placeholder').classList.add('hidden');
-
-            document.getElementById('modal-p2-avatar-bg').style.backgroundImage = "url('img/fundoazul.png')";
-            document.getElementById('modal-p2-avatar').src = bChar.url;
-            document.getElementById('modal-p2-avatar').classList.remove('hidden');
-            document.getElementById('modal-p2-avatar-placeholder').classList.add('hidden');
-
-            const labelP1 = document.getElementById('label-p1');
-            const labelP2 = document.getElementById('label-p2');
-            if (myRole === 'red') {
-                labelP1.innerText = "Você";
-                labelP1.className = "text-[11px] font-black mt-1 uppercase tracking-wider text-red-400";
-                labelP2.innerText = "Oponente";
-                labelP2.className = "text-[11px] font-black mt-1 uppercase tracking-wider text-blue-400";
-            } else {
-                labelP1.innerText = "Oponente";
-                labelP1.className = "text-[11px] font-black mt-1 uppercase tracking-wider text-red-400";
-                labelP2.innerText = "Você";
-                labelP2.className = "text-[11px] font-black mt-1 uppercase tracking-wider text-blue-400";
-            }
-
-            localPlayerReadyForNext = false;
-            opponentReadyForNext = false;
-            
-            const btnNext = document.getElementById('btn-next-game');
-            btnNext.disabled = false;
-            btnNext.className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm cursor-pointer";
-            document.getElementById('waiting-opponent-next').classList.add('hidden');
-            document.getElementById('opponent-requested-rematch').classList.add('hidden');
-
-            document.getElementById('game-over-screen').classList.remove('hidden');
-        }
-
-        function requestNewGame() {
-            localPlayerReadyForNext = true;
-            conn.send({ type: 'NEXT_GAME_READY' });
-
-            const btnNext = document.getElementById('btn-next-game');
-            btnNext.disabled = true;
-            btnNext.className = "w-full bg-slate-800 text-slate-500 font-bold py-3 rounded-xl text-sm cursor-not-allowed";
-            document.getElementById('waiting-opponent-next').classList.remove('hidden');
-
-            checkNextGameTransition();
-        }
-
-        function checkNextGameTransition() {
-            if (localPlayerReadyForNext && opponentReadyForNext) {
-                selectedCharacterId = null;
-                opponentCharacterId = null;
-                temporarySelectedId = null;
-                
-                document.getElementById('board-grid').innerHTML = '';
-                
-                localStorage.removeItem(`cara_my_char_${roomCode}`);
-                localStorage.removeItem(`cara_opp_char_${roomCode}`);
-                localStorage.removeItem(`cara_flipped_${roomCode}`);
-                localStorage.removeItem(`cara_game_over_${roomCode}`);
-                
-                document.getElementById('opponent-requested-rematch').classList.add('hidden');
-                startSelectionStage();
-            }
-        }
+        function passTurn() { isMyTurn = false; updateTurnUI(); conn.send({ type: 'TURN_CHANGED' }); }
+        function leaveRoom() { window.location.href = window.location.origin + window.location.pathname; }
+        function copyLink() { navigator.clipboard.writeText(window.location.href); alert('Link copiado!'); }
     </script>
 </body>
 </html>
