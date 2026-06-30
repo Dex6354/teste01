@@ -105,103 +105,6 @@
       text-decoration: none;
     }
 
-    /* ── SEÇÃO DA SALA ───────────────────────────────────── */
-    .room-container {
-      margin: 20px 24px 10px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .room-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .room-title {
-      font-size: 18px;
-      font-weight: 800;
-      color: #fff;
-    }
-
-    .room-status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    .status-count {
-      background: var(--tag-bg);
-      color: var(--yellow);
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-weight: 800;
-      border: 1px solid rgba(241, 196, 15, 0.2);
-    }
-
-    .room-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .room-btn {
-      flex: 1;
-      min-width: 140px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-family: var(--font);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
-    }
-
-    .room-btn-primary {
-      background: var(--yellow);
-      border-color: var(--yellow);
-      color: var(--bg);
-    }
-
-    .room-btn-primary:hover {
-      background: var(--yellow-dark);
-      border-color: var(--yellow-dark);
-    }
-
-    .room-btn:not(.room-btn-primary):hover {
-      background: var(--bg-card-hov);
-      border-color: var(--yellow);
-    }
-
-    .room-info-box {
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 13px;
-      color: var(--text-muted);
-      word-break: break-all;
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
     .hero {
       text-align: center;
       padding: 48px 24px 36px;
@@ -247,7 +150,7 @@
     .filters {
       display: flex;
       gap: 8px;
-      padding: 16px 24px 16px;
+      padding: 0 24px 16px;
       overflow-x: auto;
       scrollbar-width: none;
     }
@@ -382,6 +285,7 @@
       gap: 5px;
     }
 
+    /* ── TAGS ────────────────────────────────────────────── */
     .tag {
       background: var(--tag-bg);
       border: 1px solid rgba(241, 196, 15, 0.2);
@@ -398,6 +302,7 @@
       color: var(--text-muted);
     }
 
+    /* ── SECTION TITLE BAR ───────────────────────────────── */
     .section-title-bar {
       background: var(--yellow);
       color: var(--bg);
@@ -412,6 +317,7 @@
       box-shadow: 0 4px 15px rgba(241, 196, 15, 0.15);
     }
 
+    /* ── FOOTER ──────────────────────────────────────────── */
     footer {
       border-top: 1px solid var(--border);
       padding: 28px 24px;
@@ -443,12 +349,12 @@
       font-size: 12px;
     }
 
+    /* ── RESPONSIVE ──────────────────────────────────────── */
     @media (max-width: 560px) {
       nav                  { padding: 0 14px 0 8px; gap: 10px; }
       .logo-badge          { width: 200px; height: 40px; justify-content: flex-start; }
-      .room-container      { margin: 15px 14px 5px; padding: 15px; }
       .hero                { padding: 32px 14px 24px; }
-      .filters             { padding: 12px 14px 12px; }
+      .filters             { padding: 0 14px 12px; }
       .search-container    { padding: 0 14px 20px; }
       .search-box          { max-width: 100%; }
       .grid                { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 14px 32px; }
@@ -475,22 +381,16 @@
   </div>
 </nav>
 
-<section class="room-container" id="roomSection">
-  <div class="room-header">
-    <div class="room-title" id="roomTitle">Nenhuma sala ativa</div>
-    <div class="room-status" id="roomStatus" style="display: none;">
-      <span>Jogadores:</span>
-      <span class="status-count" id="playerCount">1</span>
-    </div>
+<header class="hero">
+  <h1>Jogue <span>Grátis</span> com Amigos</h1>
+  <p>Jogos multiplayer no navegador, sem cadastro. Convide amigos e jogue agora!</p>
+  <div class="hero-badges">
+    <span class="badge">✅ Sem Cadastro</span>
+    <span class="badge">🎮 Multiplayer</span>
+    <span class="badge">📥 Sem Download</span>
+    <span class="badge">🆓 100% Grátis</span>
   </div>
-  <div class="room-info-box" id="roomUrlBox">
-    <span id="roomUrlText"></span>
-  </div>
-  <div class="room-actions">
-    <button class="room-btn room-btn-primary" id="btnCreateRoom" onclick="handleRoomAction()">✨ Criar Sala Multiplayer</button>
-    <button class="room-btn" id="btnShareRoom" onclick="shareRoom()" style="display: none;">🔗 Compartilhar</button>
-  </div>
-</section>
+</header>
 
 <div class="filters">
   <button class="filter-btn active" onclick="filterGames('todos', this)">Todos</button>
@@ -543,17 +443,6 @@
   </a>
 </div>
 
-<header class="hero">
-  <h1>Jogue <span>Grátis</span> com Amigos</h1>
-  <p>Jogos multiplayer no navegador, sem cadastro. Convide amigos e jogue agora!</p>
-  <div class="hero-badges">
-    <span class="badge">✅ Sem Cadastro</span>
-    <span class="badge">🎮 Multiplayer</span>
-    <span class="badge">📥 Sem Download</span>
-    <span class="badge">🆓 100% Grátis</span>
-  </div>
-</header>
-
 <footer>
   <div class="logo-badge2">
     <img src="https://jogosdagalera.pages.dev/logo3.png" alt="Jogos da Galera">
@@ -577,105 +466,6 @@
   let activeCategory = 'todos';
 
   const FALLBACK_IMG = 'https://jogosdagalera.pages.dev/logowpp.png';
-
-  /* ── LÓGICA DE SALAS MULTIPLAYER ────────────────────────── */
-  let currentRoomId = null;
-
-  function handleRoomAction() {
-    const btnCreate = document.getElementById('btnCreateRoom');
-    const btnShare = document.getElementById('btnShareRoom');
-    const roomTitle = document.getElementById('roomTitle');
-    const roomStatus = document.getElementById('roomStatus');
-    const roomUrlBox = document.getElementById('roomUrlBox');
-    const roomUrlText = document.getElementById('roomUrlText');
-    const playerCount = document.getElementById('playerCount');
-
-    if (!currentRoomId) {
-      // Criar sala ativa gerando ID único baseado em timestamp
-      currentRoomId = 'sala-' + Math.random().toString(36).substring(2, 9);
-      const roomUrl = `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
-      
-      roomTitle.innerText = `Sala: ${currentRoomId.toUpperCase()}`;
-      roomUrlText.innerText = roomUrl;
-      
-      btnCreate.innerText = '❌ Sair da Sala';
-      btnCreate.classList.remove('room-btn-primary');
-      
-      roomStatus.style.display = 'flex';
-      roomUrlBox.style.display = 'flex';
-      btnShare.style.display = 'flex';
-
-      // Modifica links dos cards para herdar o parâmetro de sala ativa
-      updateCardUrls(currentRoomId);
-
-      // Simulação inicial de contagem de players ativos ingressando
-      playerCount.innerText = "1";
-      setTimeout(() => { if(currentRoomId) playerCount.innerText = "2"; }, 3000);
-    } else {
-      // Sair/Resetar estado da sala
-      currentRoomId = null;
-      roomTitle.innerText = 'Nenhuma sala ativa';
-      btnCreate.innerText = '✨ Criar Sala Multiplayer';
-      btnCreate.classList.add('room-btn-primary');
-      
-      roomStatus.style.display = 'none';
-      roomUrlBox.style.display = 'none';
-      btnShare.style.display = 'none';
-      
-      updateCardUrls(null);
-      // Remove query string da URL do navegador de forma limpa
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }
-
-  function shareRoom() {
-    const roomUrl = `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
-    if (navigator.share) {
-      navigator.share({
-        title: 'Jogos da Galera - Vamos jogar!',
-        text: `Entre na minha sala multiplayer do Jogos da Galera para jogarmos juntos!`,
-        url: roomUrl,
-      }).catch(console.error);
-    } else {
-      navigator.clipboard.writeText(roomUrl);
-      alert('🔗 Link da sala copiado para a área de transferência!');
-    }
-  }
-
-  function updateCardUrls(roomId) {
-    document.querySelectorAll('.grid .card').forEach(card => {
-      if (card.dataset.baseHref) {
-        card.href = roomId ? `${card.dataset.baseHref}?room=${roomId}` : card.dataset.baseHref;
-      }
-    });
-  }
-
-  function checkUrlForRoom() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomParam = urlParams.get('room');
-    if (roomParam) {
-      currentRoomId = roomParam;
-      const roomTitle = document.getElementById('roomTitle');
-      const btnCreate = document.getElementById('btnCreateRoom');
-      const btnShare = document.getElementById('btnShareRoom');
-      const roomStatus = document.getElementById('roomStatus');
-      const roomUrlBox = document.getElementById('roomUrlBox');
-      const roomUrlText = document.getElementById('roomUrlText');
-      const playerCount = document.getElementById('playerCount');
-
-      roomTitle.innerText = `Sala: ${currentRoomId.toUpperCase()}`;
-      roomUrlText.innerText = window.location.href;
-      btnCreate.innerText = '❌ Sair da Sala';
-      btnCreate.classList.remove('room-btn-primary');
-      
-      roomStatus.style.display = 'flex';
-      roomUrlBox.style.display = 'flex';
-      btnShare.style.display = 'flex';
-      
-      // Simulação para o player que acabou de entrar via link convidado
-      playerCount.innerText = "2";
-    }
-  }
 
   /* ── FILTER / SEARCH ────────────────────────────────────── */
   function updateGames() {
@@ -711,9 +501,7 @@
 
     const card = document.createElement('a');
     card.className       = 'card';
-    const baseHref       = `./${folderName}/`;
-    card.dataset.baseHref = baseHref;
-    card.href            = currentRoomId ? `${baseHref}?room=${currentRoomId}` : baseHref;
+    card.href            = `./${folderName}/`;
     card.dataset.category = meta.category;
     card.dataset.name    = `${meta.title.toLowerCase()} ${folderName.toLowerCase()} ${meta.category}`;
 
@@ -742,6 +530,7 @@
       const folders = await res.json();
       gameGrid.innerHTML = '';
 
+      // Carrega os metadados de todos os jogos em paralelo
       const gamesData = await Promise.all(folders.map(async ({ name }) => {
         const defaultMeta = {
           title:       name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' '),
@@ -761,8 +550,10 @@
         return { name, meta };
       }));
 
+      // Ordena em ordem alfabética pelo título correspondente
       gamesData.sort((a, b) => a.meta.title.localeCompare(b.meta.title, 'pt-BR'));
 
+      // Adiciona os elementos ordenados ao grid
       gamesData.forEach(({ name, meta }) => {
         gameGrid.appendChild(buildCard(name, meta));
       });
@@ -812,7 +603,6 @@
 
   /* ── INIT ───────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', () => {
-    checkUrlForRoom();
     loadGames();
 
     if ('serviceWorker' in navigator) {
