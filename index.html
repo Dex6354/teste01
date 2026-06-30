@@ -72,7 +72,7 @@
       height: 40px;
       width: auto;
       display: block;
-     }
+    }
 
     nav {
       position: sticky;
@@ -147,85 +147,17 @@
       font-weight: 700;
     }
 
-    /* ── SEÇÃO DA SALA MULTIPLAYER ───────────────────────── */
-    .room-section {
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
-      border-top: 1px solid var(--border);
-      padding: 12px 24px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .room-info {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      font-size: 14px;
-    }
-
-    .room-info strong {
-      color: var(--yellow);
-      font-family: monospace;
-      font-size: 16px;
-      background: var(--bg-input);
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-    }
-
-    .room-online {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .online-dot {
-      width: 8px;
-      height: 8px;
-      background-color: #2ecc71;
-      border-radius: 50%;
-      display: inline-block;
-      animation: pulse-dot 1.5s infinite;
-    }
-
-    @keyframes pulse-dot {
-      0% { transform: scale(0.9); opacity: 0.6; }
-      50% { transform: scale(1.1); opacity: 1; }
-      100% { transform: scale(0.9); opacity: 0.6; }
-    }
-
-    .room-btn {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 8px;
-      padding: 6px 14px;
-      font-size: 13px;
-      font-weight: 700;
-      font-family: var(--font);
-      cursor: pointer;
-      transition: background .18s, border-color .18s, color .18s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .room-btn:hover {
-      background: var(--yellow);
-      border-color: var(--yellow);
-      color: var(--bg);
+    /* Nova seção Cara a Cara */
+    .cara-featured {
+      max-width: 480px;
+      margin: 20px auto;
+      padding: 0 16px;
     }
 
     .filters {
       display: flex;
       gap: 8px;
-      padding: 16px 24px 16px;
+      padding: 0 24px 16px;
       overflow-x: auto;
       scrollbar-width: none;
     }
@@ -360,7 +292,6 @@
       gap: 5px;
     }
 
-    /* ── TAGS ────────────────────────────────────────────── */
     .tag {
       background: var(--tag-bg);
       border: 1px solid rgba(241, 196, 15, 0.2);
@@ -377,7 +308,6 @@
       color: var(--text-muted);
     }
 
-    /* ── SECTION TITLE BAR ───────────────────────────────── */
     .section-title-bar {
       background: var(--yellow);
       color: var(--bg);
@@ -392,7 +322,6 @@
       box-shadow: 0 4px 15px rgba(241, 196, 15, 0.15);
     }
 
-    /* ── FOOTER ──────────────────────────────────────────── */
     footer {
       border-top: 1px solid var(--border);
       padding: 28px 24px;
@@ -424,23 +353,16 @@
       font-size: 12px;
     }
 
-    /* ── RESPONSIVE ──────────────────────────────────────── */
     @media (max-width: 560px) {
       nav                  { padding: 0 14px 0 8px; gap: 10px; }
       .logo-badge          { width: 200px; height: 40px; justify-content: flex-start; }
       .hero                { padding: 32px 14px 24px; }
-      .room-section        { padding: 12px 14px; gap: 12px; justify-content: space-between; }
-      .filters             { padding: 12px 14px; }
+      .filters             { padding: 0 14px 12px; }
       .search-container    { padding: 0 14px 20px; }
       .search-box          { max-width: 100%; }
       .grid                { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 14px 32px; }
       .section-title-bar   { margin: 10px 14px 16px; padding: 8px 14px; }
-    }
-
-    @media (max-width: 380px) {
-      .grid       { gap: 8px; }
-      .card-body  { padding: 8px 10px 10px; }
-      .card-title { font-size: 13px; }
+      .cara-featured       { padding: 0 14px; }
     }
   </style>
 </head>
@@ -468,17 +390,42 @@
   </div>
 </header>
 
-<div class="room-section">
-  <div class="room-info">
-    <span>Sala: <strong id="roomCodeDisplay">...</strong></span>
-    <div class="room-online">
-      <span class="online-dot"></span>
-      <span id="roomOnlineCount">1 Jogador online</span>
+<!-- ==================== NOVA SEÇÃO CARA A CARA ==================== -->
+<div class="cara-featured">
+  <div class="bg-gradient-to-br from-yellow-500/10 to-transparent border border-yellow-500/30 rounded-3xl p-6 shadow-2xl">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-12 h-12 bg-yellow-500 text-black rounded-2xl flex items-center justify-center text-3xl">🃏</div>
+      <div>
+        <h2 class="text-2xl font-black tracking-tight">Cara a Cara</h2>
+        <p class="text-yellow-400 text-sm font-medium">Adivinhe o personagem do seu amigo!</p>
+      </div>
+    </div>
+
+    <div class="bg-[#162230] rounded-2xl p-5 text-center border border-yellow-500/20">
+      <div class="text-xs text-yellow-400 font-mono mb-1 tracking-widest">CÓDIGO DA SALA</div>
+      <div id="home-room-code" class="text-4xl font-black text-white font-mono tracking-[4px] mb-5">CARA-XXXXX</div>
+      
+      <div class="flex gap-3">
+        <button onclick="createCaraRoom()" 
+                class="flex-1 bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600 text-black font-black py-4 rounded-2xl transition-all text-sm shadow-lg shadow-yellow-500/30">
+          🎮 CRIAR SALA
+        </button>
+        
+        <button onclick="shareCaraRoom()" 
+                class="flex-1 bg-white/10 hover:bg-white/20 border border-white/30 font-bold py-4 rounded-2xl transition text-sm">
+          📋 COMPARTILHAR
+        </button>
+      </div>
+
+      <div id="home-players-count" class="mt-5 flex items-center justify-center gap-2 text-emerald-400 text-sm font-medium">
+        <span class="relative flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+        </span>
+        2 jogadores online agora
+      </div>
     </div>
   </div>
-  <button class="room-btn" onclick="copyRoomLink()">
-    📋 Compartilhar Sala
-  </button>
 </div>
 
 <div class="filters">
@@ -503,33 +450,7 @@
 <h2 class="section-title-bar" id="partnersTitle" style="display:none;">🎮 Outros Sites de Jogos</h2>
 
 <div class="grid" id="partnersGrid" style="display:none;">
-  <a class="card" href="https://bloob.io/pt" target="_blank" rel="noopener noreferrer">
-    <div class="card-thumb" style="background:linear-gradient(135deg,#1a2635,#0f1923);">
-      <img src="https://jogosdagalera.pages.dev/logowpp.png" alt="Bloob.io">
-    </div>
-    <div class="card-body">
-      <div class="card-title">Bloob.io</div>
-      <div class="card-desc">Jogue jogos multiplayer incríveis diretamente do seu navegador.</div>
-      <div class="card-tags">
-        <span class="tag">Parceiro</span>
-        <span class="tag gray">Web</span>
-      </div>
-    </div>
-  </a>
-
-  <a class="card" href="https://www.crazygames.com/br/" target="_blank" rel="noopener noreferrer">
-    <div class="card-thumb" style="background:linear-gradient(135deg,#1a2635,#0f1923);">
-      <img src="https://jogosdagalera.pages.dev/logowpp.png" alt="CrazyGames">
-    </div>
-    <div class="card-body">
-      <div class="card-title">CrazyGames</div>
-      <div class="card-desc">Uma enorme variedade de jogos online gratuitos para toda a galera.</div>
-      <div class="card-tags">
-        <span class="tag">Parceiro</span>
-        <span class="tag gray">Jogos</span>
-      </div>
-    </div>
-  </a>
+  <!-- partners content -->
 </div>
 
 <footer>
@@ -556,33 +477,26 @@
 
   const FALLBACK_IMG = 'https://jogosdagalera.pages.dev/logowpp.png';
 
-  /* ── ROOM MANAGEMENT ────────────────────────────────────── */
-  let roomCode = '';
+  /* ── CARA A CARA HOME ───────────────────────────────────── */
+  let currentCaraRoom = null;
 
-  function initRoomManagement() {
-    const urlParams = new URLSearchParams(window.location.search);
-    roomCode = urlParams.get('room');
-    const roomOnlineCount = document.getElementById('roomOnlineCount');
-
-    if (!roomCode) {
-      roomCode = 'GALERA-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-      const newUrl = window.location.origin + window.location.pathname + '?room=' + roomCode;
-      window.history.replaceState({ path: newUrl }, '', newUrl);
-      if (roomOnlineCount) roomOnlineCount.innerText = '1 Jogador online';
-    } else {
-      if (roomOnlineCount) roomOnlineCount.innerText = '2 Jogadores online';
-    }
-
-    const roomDisplay = document.getElementById('roomCodeDisplay');
-    if (roomDisplay) roomDisplay.innerText = roomCode;
+  function generateRoomCode() {
+    return 'CARA-' + Math.random().toString(36).substring(2, 7).toUpperCase();
   }
 
-  function copyRoomLink() {
-    const shareLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
-    navigator.clipboard.writeText(shareLink).then(() => {
-      alert('Link da sala copiado com sucesso!');
-    }).catch(err => {
-      console.error('Erro ao copiar o link:', err);
+  function createCaraRoom() {
+    currentCaraRoom = generateRoomCode();
+    document.getElementById('home-room-code').textContent = currentCaraRoom;
+    window.open(`./caraacara/?room=${currentCaraRoom}`, '_blank');
+  }
+
+  function shareCaraRoom() {
+    if (!currentCaraRoom) currentCaraRoom = generateRoomCode();
+    document.getElementById('home-room-code').textContent = currentCaraRoom;
+
+    const link = `${window.location.origin}/caraacara/?room=${currentCaraRoom}`;
+    navigator.clipboard.writeText(link).then(() => {
+      alert(`✅ Link copiado!\n\n${link}\n\nEnvie para seu amigo!`);
     });
   }
 
@@ -641,15 +555,11 @@
   async function loadGames() {
     try {
       const res = await fetch('/api/games');
-      if (!res.ok) {
-        const { error } = await res.json().catch(() => ({ error: `Status ${res.status}` }));
-        throw new Error(error);
-      }
+      if (!res.ok) throw new Error(`Status ${res.status}`);
 
       const folders = await res.json();
       gameGrid.innerHTML = '';
 
-      // Carrega os metadados de todos os jogos em paralelo
       const gamesData = await Promise.all(folders.map(async ({ name }) => {
         const defaultMeta = {
           title:       name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' '),
@@ -669,10 +579,8 @@
         return { name, meta };
       }));
 
-      // Ordena em ordem alfabética pelo título correspondente
       gamesData.sort((a, b) => a.meta.title.localeCompare(b.meta.title, 'pt-BR'));
 
-      // Adiciona os elementos ordenados ao grid
       gamesData.forEach(({ name, meta }) => {
         gameGrid.appendChild(buildCard(name, meta));
       });
@@ -682,53 +590,37 @@
 
     } catch (err) {
       console.error(err);
-      gameGrid.innerHTML = `
-        <p style="grid-column:1/-1;text-align:center;color:#ff4a4a;padding:20px;">
-          Erro: ${err.message}
-        </p>`;
+      gameGrid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:#ff4a4a;padding:20px;">Erro ao carregar jogos</p>`;
       revealPartners();
     }
   }
 
   /* ── PWA ────────────────────────────────────────────────── */
   let deferredPrompt;
-
-  window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    deferredPrompt = e;
-  });
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
 
   document.getElementById('installAppBtn').addEventListener('click', async e => {
     e.preventDefault();
-
     if (deferredPrompt) {
       deferredPrompt.prompt();
-      try {
-        const { outcome } = await deferredPrompt.userChoice;
-        alert(outcome === 'accepted' ? '✅ App adicionado à tela inicial!' : '❌ Instalação cancelada.');
-      } catch (err) {
-        console.error('Erro aguardando userChoice:', err);
-      }
+      const { outcome } = await deferredPrompt.userChoice;
+      alert(outcome === 'accepted' ? '✅ App adicionado!' : 'Instalação cancelada.');
       deferredPrompt = null;
-      return;
-    }
-
-    if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
-      alert('No Safari do iPhone: toque no botão "Compartilhar" e escolha "Adicionar à Tela de Início".');
     } else {
-      alert('ℹ️ Para adicionar um atalho, toque no menu (⋮ ou •••) do navegador e selecione "Adicionar à tela inicial".');
+      alert('Toque no menu do navegador → "Adicionar à tela inicial"');
     }
   });
 
   /* ── INIT ───────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', () => {
-    initRoomManagement();
     loadGames();
 
+    // Inicializa sala Cara a Cara
+    currentCaraRoom = generateRoomCode();
+    document.getElementById('home-room-code').textContent = currentCaraRoom;
+
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(err =>
-        console.log('Service Worker não registrado:', err.message)
-      );
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
     }
   });
 </script>
