@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=360, initial-scale=1, maximum-scale=5, user-scalable=1" />
   <title>Jogos da Galera</title>
 
-  <link rel="icon"     type="image/png" href="https://jogosdagalera.pages.dev/logowpp.png">
+  <link rel="icon" type="image/png" href="https://jogosdagalera.pages.dev/logowpp.png">
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color"       content="#f1c40f">
-  <meta property="og:title"       content="Jogos da Galera">
+  <meta name="theme-color" content="#f1c40f">
+  <meta property="og:title" content="Jogos da Galera">
   <meta property="og:description" content="Seus jogos favoritos">
-  <meta property="og:image"       content="https://jogosdagalera.pages.dev/logowpp.png">
+  <meta property="og:image" content="https://jogosdagalera.pages.dev/logowpp.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
@@ -21,10 +21,8 @@
     :root {
       --yellow:      #f1c40f;
       --yellow-dark: #f39c12;
-      --yellow-glow: rgba(241, 196, 15, 0.18);
       --bg:          #0f1923;
       --bg-card:     #162230;
-      --bg-card-hov: #1c2d3f;
       --bg-input:    #1a2635;
       --border:      rgba(255, 255, 255, 0.07);
       --text:        #e8edf2;
@@ -44,28 +42,17 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    .logo-badge {
-      width: 120px;
-      height: 32px;
+    .logo-container {
+      height: 40px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      overflow: visible;
     }
 
-    .logo-badge img {
-      height: 40px;
+    .logo-container img {
+      height: 100%;
       width: auto;
       display: block;
-      margin-left: 38px;
     }
-
-        .logo-badge2 img {
-      height: 40px;
-      width: auto;
-      display: block;
-        }
 
     nav {
       position: sticky;
@@ -91,7 +78,6 @@
       padding: 5px 10px;
       color: var(--text-muted);
       font-size: 13px;
-      font-family: var(--font);
       cursor: pointer;
     }
 
@@ -157,7 +143,7 @@
       font-weight: 700;
       font-family: var(--font);
       cursor: pointer;
-      transition: background .18s, border-color .18s, color .18s;
+      transition: all .18s ease;
     }
 
     .filter-btn:hover,
@@ -167,9 +153,7 @@
       color: var(--bg);
     }
 
-    .search-container {
-      padding: 0 24px 24px;
-    }
+    .search-container { padding: 0 24px 24px; }
 
     .search-box {
       position: relative;
@@ -190,7 +174,7 @@
       transition: border-color .2s;
     }
 
-    .search-input:focus     { border-color: var(--yellow); }
+    .search-input:focus { border-color: var(--yellow); }
     .search-input::placeholder { color: var(--text-muted); }
 
     .search-icon {
@@ -275,7 +259,6 @@
       gap: 5px;
     }
 
-    /* ── TAGS ────────────────────────────────────────────── */
     .tag {
       background: var(--tag-bg);
       border: 1px solid rgba(241, 196, 15, 0.2);
@@ -292,7 +275,6 @@
       color: var(--text-muted);
     }
 
-    /* ── SECTION TITLE BAR ───────────────────────────────── */
     .section-title-bar {
       background: var(--yellow);
       color: var(--bg);
@@ -307,7 +289,6 @@
       box-shadow: 0 4px 15px rgba(241, 196, 15, 0.15);
     }
 
-    /* ── FOOTER ──────────────────────────────────────────── */
     footer {
       border-top: 1px solid var(--border);
       padding: 28px 24px;
@@ -339,31 +320,28 @@
       font-size: 12px;
     }
 
-    /* ── RESPONSIVE ──────────────────────────────────────── */
     @media (max-width: 560px) {
-      nav                  { padding: 0 14px; gap: 10px; }
-      .nav-logo            { margin-left: 0; }
-      .hero                { padding: 32px 14px 24px; }
-      .filters             { padding: 0 14px 12px; }
-      .search-container    { padding: 0 14px 20px; }
-      .search-box          { max-width: 100%; }
-      .grid                { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 14px 32px; }
-      .section-title-bar   { margin: 10px 14px 16px; padding: 8px 14px; }
+      nav { padding: 0 14px; gap: 10px; }
+      .hero { padding: 32px 14px 24px; }
+      .filters { padding: 0 14px 12px; }
+      .search-container { padding: 0 14px 20px; }
+      .search-box { max-width: 100%; }
+      .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 14px 32px; }
+      .section-title-bar { margin: 10px 14px 16px; padding: 8px 14px; }
     }
 
     @media (max-width: 380px) {
-      .grid       { gap: 8px; }
-      .card-body  { padding: 8px 10px 10px; }
+      .grid { gap: 8px; }
+      .card-body { padding: 8px 10px 10px; }
       .card-title { font-size: 13px; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── NAVBAR ──────────────────────────────────────────────── -->
 <nav>
-  <a class="nav-logo" href="#">
-    <div class="logo-badge">
+  <a href="#">
+    <div class="logo-container">
       <img src="https://jogosdagalera.pages.dev/logo3.png" alt="Jogos da Galera">
     </div>
   </a>
@@ -372,7 +350,6 @@
   </div>
 </nav>
 
-<!-- ── HERO ────────────────────────────────────────────────── -->
 <header class="hero">
   <h1>Jogue <span>Grátis</span> com Amigos</h1>
   <p>Jogos multiplayer no navegador, sem cadastro. Convide amigos e jogue agora!</p>
@@ -384,7 +361,6 @@
   </div>
 </header>
 
-<!-- ── FILTERS ──────────────────────────────────────────────── -->
 <div class="filters">
   <button class="filter-btn active" onclick="filterGames('todos', this)">Todos</button>
   <button class="filter-btn" onclick="filterGames('palavras', this)">Palavras</button>
@@ -395,7 +371,6 @@
   <button class="filter-btn" onclick="filterGames('dados', this)">Dados</button>
 </div>
 
-<!-- ── SEARCH ───────────────────────────────────────────────── -->
 <div class="search-container">
   <div class="search-box">
     <span class="search-icon">🔍</span>
@@ -403,10 +378,8 @@
   </div>
 </div>
 
-<!-- ── GAME GRID ─────────────────────────────────────────────── -->
 <main class="grid" id="gameGrid"></main>
 
-<!-- ── PARTNERS ──────────────────────────────────────────────── -->
 <h2 class="section-title-bar" id="partnersTitle" style="display:none;">🎮 Outros Sites de Jogos</h2>
 
 <div class="grid" id="partnersGrid" style="display:none;">
@@ -436,12 +409,11 @@
         <span class="tag gray">Jogos</span>
       </div>
     </div>
-  </a>
+  </div>
 </div>
 
-<!-- ── FOOTER ────────────────────────────────────────────────── -->
 <footer>
-  <div class="logo-badge2">
+  <div class="logo-container">
     <img src="https://jogosdagalera.pages.dev/logo3.png" alt="Jogos da Galera">
   </div>
   <nav class="footer-links">
@@ -456,10 +428,10 @@
 
 <script>
   /* ── STATE ──────────────────────────────────────────────── */
-  const searchInput  = document.getElementById('searchInput');
-  const gameGrid     = document.getElementById('gameGrid');
+  const searchInput = document.getElementById('searchInput');
+  const gameGrid = document.getElementById('gameGrid');
   const partnersTitle = document.getElementById('partnersTitle');
-  const partnersGrid  = document.getElementById('partnersGrid');
+  const partnersGrid = document.getElementById('partnersGrid');
   let activeCategory = 'todos';
 
   const FALLBACK_IMG = 'https://jogosdagalera.pages.dev/logowpp.png';
@@ -470,7 +442,7 @@
 
     gameGrid.querySelectorAll('.card').forEach(card => {
       const matchCategory = activeCategory === 'todos' || card.dataset.category === activeCategory;
-      const matchSearch   = !query || (card.dataset.name || '').includes(query);
+      const matchSearch = !query || (card.dataset.name || '').includes(query);
       card.classList.toggle('hidden', !(matchCategory && matchSearch));
     });
   }
@@ -484,10 +456,9 @@
 
   searchInput.addEventListener('input', updateGames);
 
-  /* ── PARTNERS ───────────────────────────────────────────── */
   function revealPartners() {
     partnersTitle.style.display = 'flex';
-    partnersGrid.style.display  = 'grid';
+    partnersGrid.style.display = 'grid';
   }
 
   /* ── CARD BUILDER ───────────────────────────────────────── */
@@ -497,10 +468,10 @@
       .join('');
 
     const card = document.createElement('a');
-    card.className       = 'card';
-    card.href            = `./${folderName}/`;
+    card.className = 'card';
+    card.href = `./${folderName}/`;
     card.dataset.category = meta.category;
-    card.dataset.name    = `${meta.title.toLowerCase()} ${folderName.toLowerCase()} ${meta.category}`;
+    card.dataset.name = `${meta.title.toLowerCase()} ${folderName.toLowerCase()} ${meta.category}`;
 
     card.innerHTML = `
       <div class="card-thumb" style="background:${meta.background};">
@@ -519,42 +490,44 @@
   async function loadGames() {
     try {
       const res = await fetch('/api/games');
-      if (!res.ok) {
-        const { error } = await res.json().catch(() => ({ error: `Status ${res.status}` }));
-        throw new Error(error);
-      }
+      if (!res.ok) throw new Error(`Status ${res.status}`);
 
       const folders = await res.json();
-      gameGrid.innerHTML = '';
-
-      await Promise.all(folders.map(async ({ name }) => {
+      
+      // Processa metadados em paralelo preservando o mapeamento original
+      const gamesData = await Promise.all(folders.map(async ({ name }) => {
         const defaultMeta = {
-          title:       name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' '),
+          title: name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' '),
           description: 'Jogue agora este jogo multiplayer no navegador.',
-          category:    'acao',
-          image:       `./${name}/thumb.png`,
-          tags:        ['Multiplayer', 'Web'],
-          background:  'linear-gradient(135deg,#1a2635,#0f1923)',
+          category: 'acao',
+          icon: `./${name}/thumb.png`,
+          tags: ['Multiplayer', 'Web'],
+          background: 'linear-gradient(135deg,#1a2635,#0f1923)',
         };
 
-        let meta = defaultMeta;
         try {
           const metaRes = await fetch(`./${name}/metadata.json`);
-          if (metaRes.ok) meta = { ...defaultMeta, ...await metaRes.json() };
+          if (metaRes.ok) {
+            const customMeta = await metaRes.json();
+            return { name, meta: { ...defaultMeta, ...customMeta } };
+          }
         } catch (_) {}
 
-        gameGrid.appendChild(buildCard(name, meta));
+        return { name, meta: defaultMeta };
       }));
+
+      // Renderiza na ordem exata e sequencial do array original
+      gameGrid.innerHTML = '';
+      gamesData.forEach(({ name, meta }) => {
+        gameGrid.appendChild(buildCard(name, meta));
+      });
 
       updateGames();
       revealPartners();
 
     } catch (err) {
       console.error(err);
-      gameGrid.innerHTML = `
-        <p style="grid-column:1/-1;text-align:center;color:#ff4a4a;padding:20px;">
-          Erro: ${err.message}
-        </p>`;
+      gameGrid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:#ff4a4a;padding:20px;">Erro: ${err.message}</p>`;
       revealPartners();
     }
   }
@@ -576,7 +549,7 @@
         const { outcome } = await deferredPrompt.userChoice;
         alert(outcome === 'accepted' ? '✅ App adicionado à tela inicial!' : '❌ Instalação cancelada.');
       } catch (err) {
-        console.error('Erro aguardando userChoice:', err);
+        console.error(err);
       }
       deferredPrompt = null;
       return;
