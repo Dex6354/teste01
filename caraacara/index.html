@@ -27,1037 +27,486 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 24px 0 8px;
-            gap: 32px;
-            box-sizing: border-box;
-        }
-        #home-navbar-container .nav-logo { text-decoration: none; color: inherit; display: block; margin-left: 0; }
-        #home-navbar-container .logo-badge {
-            width: 200px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start; /* Alinha o conteúdo do badge totalmente à esquerda */
-            flex-shrink: 0;
-        }
-        #home-navbar-container .logo-badge img {
-            height: 100%;
-            width: 100%;
-            object-fit: contain;
-            object-position: left; /* Força a imagem a colar no canto esquerdo */
-            display: block;
-        }
-        #home-navbar-container .nav-lang {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: #1a2635;
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 7px;
-            padding: 5px 10px;
-            color: #7a92a8;
-            font-size: 13px;
-            font-family: 'Nunito', sans-serif;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        @media (max-width: 560px) {
-            #home-navbar-container { padding: 0 14px 0 8px; gap: 10px; }
-            #home-navbar-container .logo-badge { 
-                width: 200px; 
-                height: 40px; 
-                justify-content: flex-start;
-            }
         }
     </style>
 </head>
-<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
+<body class="bg-slate-950 text-slate-100 font-sans flex flex-col min-h-screen selection:bg-indigo-500 selection:text-white">
 
-    <div class="sticky top-0 z-50 w-full flex flex-col shadow-md">
-        <nav id="home-navbar-container">
-            <a class="nav-logo" href="/">
-                <div class="logo-badge">
-                    <img src="https://jogosdagalera.pages.dev/logo3.png" alt="Jogos da Galera">
-                </div>
-            </a>
-            <div>
-                <a class="nav-lang" href="/">🏠 Home</a>
+    <div id="home-navbar-container"></div>
+
+    <div id="lobby-screen" class="flex-1 flex flex-col items-center justify-center p-4 max-w-md mx-auto w-full">
+        <div class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    Cara a Cara
+                </h1>
+                <p class="text-sm text-slate-400">Descubra o personagem do seu oponente</p>
             </div>
-        </nav>
-        
-        <header id="topbar" class="bg-slate-800 p-2.5 border-b-4 border-slate-700 transition-colors duration-500 max-w-full overflow-hidden">
-            <div class="max-w-md mx-auto px-1">
-                <div class="flex justify-between items-center relative gap-2">
-                    <h1 class="font-extrabold text-sm tracking-wider shrink-0">
-                        <img src="img/logo.jpg" class="w-20 h-6 object-cover object-center rounded-md" alt="Logo">
-                    </h1>
-                    <div class="flex flex-col items-center space-y-1 text-[11px] text-slate-400 font-mono shrink-0 text-center">
-                        <span>Sala: <strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
-                        <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition whitespace-nowrap">
-                            📋Compartilhar
-                        </button>
-                    </div>
-                    <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow shrink-0 whitespace-nowrap">
-                        🚪 Trocar Sala
+
+            <div id="lobby-actions" class="space-y-3">
+                <button onclick="createRoom()" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] transition font-semibold py-3 px-4 rounded-xl shadow-lg shadow-indigo-500/20 text-sm flex items-center justify-center gap-2">
+                    Criar Sala Privada
+                </button>
+                <div class="relative flex py-2 items-center text-slate-500">
+                    <div class="flex-grow border-t border-slate-800"></div>
+                    <span class="flex-shrink mx-4 text-xs font-medium tracking-wider uppercase">Ou entre em uma</span>
+                    <div class="flex-grow border-t border-slate-800"></div>
+                </div>
+                <div class="space-y-2">
+                    <input type="text" id="room-input" placeholder="Digite o código da sala" 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition text-center font-mono uppercase tracking-widest placeholder:font-sans placeholder:tracking-normal">
+                    <button onclick="joinRoom()" class="w-full bg-slate-800 hover:bg-slate-700 active:scale-[0.98] transition font-semibold py-3 px-4 rounded-xl text-sm">
+                        Entrar na Sala
                     </button>
                 </div>
             </div>
-        </header>
+
+            <div id="lobby-status" class="text-center text-xs text-slate-500 hidden animate-pulse"></div>
+        </div>
     </div>
 
-    <main class="flex-grow flex flex-col items-center justify-center p-3 w-full max-w-md mx-auto mb-12">
-        
-        <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center" style="top: 0;">
-            <div class="bg-slate-900 border-2 border-slate-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
-                <h2 class="text-xl font-extrabold mb-2">Aguardando Conexão</h2>
-                <p class="text-slate-400 text-xs">Envie o link da sala para seu oponente usando o botão de compartilhar no topo. O jogo começará assim que ele entrar!</p>
-                
-                <div id="connection-status" class="text-amber-400 text-xs font-medium animate-pulse">
-                    Procurando sinal do servidor P2P...
-                </div>
-                <div id="loading-peer" class="hidden text-amber-400 text-xs font-medium animate-pulse">Configurando sala...</div>
-            </div>
-        </div>
-
-        <div id="game-scoreboard" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between relative overflow-hidden mb-3">
-            <div id="p1-avatar-bg" class="w-20 h-28 p-1 rounded-xl border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shrink-0 shadow bg-slate-950">
-                <img id="p1-avatar" src="" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)] hidden" />
-                <span id="p1-avatar-placeholder" class="text-2xl font-black text-slate-600 font-mono">?</span>
-            </div>
-
-            <div class="flex flex-col justify-between h-28 flex-1 px-3 min-w-0">
-                <div class="flex flex-col items-start leading-tight text-left w-full">
-                    <span class="text-red-400 font-black text-xs tracking-wide whitespace-nowrap">P1 (Vermelho)</span>
-                    <div class="flex items-center space-x-1 mt-0.5 justify-start">
-                        <span id="status-dot-p1" class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
-                        <span id="status-text-p1" class="text-[10px] text-rose-400 font-bold font-mono">Offline</span>
-                    </div>
-                    <div id="count-red-box" class="text-[10px] text-slate-400 font-bold mt-1 hidden">Restam: <span id="count-red" class="text-amber-400 font-mono">24</span></div>
-                </div>
-
-                <div class="select-none shrink-0 py-0.5 self-center flex items-center space-x-2">
-                    <span id="score-red" class="bg-slate-950 px-1.5 py-0.5 rounded text-white font-mono text-xs font-bold shrink-0">0</span>
-                    <span class="bg-gradient-to-r from-red-500 to-blue-500 text-transparent bg-clip-text font-black italic text-base tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">VS</span>
-                    <span id="score-blue" class="bg-slate-950 px-1.5 py-0.5 rounded text-white font-mono text-xs font-bold shrink-0">0</span>
-                </div>
-
-                <div class="flex flex-col items-end leading-tight text-right w-full">
-                    <span class="text-blue-400 font-black text-xs tracking-wide whitespace-nowrap">P2 (Azul)</span>
-                    <div class="flex items-center space-x-1 mt-0.5 justify-end">
-                        <span id="status-text-p2" class="text-[10px] text-rose-400 font-bold font-mono">Offline</span>
-                        <span id="status-dot-p2" class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
-                    </div>
-                    <div id="count-blue-box" class="text-[10px] text-slate-400 font-bold mt-1 hidden">Restam: <span id="count-blue" class="text-amber-400 font-mono">24</span></div>
-                </div>
-            </div>
-
-            <div id="p2-avatar-bg" class="w-20 h-28 p-1 rounded-xl border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shrink-0 shadow bg-slate-950">
-                <img id="p2-avatar" src="" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)] hidden" />
-                <span id="p2-avatar-placeholder" class="text-2xl font-black text-slate-600 font-mono">?</span>
-            </div>
-        </div>
-
-        <div id="screen-select" class="w-full space-y-4 text-center">
-            <div class="bg-slate-800 p-3 rounded-xl border border-slate-700">
-                <h2 id="select-screen-title" class="text-base font-bold text-amber-400">Escolha o SEU Personagem Secreto</h2>
-                <p class="text-[11px] text-slate-400">Esconda a tela! Seu oponente terá que adivinhar quem você escolheu.</p>
+    <div id="selection-screen" class="flex-1 max-w-md mx-auto w-full p-4 flex flex-col justify-between hidden">
+        <div class="space-y-4">
+            <div class="text-center">
+                <span class="text-xs font-bold tracking-widest uppercase text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full">Etapa 1</span>
+                <h2 class="text-xl font-bold mt-2">Escolha seu Personagem</h2>
+                <p class="text-xs text-slate-400 mt-1">Este é o personagem que seu oponente terá que adivinhar</p>
             </div>
             
-            <div id="select-grid" class="grid grid-cols-4 gap-2 w-full text-center"></div>
+            <div id="selection-grid" class="grid grid-cols-4 gap-2 bg-slate-900 border border-slate-800 p-3 rounded-2xl max-h-[60vh] overflow-y-auto">
+                </div>
         </div>
 
-        <div id="screen-game" class="hidden w-full space-y-3">
-            <button id="btn-guess-mode" onclick="toggleGuessMode()" class="w-full bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition border border-slate-700 shadow shadow-amber-500/10">
-                🎯 Dar Palpite Final (Acusar Suspeito)
+        <div class="pt-4 border-t border-slate-900 bg-slate-950 sticky bottom-0">
+            <button id="btn-confirm-character" onclick="confirmCharacterSelection()" disabled
+                class="w-full bg-slate-800 text-slate-500 font-bold py-3 rounded-xl text-sm cursor-not-allowed transition">
+                Selecione um Personagem
             </button>
-
-            <button id="btn-turn" onclick="passTurn()" class="w-full font-bold py-2.5 rounded-xl text-xs transition border border-slate-700 shadow">
-                Carregando Turno...
-            </button>
-
-            <div id="board-grid" class="grid grid-cols-4 gap-2 w-full"></div>
+            <p id="waiting-opponent-selection" class="text-center text-xs text-slate-400 mt-2 hidden animate-pulse">
+                Aguardando oponente escolher...
+            </p>
         </div>
+    </div>
 
-        <div id="char-confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-            <div class="bg-slate-900 border-2 border-amber-500 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
-                <h3 id="char-confirm-title" class="text-lg font-black text-amber-400 tracking-wide">CONFIRMAR PERSONAGEM?</h3>
-                <p class="text-[11px] text-slate-400">Esconda a tela! Seu oponente terá que adivinhar quem você escolheu.</p>
-                <div id="char-confirm-modal-bg" class="w-24 h-32 mx-auto rounded-lg border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shadow-inner">
-                    <img id="char-confirm-modal-img" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]">
-                </div>
-                <div id="char-confirm-buttons" class="flex space-x-3 pt-2">
-                    <button onclick="closeCharConfirmModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs transition">
-                        Escolher outro
-                    </button>
-                    <button onclick="executeCharacterConfirmation()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-xs transition shadow-lg">
-                        Confirmar
-                    </button>
-                </div>
-                <div id="char-waiting-buttons" class="hidden pt-2">
-                    <button onclick="cancelCharacterConfirmation()" class="w-full bg-slate-700 hover:bg-red-600 text-white font-bold py-2.5 rounded-xl text-xs transition border border-slate-600">
-                        🔄 Trocar Personagem
-                    </button>
-                </div>
+    <div id="game-screen" class="flex-1 max-w-md mx-auto w-full p-4 flex flex-col justify-between hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex justify-between items-center text-xs mb-3">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                <span class="text-slate-400">Sala:</span>
+                <span id="display-room-code" class="font-mono font-bold text-slate-200"></span>
+            </div>
+            <div id="my-character-preview" class="flex items-center gap-2 bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg">
+                <span class="text-slate-400">Seu personagem:</span>
+                <span id="my-char-name" class="font-bold text-indigo-400"></span>
             </div>
         </div>
 
-        <div id="confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-            <div class="bg-slate-900 border-2 border-amber-500 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
-                <h3 class="text-lg font-black text-amber-400 tracking-wide">CONFIRMAR PALPITE FINAL?</h3>
-                <p class="text-xs text-slate-300">Você tem certeza que o personagem secreto do seu oponente é este?</p>
-                <div id="confirm-modal-img-bg" class="w-24 h-32 mx-auto rounded-lg border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shadow-inner">
-                    <img id="confirm-modal-char-img" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]">
+        <div id="board-grid" class="grid grid-cols-4 gap-2 bg-slate-900 border border-slate-800 p-3 rounded-2xl flex-1 overflow-y-auto max-h-[65vh]">
+            </div>
+
+        <div class="pt-3 border-t border-slate-900 bg-slate-950 sticky bottom-0 flex gap-2">
+            <button onclick="triggerGuessMode()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 font-bold py-3 rounded-xl text-sm transition">
+                Dar Palpite Final
+            </button>
+            <button onclick="forfeitGame()" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 font-medium px-4 rounded-xl text-sm transition">
+                Desistir
+            </button>
+        </div>
+    </div>
+
+    <div id="game-over-screen" class="flex-1 flex flex-col items-center justify-center p-4 max-w-md mx-auto w-full hidden">
+        <div class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl text-center space-y-6">
+            <div id="game-over-icon" class="text-5xl">🏆</div>
+            <div class="space-y-1">
+                <h2 id="game-over-title" class="text-2xl font-black tracking-tight">Você Ganhou!</h2>
+                <p id="game-over-message" class="text-sm text-slate-400"></p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 bg-slate-950 border border-slate-800 p-3 rounded-xl text-left text-xs">
+                <div>
+                    <span class="text-slate-500 block mb-1">Seu personagem:</span>
+                    <div id="end-my-char" class="font-bold text-slate-200"></div>
                 </div>
-                <p class="text-[10px] text-rose-400 bg-rose-950/30 p-2 rounded border border-rose-900/50 font-medium">Atenção: Se voce errar, perderá o jogo imediatamente!</p>
-                <div class="flex space-x-3 pt-2">
-                    <button onclick="closeConfirmModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs transition">
-                        Cancelar
-                    </button>
-                    <button onclick="executeFinalAccusation()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-xs transition shadow-lg">
-                        Confirmar
-                    </button>
+                <div class="border-l border-slate-800 pl-3">
+                    <span class="text-slate-500 block mb-1">Oponente era:</span>
+                    <div id="end-opp-char" class="font-bold text-indigo-400"></div>
                 </div>
             </div>
-        </div>
 
-        <div id="game-over-screen" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-            <div class="border-2 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl" id="game-over-box">
-                <h2 id="game-over-title" class="text-2xl font-black tracking-wide"></h2>
-                <p id="game-over-msg" class="text-sm text-slate-300 px-2 font-medium leading-tight"></p>
-                
-                <div id="game-over-guess-char-container" class="hidden text-center mx-auto my-1 flex flex-col items-center">
-                    <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Personagem Palpitado</span>
-                    <div id="game-over-guess-char-bg" class="w-16 h-20 p-1 rounded-xl border border-amber-500 bg-cover bg-center flex items-center justify-center overflow-hidden shadow mt-1 bg-slate-950">
-                        <img id="game-over-guess-char-img" src="" class="w-full h-full object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" />
-                    </div>
-                </div>
-
-                <div id="modal-scoreboard" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-xl flex items-center justify-between relative overflow-hidden">
-                    <div class="flex flex-col items-center shrink-0">
-                        <div id="modal-p1-avatar-bg" class="w-20 h-28 p-1 rounded-xl border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shadow bg-slate-950">
-                            <img id="modal-p1-avatar" src="" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)] hidden" />
-                            <span id="modal-p1-avatar-placeholder" class="text-2xl font-black text-slate-600 font-mono">?</span>
-                        </div>
-                        <span id="label-p1" class="text-[10px] font-bold mt-1 uppercase tracking-wider text-slate-400">P1</span>
-                    </div>
-
-                    <div class="flex flex-col justify-between h-28 flex-1 px-3 min-w-0">
-                        <div class="flex flex-col items-start leading-tight text-left w-full">
-                            <span class="text-red-400 font-black text-xs tracking-wide whitespace-nowrap">P1 (Vermelho)</span>
-                            <div class="flex items-center space-x-1 mt-0.5 justify-start">
-                                <span id="modal-status-dot-p1" class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
-                                <span id="modal-status-text-p1" class="text-[10px] text-rose-400 font-bold font-mono">Offline</span>
-                            </div>
-                        </div>
-
-                        <div class="select-none shrink-0 py-0.5 self-center flex items-center space-x-2">
-                            <span id="modal-score-red" class="bg-slate-950 px-1.5 py-0.5 rounded text-white font-mono text-xs font-bold shrink-0">0</span>
-                            <span class="bg-gradient-to-r from-red-500 to-blue-500 text-transparent bg-clip-text font-black italic text-base tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">VS</span>
-                            <span id="modal-score-blue" class="bg-slate-950 px-1.5 py-0.5 rounded text-white font-mono text-xs font-bold shrink-0">0</span>
-                        </div>
-
-                        <div class="flex flex-col items-end leading-tight text-right w-full">
-                            <span class="text-blue-400 font-black text-xs tracking-wide whitespace-nowrap">P2 (Azul)</span>
-                            <div class="flex items-center space-x-1 mt-0.5 justify-end">
-                                <span id="modal-status-text-p2" class="text-[10px] text-rose-400 font-bold font-mono">Offline</span>
-                                <span id="modal-status-dot-p2" class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col items-center shrink-0">
-                        <div id="modal-p2-avatar-bg" class="w-20 h-28 p-1 rounded-xl border border-slate-700 bg-cover bg-center flex items-center justify-center overflow-hidden shadow bg-slate-950">
-                            <img id="modal-p2-avatar" src="" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)] hidden" />
-                            <span id="modal-p2-avatar-placeholder" class="text-2xl font-black text-slate-600 font-mono">?</span>
-                        </div>
-                        <span id="label-p2" class="text-[10px] font-bold mt-1 uppercase tracking-wider text-slate-400">P2</span>
-                    </div>
-                </div>
-
-                <button id="btn-next-game" onclick="requestNewGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">
-                    🔄 Jogar Nova Partida
+            <div class="space-y-2">
+                <button id="btn-next-game" onclick="requestNewGame()" class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-3 rounded-xl text-sm transition">
+                    Jogar Novamente
                 </button>
-                <p id="waiting-opponent-next" class="hidden text-amber-400 text-xs animate-pulse font-medium">Aguardando oponente aceitar novo jogo...</p>
-                <p id="opponent-requested-rematch" class="hidden text-amber-400 text-xs animate-pulse font-medium">Oponente solicitou revanche...</p>
+                <div id="opponent-requested-rematch" class="text-xs text-amber-400 font-medium hidden animate-pulse">
+                    ⚠️ Oponente deseja jogar novamente!
+                </div>
+                <div id="waiting-opponent-next" class="text-xs text-slate-400 hidden animate-pulse">
+                    Aguardando oponente aceitar...
+                </div>
+                <button onclick="window.location.reload()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-2 rounded-xl text-xs transition">
+                    Voltar ao Menu Principal
+                </button>
             </div>
         </div>
-
-    </main>
-
-    <footer class="p-3 text-center text-[11px] text-slate-500 border-t border-slate-800 bg-slate-950 fixed bottom-0 left-0 right-0 z-30">
-        🗣️ Pergunte face a face • 👁️ Olhe nos olhos do oponente
-    </footer>
+    </div>
 
     <script>
-        const characters = [
-            { id: 1, name: "Diego", url: "img/01.png" },
-            { id: 2, name: "Marcelo", url: "img/02.png" },
-            { id: 3, name: "Vinícius", url: "img/03.png" },
-            { id: 4, name: "Rodrigo", url: "img/04.png" },
-            { id: 5, name: "Vanessa", url: "img/05.png" },
-            { id: 6, name: "André", url: "img/06.png" },
-            { id: 7, name: "Ricardo", url: "img/07.png" },
-            { id: 8, name: "Flávio", url: "img/08.png" },
-            { id: 9, name: "José Luis", url: "img/09.png" },
-            { id: 10, name: "Adriana", url: "img/10.png" },
-            { id: 11, name: "Rafael", url: "img/11.png" },
-            { id: 12, name: "Mário", url: "img/12.png" },
-            { id: 13, name: "Claudia", url: "img/13.png" },
-            { id: 14, name: "Bruno", url: "img/14.png" },
-            { id: 15, name: "Tiago", url: "img/15.png" },
-            { id: 16, name: "Pablo", url: "img/16.png" },
-            { id: 17, name: "Cristiane", url: "img/17.png" },
-            { id: 18, name: "Douglas", url: "img/18.png" },
-            { id: 19, name: "Leonardo", url: "img/19.png" },
-            { id: 20, name: "Fábio", url: "img/20.png" },
-            { id: 21, name: "Daniel", url: "img/21.png" },
-            { id: 22, name: "Arnaldo", url: "img/22.png" },
-            { id: 23, name: "Lucas", url: "img/23.png" },
-            { id: 24, name: "Aline", url: "img/24.png" }
-        ];
+        /* ── DINAMICAMENTE CARREGA A NAVBAR DA HOME ───────────────── */
+        async function loadDynamicNavbar() {
+            try {
+                const response = await fetch('index.html');
+                if (!response.ok) throw new Error('Não foi possível carregar a navbar');
+                const htmlText = await response.text();
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+                const remoteNavbar = doc.getElementById('home-navbar-container');
+                
+                if (remoteNavbar) {
+                    document.getElementById('home-navbar-container').innerHTML = remoteNavbar.innerHTML;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar a navbar dinâmica:', error);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', loadDynamicNavbar);
 
+        /* ── LÓGICA E VARIÁVEIS DO JOGO ───────────────────────────── */
+        let charactersData = [];
         let peer = null;
         let conn = null;
-        let myRole = ''; 
-        let selectedCharacterId = null;
-        let temporarySelectedId = null;
-        let opponentCharacterId = null;
-        let isGuessMode = false;
-        let pendingAccusationId = null;
-        let isMyTurn = false;
-        
-        let score = { red: 0, blue: 0 };
+        let myPeerId = null;
+        let roomCode = null;
+        let isHost = false;
+
+        let selectedCharacterId = null; 
+        let opponentCharacterId = null; 
+        let temporarySelectedId = null; 
+
         let localPlayerReadyForNext = false;
         let opponentReadyForNext = false;
 
-        const screenLobby = document.getElementById('screen-lobby');
-        const screenSelect = document.getElementById('screen-select');
-        const screenGame = document.getElementById('screen-game');
-        const topbar = document.getElementById('topbar');
+        // Carrega base de personagens dos parceiros da home
+        async function fetchCharacters() {
+            try {
+                const response = await fetch('https://extensao-gremio.github.io/SGE/parceiros.json');
+                const partners = await response.json();
+                charactersData = partners.map((p, index) => ({
+                    id: String(index + 1),
+                    name: p.nome,
+                    img: p.imagem || 'https://caraacara.pages.dev/img/logowpp.jpg'
+                }));
+            } catch (err) {
+                console.error("Erro carregando personagens:", err);
+                // Fallback local se falhar
+                charactersData = Array.from({length: 24}, (_, i) => ({
+                    id: String(i+1),
+                    name: `Personagem ${i+1}`,
+                    img: 'https://caraacara.pages.dev/img/logowpp.jpg'
+                }));
+            }
+        }
 
-        function saveGameState() {
-            if (!roomCode) return;
-            localStorage.setItem(`cara_score_${roomCode}`, JSON.stringify(score));
-            localStorage.setItem(`cara_my_char_${roomCode}`, selectedCharacterId || '');
-            localStorage.setItem(`cara_opp_char_${roomCode}`, opponentCharacterId || '');
-            
-            const flipped = [];
-            characters.forEach(char => {
-                const card = document.getElementById(`board-card-${char.id}`);
-                if (card && card.classList.contains('card-flipped')) {
-                    flipped.push(char.id);
-                }
+        function generateRoomCode() {
+            return Math.random().toString(36).substring(2, 6).toUpperCase();
+        }
+
+        function showStatus(msg) {
+            const statusDiv = document.getElementById('lobby-status');
+            statusDiv.classList.remove('hidden');
+            statusDiv.innerText = msg;
+        }
+
+        async function initPeer(id) {
+            peer = new Peer(id, {
+                host: 'peerjs.com',
+                secure: true,
+                port: 443,
+                debug: 1
             });
-            localStorage.setItem(`cara_flipped_${roomCode}`, JSON.stringify(flipped));
-        }
 
-        function loadGameState() {
-            if (!roomCode) return;
-            const savedScore = localStorage.getItem(`cara_score_${roomCode}`);
-            if (savedScore) score = JSON.parse(savedScore);
-            
-            const savedMyChar = localStorage.getItem(`cara_my_char_${roomCode}`);
-            if (savedMyChar) selectedCharacterId = parseInt(savedMyChar);
-
-            const savedOppChar = localStorage.getItem(`cara_opp_char_${roomCode}`);
-            if (savedOppChar) opponentCharacterId = parseInt(savedOppChar);
-            
-            updateScoreboardVisual();
-        }
-
-        function restoreFlippedCards() {
-            const savedFlipped = localStorage.getItem(`cara_flipped_${roomCode}`);
-            if (savedFlipped) {
-                const flippedIds = JSON.parse(savedFlipped);
-                flippedIds.forEach(id => {
-                    const card = document.getElementById(`board-card-${id}`);
-                    if (card) card.classList.add('card-flipped');
+            return new Promise((resolve) => {
+                peer.on('open', (openedId) => { resolve(openedId); });
+                peer.on('error', (err) => {
+                    console.error("PeerJS Error:", err);
+                    if (err.type === 'unavailable-id' && isHost) {
+                        roomCode = generateRoomCode();
+                        initPeer('CARA-' + roomCode).then(resolve);
+                    } else {
+                        alert("Erro de conexão. Tente novamente.");
+                        window.location.reload();
+                    }
                 });
-            }
-        }
-
-        function preRenderSelectGrid() {
-            const selectGrid = document.getElementById('select-grid');
-            if (selectGrid.children.length > 0) return;
-            
-            const bgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
-            
-            characters.forEach(char => {
-                const card = document.createElement('div');
-                card.id = `select-card-${char.id}`;
-                card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center shadow";
-                card.innerHTML = `
-                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden text-center">
-                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
-                    </div>
-                `;
-                selectGrid.appendChild(card);
             });
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        let roomCode = urlParams.get('room');
-
-        if (!roomCode) {
-            const generatedCode = 'CARA-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_room', generatedCode);
-            window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
-        } else {
-            document.getElementById('topbar-room-id').innerText = roomCode;
+        async function createRoom() {
+            await fetchCharacters();
+            roomCode = generateRoomCode();
+            isHost = true;
             
-            if (roomCode === localStorage.getItem('hosted_room')) {
-                myRole = 'red';
-            } else {
-                myRole = 'blue';
-            }
-
-            preRenderSelectGrid();
-            loadGameState();
-
-            const savedGameOver = localStorage.getItem(`cara_game_over_${roomCode}`);
-            if (savedGameOver) {
-                applyGameOver(JSON.parse(savedGameOver), true);
-            }
-
-            if (myRole === 'red') {
-                initHost(roomCode);
-            } else {
-                initGuest(roomCode);
-            }
-        }
-
-        window.addEventListener('beforeunload', () => {
-            if (conn) conn.close();
-            if (peer) peer.destroy();
-        });
-
-        function updatePresenceUI(p1Online, p2Online) {
-            const dotP1 = document.getElementById('status-dot-p1');
-            const textP1 = document.getElementById('status-text-p1');
-            const dotP2 = document.getElementById('status-dot-p2');
-            const textP2 = document.getElementById('status-text-p2');
-
-            const mDotP1 = document.getElementById('modal-status-dot-p1');
-            const mTextP1 = document.getElementById('modal-status-text-p1');
-            const mDotP2 = document.getElementById('modal-status-dot-p2');
-            const mTextP2 = document.getElementById('modal-status-text-p2');
-
-            const applyStatus = (dot, text, online) => {
-                if (online) {
-                    dot.className = "w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shrink-0";
-                    text.innerText = "Online";
-                    text.className = "text-green-400 font-bold font-mono text-[10px]";
-                } else {
-                    dot.className = "w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0";
-                    text.innerText = "Offline";
-                    text.className = "text-rose-400 font-bold font-mono text-[10px]";
-                }
-            };
-
-            applyStatus(dotP1, textP1, p1Online);
-            applyStatus(mDotP1, mTextP1, p1Online);
-            applyStatus(dotP2, textP2, p2Online);
-            applyStatus(mDotP2, mTextP2, p2Online);
-        }
-
-        function initHost(code) {
-            document.getElementById('loading-peer').classList.remove('hidden');
-            updatePresenceUI(true, false);
+            showStatus(`Criando sala ${roomCode}...`);
+            await initPeer('CARA-' + roomCode);
             
-            if (peer && !peer.destroyed) {
-                document.getElementById('loading-peer').classList.add('hidden');
-                setupTheme();
-                return;
-            }
-
-            peer = new Peer(code);
-
-            peer.on('open', () => {
-                document.getElementById('loading-peer').classList.add('hidden');
-                document.getElementById('connection-status').innerText = "Aguardando entrada do Jogador 2...";
-                setupTheme();
-            });
+            showStatus(`Sala criada! Código: ${roomCode}. Aguardando oponente...`);
 
             peer.on('connection', (connection) => {
                 conn = connection;
-                handleEvents();
-            });
-
-            peer.on('error', (err) => {
-                if (err.type === 'unavailable-id') {
-                    setTimeout(() => initHost(code), 500);
-                }
+                setupConnectionHandlers();
             });
         }
 
-        function initGuest(code) {
-            updatePresenceUI(false, true);
-            if (peer) { try { peer.destroy(); } catch(e){} }
-            peer = new Peer();
+        async function joinRoom() {
+            const input = document.getElementById('room-input').value.trim().toUpperCase();
+            if (!input) return alert("Digite o código da sala!");
             
-            peer.on('open', () => {
-                document.getElementById('connection-status').innerText = "Conectando ao Jogador 1...";
-                conn = peer.connect(code);
-                handleEvents();
+            await fetchCharacters();
+            roomCode = input;
+            isHost = false;
+
+            showStatus(`Conectando à sala ${roomCode}...`);
+            myPeerId = 'CARA-CLIENT-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+            await initPeer(myPeerId);
+
+            conn = peer.connect('CARA-' + roomCode);
+            setupConnectionHandlers();
+        }
+
+        function setupConnectionHandlers() {
+            conn.on('open', () => {
+                startSelectionStage();
             });
 
-            peer.on('error', (err) => {
-                setTimeout(() => initGuest(code), 500);
+            conn.on('data', (data) => {
+                handleIncomingData(data);
+            });
+
+            conn.on('close', () => {
+                alert("Oponente desconectou.");
+                window.location.reload();
             });
         }
 
-        function updateOpponentSelectionBorder() {
-            const oppPrefix = myRole === 'red' ? 'p2' : 'p1';
-            const oppBg = document.getElementById(`${oppPrefix}-avatar-bg`);
-            if (oppBg) {
-                if (opponentCharacterId) {
-                    oppBg.classList.remove('border-slate-700');
-                    oppBg.classList.add('border-green-500');
+        function handleIncomingData(data) {
+            if (data.type === 'CHARACTER_SELECTED') {
+                opponentCharacterId = data.characterId;
+                localStorage.setItem(`cara_opp_char_${roomCode}`, opponentCharacterId);
+                checkSelectionTransition();
+            }
+            if (data.type === 'GUESS_MADE') {
+                if (data.characterId === selectedCharacterId) {
+                    conn.send({ type: 'GAME_OVER_RESULT', winner: 'OPPONENT' });
+                    triggerGameOver('LOSE', "O oponente adivinhou corretamente seu personagem!");
                 } else {
-                    oppBg.classList.remove('border-green-500');
-                    oppBg.classList.add('border-slate-700');
+                    conn.send({ type: 'GAME_OVER_RESULT', winner: 'LOCAL' });
+                    triggerGameOver('WIN', "O oponente errou o palpite final!");
                 }
             }
-        }
-
-        function handleEvents() {
-            const currentConn = conn;
-
-            function onConnOpen() {
-                if (conn !== currentConn) return; 
-                updatePresenceUI(true, true);
-                setupTheme();
-                
-                if (selectedCharacterId) {
-                    currentConn.send({ type: 'SYNC_CHARACTER', id: selectedCharacterId, isReconnect: true });
-                }
-
-                const savedGameOver = localStorage.getItem(`cara_game_over_${roomCode}`);
-                if (savedGameOver) {
-                    applyGameOver(JSON.parse(savedGameOver), true);
-                } else if (selectedCharacterId && opponentCharacterId) {
-                    buildGameBoard();
-                    restoreFlippedCards();
-                    updateRemainingCount();
+            if (data.type === 'GAME_OVER_RESULT') {
+                if (data.winner === 'LOCAL') {
+                    triggerGameOver('WIN', "Você adivinhou corretamente o personagem do oponente!");
                 } else {
-                    startSelectionStage();
+                    triggerGameOver('LOSE', "Você errou o palpite final!");
                 }
             }
-
-            if (currentConn.open) {
-                onConnOpen();
-            } else {
-                currentConn.on('open', onConnOpen);
+            if (data.type === 'FORFEIT') {
+                triggerGameOver('WIN', "O oponente desistiu da partida.");
             }
-
-            currentConn.on('data', (data) => {
-                if (conn !== currentConn) return; 
-                if (data.type === 'SYNC_CHARACTER') {
-                    opponentCharacterId = data.id;
-                    saveGameState();
-                    
-                    if (data.isReconnect && selectedCharacterId) {
-                        currentConn.send({ type: 'SYNC_CHARACTER', id: selectedCharacterId });
-                    }
-                    updateOpponentSelectionBorder();
-                    checkBothSelected();
-                } else if (data.type === 'GAME_OVER') {
-                    applyGameOver(data);
-                } else if (data.type === 'NEXT_GAME_READY') {
-                    opponentReadyForNext = true;
-                    document.getElementById('opponent-requested-rematch').classList.remove('hidden');
-                    checkNextGameTransition();
-                } else if (data.type === 'TURN_CHANGED') {
-                    isMyTurn = true;
-                    updateTurnUI();
-                } else if (data.type === 'UPDATE_COUNT') {
-                    const oppCountId = myRole === 'red' ? 'count-blue' : 'count-red';
-                    const el = document.getElementById(oppCountId);
-                    if (el) el.innerText = data.count;
-                }
-            });
-
-            currentConn.on('close', () => {
-                if (conn !== currentConn) return; 
-                if (myRole === 'red') {
-                    updatePresenceUI(true, false);
-                } else {
-                    updatePresenceUI(false, true);
-                }
-                
-                const savedGameOver = localStorage.getItem(`cara_game_over_${roomCode}`);
-                if (!savedGameOver) {
-                    if (selectedCharacterId && opponentCharacterId) {
-                        const btnTurn = document.getElementById('btn-turn');
-                        if (btnTurn) {
-                            btnTurn.disabled = true;
-                            btnTurn.innerText = "⏳ OPONENTE DESCONECTADO (Aguardando retorno...)";
-                            btnTurn.className = "w-full bg-slate-800 text-rose-400 font-bold py-2.5 rounded-xl text-xs transition border border-rose-900/50 cursor-not-allowed";
-                        }
-                    }
-                }
-                
-                if (myRole === 'blue') {
-                    setTimeout(() => { if (roomCode) initGuest(roomCode); }, 500);
-                }
-            });
-        }
-
-        function leaveRoom() {
-            if (roomCode) {
-                localStorage.removeItem(`cara_score_${roomCode}`);
-                localStorage.removeItem(`cara_my_char_${roomCode}`);
-                localStorage.removeItem(`cara_opp_char_${roomCode}`);
-                localStorage.removeItem(`cara_flipped_${roomCode}`);
-                localStorage.removeItem(`cara_game_over_${roomCode}`);
+            if (data.type === 'NEXT_GAME_READY') {
+                opponentReadyForNext = true;
+                document.getElementById('opponent-requested-rematch').classList.remove('hidden');
+                checkNextGameTransition();
             }
-            localStorage.removeItem('hosted_room');
-            if (conn) conn.close();
-            if (peer) peer.destroy();
-            window.location.href = window.location.origin + window.location.pathname;
-        }
-
-        function copyLink() {
-            const shareLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
-            navigator.clipboard.writeText(shareLink).then(() => {
-                alert('Link da sala copiado com sucesso!');
-            });
-        }
-
-        let UX_THEME_BG = '';
-
-        function setupTheme() {
-            UX_THEME_BG = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
-
-            if (myRole === 'red') {
-                topbar.className = "bg-red-950 p-2.5 border-b-4 border-red-700 shadow-md text-white transition-colors duration-500 max-w-full overflow-hidden";
-            } else {
-                topbar.className = "bg-blue-950 p-2.5 border-b-4 border-blue-700 shadow-md text-white transition-colors duration-500 max-w-full overflow-hidden";
-            }
-            updateScoreboardVisual();
-        }
-
-        function updateScoreboardVisual() {
-            document.getElementById('score-red').innerText = score.red;
-            document.getElementById('score-blue').innerText = score.blue;
-            document.getElementById('modal-score-red').innerText = score.red;
-            document.getElementById('modal-score-blue').innerText = score.blue;
         }
 
         function startSelectionStage() {
-            if (conn && conn.open) {
-                screenLobby.classList.add('hidden');
-            } else {
-                screenLobby.classList.remove('hidden');
-            }
-            
-            screenGame.classList.add('hidden');
+            localPlayerReadyForNext = false;
+            opponentReadyForNext = false;
+
+            document.getElementById('lobby-screen').classList.add('hidden');
             document.getElementById('game-over-screen').classList.add('hidden');
-            document.getElementById('confirm-modal').classList.add('hidden');
-            document.getElementById('char-confirm-modal').classList.add('hidden');
-            
-            document.getElementById('game-scoreboard').classList.remove('hidden');
-            document.getElementById('count-red-box').classList.add('hidden');
-            document.getElementById('count-blue-box').classList.add('hidden');
-            
-            const resetPlacar = (bg, img, placeholder) => {
-                document.getElementById(bg).style.backgroundImage = "none";
-                document.getElementById(img).classList.add('hidden');
-                document.getElementById(placeholder).classList.remove('hidden');
-            };
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('selection-screen').classList.remove('hidden');
 
-            resetPlacar('p1-avatar-bg', 'p1-avatar', 'p1-avatar-placeholder');
-            resetPlacar('p2-avatar-bg', 'p2-avatar', 'p2-avatar-placeholder');
-            resetPlacar('modal-p1-avatar-bg', 'modal-p1-avatar', 'modal-p1-avatar-placeholder');
-            resetPlacar('modal-p2-avatar-bg', 'modal-p2-avatar', 'modal-p2-avatar-placeholder');
+            document.getElementById('btn-confirm-character').disabled = true;
+            document.getElementById('btn-confirm-character').className = "w-full bg-slate-800 text-slate-500 font-bold py-3 rounded-xl text-sm cursor-not-allowed";
+            document.getElementById('btn-confirm-character').innerText = "Selecione um Personagem";
+            document.getElementById('waiting-opponent-selection').classList.add('hidden');
 
-            updateOpponentSelectionBorder();
+            const grid = document.getElementById('selection-grid');
+            grid.innerHTML = '';
 
-            screenSelect.classList.remove('hidden');
-            
-            const selectTitle = document.getElementById('select-screen-title');
-            selectTitle.innerText = "Escolha o SEU Personagem Secreto";
-            selectTitle.classList.remove('animate-pulse');
-
-            const selectGrid = document.getElementById('select-grid');
-            selectGrid.innerHTML = '';
-
-            const bgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
-
-            characters.forEach(char => {
+            charactersData.forEach(char => {
                 const card = document.createElement('div');
                 card.id = `select-card-${char.id}`;
-                card.className = "bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-all shadow";
-                card.onclick = () => selectCharacter(char.id);
+                card.className = "bg-slate-950 border border-slate-800 rounded-xl p-2 text-center cursor-pointer hover:border-indigo-500 transition flex flex-col items-center gap-2";
+                card.onclick = () => selectTemporaryCharacter(char.id);
+
                 card.innerHTML = `
-                    <div style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden text-center">
-                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" loading="lazy" />
+                    <div class="w-16 h-16 rounded-lg overflow-hidden bg-slate-900 flex items-center justify-center">
+                        <img src="${char.img}" alt="${char.name}" class="w-full h-full object-cover" onerror="this.src='https://caraacara.pages.dev/img/logowpp.jpg'">
                     </div>
+                    <div class="text-[10px] font-bold tracking-tight text-slate-300 truncate w-full">${char.name}</div>
                 `;
-                selectGrid.appendChild(card);
+                grid.appendChild(card);
             });
 
-            if (selectedCharacterId) {
-                const current = document.getElementById(`select-card-${selectedCharacterId}`);
-                if (current) current.classList.add('border-amber-400', 'bg-slate-700', 'scale-105');
-                
-                selectTitle.innerText = "Aguardando oponente escolher...";
-                selectTitle.classList.add('animate-pulse');
-                
-                temporarySelectedId = selectedCharacterId;
-                const char = characters.find(c => c.id === selectedCharacterId);
-                
-                const confirmTitle = document.getElementById('char-confirm-title');
-                confirmTitle.innerText = "Aguardando oponente escolher...";
-                confirmTitle.classList.add('animate-pulse');
-                
-                document.getElementById('char-confirm-buttons').classList.add('hidden');
-                document.getElementById('char-waiting-buttons').classList.remove('hidden');
-                
-                document.getElementById('char-confirm-modal-bg').style.backgroundImage = `url('${bgUrl}')`;
-                document.getElementById('char-confirm-modal-img').src = char.url;
-                document.getElementById('char-confirm-modal').classList.remove('hidden');
-                
-                characters.forEach(c => {
-                    const card = document.getElementById(`select-card-${c.id}`);
-                    if (card) card.onclick = null;
-                });
+            // Recupera estado salvo se houver reconexão na mesma sala
+            const savedMyChar = localStorage.getItem(`cara_my_char_${roomCode}`);
+            const savedOppChar = localStorage.getItem(`cara_opp_char_${roomCode}`);
+            if (savedMyChar && savedOppChar) {
+                selectedCharacterId = savedMyChar;
+                opponentCharacterId = savedOppChar;
+                buildGameBoard();
             }
         }
 
-        function selectCharacter(id) {
+        function selectTemporaryCharacter(id) {
+            if (selectedCharacterId) return;
+
+            if (temporarySelectedId) {
+                document.getElementById(`select-card-${temporarySelectedId}`).classList.remove('border-indigo-500', 'bg-indigo-500/10');
+            }
             temporarySelectedId = id;
-            const char = characters.find(c => c.id === id);
-            const bgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
-            
-            const confirmTitle = document.getElementById('char-confirm-title');
-            confirmTitle.innerText = "CONFIRMAR PERSONAGEM?";
-            confirmTitle.classList.remove('animate-pulse');
-            
-            document.getElementById('char-confirm-buttons').classList.remove('hidden');
-            document.getElementById('char-waiting-buttons').classList.add('hidden');
-            
-            document.getElementById('char-confirm-modal-bg').style.backgroundImage = `url('${bgUrl}')`;
-            document.getElementById('char-confirm-modal-img').src = char.url;
-            document.getElementById('char-confirm-modal').classList.remove('hidden');
+            document.getElementById(`select-card-${id}`).classList.add('border-indigo-500', 'bg-indigo-500/10');
+
+            const btn = document.getElementById('btn-confirm-character');
+            btn.disabled = false;
+            btn.className = "w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-3 rounded-xl text-sm transition text-white shadow-lg shadow-indigo-500/20";
+            const name = charactersData.find(c => c.id === id).name;
+            btn.innerText = `Confirmar ${name}`;
         }
 
-        function closeCharConfirmModal() {
-            document.getElementById('char-confirm-modal').classList.add('hidden');
-            temporarySelectedId = null;
-        }
-
-        function executeCharacterConfirmation() {
-            if (!temporarySelectedId) return;
+        function confirmCharacterSelection() {
             selectedCharacterId = temporarySelectedId;
+            localStorage.setItem(`cara_my_char_${roomCode}`, selectedCharacterId);
 
-            const confirmTitle = document.getElementById('char-confirm-title');
-            confirmTitle.innerText = "Aguardando oponente escolher...";
-            confirmTitle.classList.add('animate-pulse');
-            
-            document.getElementById('char-confirm-buttons').classList.add('hidden');
-            document.getElementById('char-waiting-buttons').classList.remove('hidden');
+            document.getElementById('btn-confirm-character').classList.add('hidden');
+            document.getElementById('waiting-opponent-selection').classList.remove('hidden');
 
-            const current = document.getElementById(`select-card-${selectedCharacterId}`);
-            if (current) current.classList.add('border-amber-400', 'bg-slate-700', 'scale-105');
-
-            if (conn && conn.open) {
-                conn.send({ type: 'SYNC_CHARACTER', id: selectedCharacterId });
-            }
-            saveGameState();
-            
-            const selectTitle = document.getElementById('select-screen-title');
-            selectTitle.innerText = "Aguardando oponente escolher...";
-            selectTitle.classList.add('animate-pulse');
-
-            characters.forEach(char => {
-                const card = document.getElementById(`select-card-${char.id}`);
-                if (char) char.onclick = null;
-            });
-
-            checkBothSelected();
+            conn.send({ type: 'CHARACTER_SELECTED', characterId: selectedCharacterId });
+            checkSelectionTransition();
         }
 
-        function cancelCharacterConfirmation() {
-            selectedCharacterId = null;
-            temporarySelectedId = null;
-            saveGameState();
-            
-            if (conn && conn.open) {
-                conn.send({ type: 'SYNC_CHARACTER', id: null });
-            }
-            
-            document.getElementById('char-confirm-modal').classList.add('hidden');
-            startSelectionStage();
-        }
-
-        function checkBothSelected() {
+        function checkSelectionTransition() {
             if (selectedCharacterId && opponentCharacterId) {
-                if (screenGame.classList.contains('hidden')) {
-                    buildGameBoard();
-                    restoreFlippedCards();
-                    updateRemainingCount();
-                }
-            }
-        }
-
-        function syncPlacarVisuals(role, charUrl) {
-            const myBgUrl = role === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
-            const prefixos = role === 'red' ? ['p1-'] : ['p2-'];
-
-            prefixos.forEach(p => {
-                document.getElementById(`${p}avatar-bg`).style.backgroundImage = `url('${myBgUrl}')`;
-                document.getElementById(`${p}avatar`).src = charUrl;
-                document.getElementById(`${p}avatar`).classList.remove('hidden');
-                document.getElementById(`${p}avatar-placeholder`).classList.add('hidden');
-            });
-        }
-
-        function updateRemainingCount() {
-            const flippedCount = document.querySelectorAll('#board-grid .card-flipped').length;
-            const remaining = characters.length - flippedCount;
-            
-            const myCountId = myRole === 'red' ? 'count-red' : 'count-blue';
-            const el = document.getElementById(myCountId);
-            if (el) el.innerText = remaining;
-            
-            if (conn && conn.open) {
-                conn.send({ type: 'UPDATE_COUNT', count: remaining });
+                buildGameBoard();
             }
         }
 
         function buildGameBoard() {
-            document.getElementById('char-confirm-modal').classList.add('hidden');
-            screenLobby.classList.add('hidden'); 
-            screenSelect.classList.add('hidden');
-            document.getElementById('game-scoreboard').classList.remove('hidden');
-            document.getElementById('count-red-box').classList.remove('hidden');
-            document.getElementById('count-blue-box').classList.remove('hidden');
-            screenGame.classList.remove('hidden');
-            isGuessMode = false;
-            updateGuessButtonUI();
+            document.getElementById('selection-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
 
-            const totalPartidas = score.red + score.blue;
-            if (totalPartidas % 2 === 0) {
-                isMyTurn = (myRole === 'red');
-            } else {
-                isMyTurn = (myRole === 'blue');
-            }
-            updateTurnUI();
+            document.getElementById('display-room-code').innerText = roomCode;
+            const myCharObj = charactersData.find(c => c.id === selectedCharacterId);
+            document.getElementById('my-char-name').innerText = myCharObj ? myCharObj.name : '';
 
-            const myChar = characters.find(c => c.id === selectedCharacterId);
-            syncPlacarVisuals(myRole, myChar.url);
+            const grid = document.getElementById('board-grid');
+            grid.innerHTML = '';
 
-            const boardGrid = document.getElementById('board-grid');
-            boardGrid.innerHTML = '';
+            const savedFlipped = JSON.parse(localStorage.getItem(`cara_flipped_${roomCode}`) || '[]');
 
-            const myBgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
-
-            characters.forEach(char => {
+            charactersData.forEach(char => {
                 const card = document.createElement('div');
                 card.id = `board-card-${char.id}`;
-                const highlightBorder = myRole === 'red' ? 'hover:border-red-500' : 'hover:border-blue-500';
+                card.className = "bg-slate-950 border border-slate-800 rounded-xl p-2 text-center cursor-pointer transition flex flex-col items-center gap-2 relative select-none";
                 
-                card.className = `bg-slate-800 p-1 rounded-xl border border-slate-700 flex flex-col items-center justify-center cursor-pointer transition-all ${highlightBorder} shadow`;
-                card.onclick = () => handleCardClick(char.id);
+                if (savedFlipped.includes(char.id)) {
+                    card.classList.add('card-flipped');
+                }
+
+                card.onclick = () => toggleCardFlip(char.id);
+
                 card.innerHTML = `
-                    <div style="background-image: url('${myBgUrl}'); background-size: cover; background-position: center;" class="w-full rounded-lg border border-slate-700 overflow-hidden pointer-events-none">
-                        <img src="${char.url}" class="w-full h-auto object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.65)]" />
+                    <div class="w-16 h-16 rounded-lg overflow-hidden bg-slate-900 flex items-center justify-center">
+                        <img src="${char.img}" alt="${char.name}" class="w-full h-full object-cover" onerror="this.src='https://caraacara.pages.dev/img/logowpp.jpg'">
                     </div>
+                    <div class="text-[10px] font-bold tracking-tight text-slate-300 truncate w-full">${char.name}</div>
                 `;
-                boardGrid.appendChild(card);
+                grid.appendChild(card);
             });
-        }
 
-        function handleCardClick(id) {
-            if (isGuessMode) {
-                triggerFinalAccusation(id);
-            } else {
-                document.getElementById(`board-card-${id}`).classList.toggle('card-flipped');
-                saveGameState();
-                updateRemainingCount();
+            const savedGameOver = localStorage.getItem(`cara_game_over_${roomCode}`);
+            if (savedGameOver) {
+                const goData = JSON.parse(savedGameOver);
+                triggerGameOver(goData.type, goData.msg);
             }
         }
 
-        function toggleGuessMode() {
-            isGuessMode = !isGuessMode;
-            updateGuessButtonUI();
+        function toggleCardFlip(id) {
+            const card = document.getElementById(`board-card-${id}`);
+            card.classList.toggle('card-flipped');
+
+            const currentFlipped = [];
+            charactersData.forEach(char => {
+                if (document.getElementById(`board-card-${char.id}`).classList.contains('card-flipped')) {
+                    currentFlipped.push(char.id);
+                }
+            });
+            localStorage.setItem(`cara_flipped_${roomCode}`, JSON.stringify(currentFlipped));
         }
 
-        function updateGuessButtonUI() {
-            const btn = document.getElementById('btn-guess-mode');
-            if (isGuessMode) {
-                btn.className = "w-full bg-amber-500 text-slate-950 font-black py-2.5 rounded-xl text-xs transition animate-pulse shadow-lg shadow-amber-500/20";
-                btn.innerText = "🎯 CLIQUE NO SUSPEITO PARA ACUSAR!";
-            } else {
-                btn.className = "w-full bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition border border-slate-700 shadow shadow-amber-500/10";
-                btn.innerText = "🎯 Dar Palpite Final (Acusar Suspeito)";
-            }
-        }
+        function triggerGuessMode() {
+            const activeCards = charactersData.filter(char => 
+                !document.getElementById(`board-card-${char.id}`).classList.contains('card-flipped')
+            );
 
-        function updateTurnUI() {
-            const btnTurn = document.getElementById('btn-turn');
-            if (!conn || !conn.open) return;
+            if (activeCards.length === 0) return alert("Nenhum personagem disponível para palpite!");
+
+            let msg = "Escolha seu PALPITE FINAL clicando em um dos personagens ativos:\n\n";
+            activeCards.forEach((c, i) => { msg += `${i+1}. ${c.name}\n`; });
             
-            if (isMyTurn) {
-                btnTurn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 cursor-pointer";
-                btnTurn.innerText = "🟢 SUA VEZ (Finalizar Pergunta e Passar Vez)";
-                btnTurn.disabled = false;
+            const indexStr = prompt(msg);
+            if (!indexStr) return;
+
+            const idx = parseInt(indexStr) - 1;
+            if (idx >= 0 && idx < activeCards.length) {
+                const finalGuess = activeCards[idx];
+                if (confirm(`Tem certeza que seu palpite final é: ${finalGuess.name}?`)) {
+                    conn.send({ type: 'GUESS_MADE', characterId: finalGuess.id });
+                }
             } else {
-                btnTurn.className = "w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl text-xs transition border border-slate-700/50 cursor-not-allowed";
-                btnTurn.innerText = "⏳ VEZ DO OPONENTE (Aguarde...)";
-                btnTurn.disabled = true;
+                alert("Seleção inválida.");
             }
         }
 
-        function passTurn() {
-            if (!isMyTurn) return;
-            isMyTurn = false;
-            updateTurnUI();
-            if (conn) {
-                conn.send({ type: 'TURN_CHANGED' });
+        function forfeitGame() {
+            if (confirm("Deseja realmente desistir desta partida?")) {
+                conn.send({ type: 'FORFEIT' });
+                triggerGameOver('LOSE', "Você desistiu da partida.");
             }
         }
 
-        function triggerFinalAccusation(id) {
-            pendingAccusationId = id;
-            const targetChar = characters.find(c => c.id === id);
+        function triggerGameOver(type, msg) {
+            localStorage.setItem(`cara_game_over_${roomCode}`, JSON.stringify({ type, msg }));
+
+            document.getElementById('game-screen').classList.add('hidden');
             
-            const myBgUrl = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
-            document.getElementById('confirm-modal-img-bg').style.backgroundImage = `url('${myBgUrl}')`;
-            document.getElementById('confirm-modal-char-img').src = targetChar.url;
-            
-            document.getElementById('confirm-modal').classList.remove('hidden');
-        }
-
-        function closeConfirmModal() {
-            document.getElementById('confirm-modal').classList.add('hidden');
-            pendingAccusationId = null;
-            isGuessMode = false;
-            updateGuessButtonUI();
-        }
-
-        function executeFinalAccusation() {
-            if (!pendingAccusationId) return;
-            const id = pendingAccusationId;
-            document.getElementById('confirm-modal').classList.add('hidden');
-
-            const opponentRole = myRole === 'red' ? 'blue' : 'red';
-            const isCorrect = (id === opponentCharacterId);
-            const winner = isCorrect ? myRole : opponentRole;
-
-            const redChar = myRole === 'red' ? selectedCharacterId : opponentCharacterId;
-            const blueChar = myRole === 'blue' ? selectedCharacterId : opponentCharacterId;
-
-            const gameOverData = {
-                type: 'GAME_OVER',
-                winner: winner,
-                redCharId: redChar,
-                blueCharId: blueChar,
-                guessWasWrong: !isCorrect,
-                wrongGuessCharId: !isCorrect ? id : null,
-                guessedCharId: id,
-                guesser: myRole
-            };
-
-            if (conn && conn.open) {
-                conn.send(gameOverData);
-            }
-
-            applyGameOver(gameOverData);
-            pendingAccusationId = null;
-        }
-
-        function applyGameOver(data, isRestore = false) {
-            const winner = data.winner;
-            const redCharId = data.redCharId;
-            const blueCharId = data.blueCharId;
-            const guessWasWrong = data.guessWasWrong;
-            const wrongGuessCharId = data.wrongGuessCharId;
-            const guessedCharId = data.guessedCharId || (guessWasWrong ? wrongGuessCharId : (data.guesser === 'red' ? blueCharId : redCharId));
-            const guesser = data.guesser;
-
-            if (!isRestore) {
-                if (winner === 'red') score.red++;
-                if (winner === 'blue') score.blue++;
-                
-                updateScoreboardVisual();
-                localStorage.setItem(`cara_game_over_${roomCode}`, JSON.stringify(data));
-                saveGameState();
-            }
-
-            const box = document.getElementById('game-over-box');
             const title = document.getElementById('game-over-title');
-            const msg = document.getElementById('game-over-msg');
-
-            const amIWinner = (winner === myRole);
-            const playerBgBox = myRole === 'red' ? 'bg-red-950' : 'bg-blue-950';
-
-            if (guessedCharId) {
-                const gChar = characters.find(c => c.id === guessedCharId);
-                const guesserBg = guesser === 'red' ? "url('img/fundovermelho.png')" : "url('img/fundoazul.png')";
-                document.getElementById('game-over-guess-char-bg').style.backgroundImage = guesserBg;
-                document.getElementById('game-over-guess-char-img').src = gChar.url;
-                document.getElementById('game-over-guess-char-container').classList.remove('hidden');
-            } else {
-                document.getElementById('game-over-guess-char-container').classList.add('hidden');
-            }
-
-            if (amIWinner) {
-                title.innerText = "🏆 VITÓRIA!";
-                title.className = "text-2xl font-black tracking-wide text-green-400 animate-bounce";
-                box.className = `${playerBgBox} border-2 border-green-500 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl shadow-green-500/10`;
-                
-                if (guessWasWrong) {
-                    msg.innerText = "Você venceu! O oponente errou o palpite.";
-                } else {
-                    msg.innerText = "Você adivinhou o personagem do adversário!";
-                }
-            } else {
-                title.innerText = "💀 DERROTA";
-                title.className = "text-2xl font-black tracking-wide text-red-500";
-                box.className = `${playerBgBox} border-2 border-red-500 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl shadow-red-500/10`;
-                
-                if (guessWasWrong) {
-                    msg.innerText = "Seu palpite foi errado! Vitória do oponente.";
-                } else {
-                    msg.innerText = "O adversário adivinhou seu personagem!";
-                }
-            }
-
-            const rChar = characters.find(c => c.id === redCharId);
-            const bChar = characters.find(c => c.id === blueCharId);
-
-            document.getElementById('modal-p1-avatar-bg').style.backgroundImage = "url('img/fundovermelho.png')";
-            document.getElementById('modal-p1-avatar').src = rChar.url;
-            document.getElementById('modal-p1-avatar').classList.remove('hidden');
-            document.getElementById('modal-p1-avatar-placeholder').classList.add('hidden');
-
-            document.getElementById('modal-p2-avatar-bg').style.backgroundImage = "url('img/fundoazul.png')";
-            document.getElementById('modal-p2-avatar').src = bChar.url;
-            document.getElementById('modal-p2-avatar').classList.remove('hidden');
-            document.getElementById('modal-p2-avatar-placeholder').classList.add('hidden');
-
-            const labelP1 = document.getElementById('label-p1');
-            const labelP2 = document.getElementById('label-p2');
-            if (myRole === 'red') {
-                labelP1.innerText = "Você";
-                labelP1.className = "text-[11px] font-black mt-1 uppercase tracking-wider text-red-400";
-                labelP2.innerText = "Oponente";
-                labelP2.className = "text-[11px] font-black mt-1 uppercase tracking-wider text-blue-400";
-            } else {
-                labelP1.innerText = "Oponente";
-                labelP1.className = "text-[11px] font-black mt-1 uppercase tracking-wider text-red-400";
-                labelP2.innerText = "Você";
-                labelP2.className = "text-[11px] font-black mt-1 uppercase tracking-wider text-blue-400";
-            }
-
-            localPlayerReadyForNext = false;
-            opponentReadyForNext = false;
+            const icon = document.getElementById('game-over-icon');
             
+            if (type === 'WIN') {
+                title.innerText = "Você Ganhou!";
+                title.className = "text-2xl font-black tracking-tight text-emerald-400";
+                icon.innerText = "🏆";
+            } else {
+                title.innerText = "Fim de Jogo";
+                title.className = "text-2xl font-black tracking-tight text-rose-500";
+                icon.innerText = "💀";
+            }
+
+            document.getElementById('game-over-message').innerText = msg;
+
+            const myCharObj = charactersData.find(c => c.id === selectedCharacterId);
+            const oppCharObj = charactersData.find(c => c.id === opponentCharacterId);
+
+            document.getElementById('end-my-char').innerText = myCharObj ? myCharObj.name : 'Desconhecido';
+            document.getElementById('end-opp-char').innerText = oppCharObj ? oppCharObj.name : 'Desconhecido';
+
             const btnNext = document.getElementById('btn-next-game');
             btnNext.disabled = false;
-            btnNext.className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm cursor-pointer";
+            btnNext.className = "w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-3 rounded-xl text-sm transition";
             document.getElementById('waiting-opponent-next').classList.add('hidden');
             document.getElementById('opponent-requested-rematch').classList.add('hidden');
 
@@ -1075,8 +524,6 @@
 
             checkNextGameTransition();
         }
-
-        function font_bold() {} // Evita erros antigos de referência externa
 
         function checkNextGameTransition() {
             if (localPlayerReadyForNext && opponentReadyForNext) {
