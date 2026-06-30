@@ -18,27 +18,63 @@
             filter: grayscale(100%) blur(1px);
             border-color: #334155 !important;
         }
-            .nav-lang {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 5px 10px;
-      color: var(--text-muted);
-      font-size: 13px;
-      font-family: var(--font);
-      cursor: pointer;
-      text-decoration: none;
+        /* Estilos herdados e isolados do Cabeçalho do Home para evitar quebras */
+        #home-navbar-container {
+            width: 100%;
+            height: 56px;
+            background: #0c151e;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px 0 8px;
+            gap: 32px;
+            box-sizing: border-box;
+        }
+        #home-navbar-container .nav-logo { text-decoration: none; color: inherit; display: block; margin-left: 0; }
+        #home-navbar-container .logo-badge {
+            width: 200px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; /* Alinha o conteúdo do badge totalmente à esquerda */
+            flex-shrink: 0;
+        }
+        #home-navbar-container .logo-badge img {
+            height: 100%;
+            width: 100%;
+            object-fit: contain;
+            object-position: left; /* Força a imagem a colar no canto esquerdo */
+            display: block;
+        }
+        #home-navbar-container .nav-lang {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #1a2635;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 7px;
+            padding: 5px 10px;
+            color: #7a92a8;
+            font-size: 13px;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+        }
+        @media (max-width: 560px) {
+            #home-navbar-container { padding: 0 14px 0 8px; gap: 10px; }
+            #home-navbar-container .logo-badge { 
+                width: 200px; 
+                height: 40px; 
+                justify-content: flex-start;
             }
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
     <div class="sticky top-0 z-50 w-full flex flex-col shadow-md">
         <nav id="home-navbar-container">
-            <div class="animate-pulse text-xs text-slate-500 pl-4 bg-[#0c151e] h-14 flex items-center">Carregando menu principal...</div>
+            <div class="animate-pulse text-xs text-slate-500 pl-4">Carregando menu principal...</div>
         </nav>
         
         <header id="topbar" class="bg-slate-800 p-2.5 border-b-4 border-slate-700 transition-colors duration-500 max-w-full overflow-hidden">
@@ -298,50 +334,9 @@
                     const htmlText = await response.text();
                     const parser = new DOMParser();
                     const parsedDoc = parser.parseFromString(htmlText, 'text/html');
-                    
-                    // Sincroniza a estrutura HTML
                     const targetNav = parsedDoc.querySelector('nav');
                     if (targetNav) {
                         document.getElementById('home-navbar-container').innerHTML = targetNav.innerHTML;
-                    }
-                    
-                    // Sincroniza dinamicamente as classes CSS relevantes da Home
-                    const homeStyle = parsedDoc.querySelector('style');
-                    if (homeStyle) {
-                        const tempStyle = document.createElement('style');
-                        tempStyle.textContent = homeStyle.textContent;
-                        document.head.appendChild(tempStyle);
-                        
-                        const sheet = tempStyle.sheet;
-                        const extractedRules = [];
-                        
-                        for (let rule of sheet.cssRules) {
-                            if (rule.selectorText === ':root') {
-                                extractedRules.push(rule.cssText);
-                            }
-                            if (rule.selectorText && (rule.selectorText.includes('nav') || rule.selectorText.includes('logo-badge'))) {
-                                extractedRules.push(rule.cssText);
-                            } else if (rule.cssText && rule.cssText.startsWith('@media')) {
-                                let mediaRules = [];
-                                for (let subRule of rule.cssRules) {
-                                    if (subRule.selectorText && (subRule.selectorText.includes('nav') || subRule.selectorText.includes('logo-badge'))) {
-                                        mediaRules.push(subRule.cssText);
-                                    }
-                                }
-                                if (mediaRules.length > 0) {
-                                    extractedRules.push(`@media ${rule.media.mediaText} { ${mediaRules.join(' ')} }`);
-                                }
-                            }
-                        }
-                        tempStyle.remove();
-
-                        const oldStyle = document.getElementById('dynamic-home-nav-styles');
-                        if (oldStyle) oldStyle.remove();
-
-                        const newStyle = document.createElement('style');
-                        newStyle.id = 'dynamic-home-nav-styles';
-                        newStyle.textContent = extractedRules.join('\n');
-                        document.head.appendChild(newStyle);
                     }
                 }
             } catch (error) {
