@@ -9,7 +9,6 @@
     <meta property="og:title" content="Jogue Cara a Cara Online">
     <meta property="og:image" content="https://caraacara.pages.dev/img/logowpp.jpg">
 
-    <!-- Nunito — mesma fonte do nav do home.html -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
 
@@ -49,11 +48,11 @@
             margin-left: 20px;
         }
 
-        /* Badge amarela — 120×32 px com imagem de 60 px de altura */
+        /* Badge amarela — largura automática com altura fixa */
         #shared-nav-wrapper .logo-badge {
             width: auto;
-            height: 40px;
-            display: block;
+            height: 32px;
+            display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
@@ -67,20 +66,6 @@
             margin-left: 38px;
         }
 
-        #shared-nav-wrapper .nav-lang {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: #1a2635;
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 7px;
-            padding: 5px 10px;
-            color: #7a92a8;
-            font-size: 13px;
-            font-family: 'Nunito', sans-serif;
-            cursor: pointer;
-        }
-
         /* Impede que setupTheme() torne a sub-barra sticky
            independentemente do wrapper pai (evita sobreposição do nav). */
         #topbar {
@@ -90,20 +75,10 @@
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
-    <!-- ════════════════════════════════════════════════════════════
-         WRAPPER STICKY — contém o nav do home.html + sub-barra do jogo.
-         Só este div precisa de position:sticky; os filhos ficam em fluxo
-         normal dentro dele.
-    ═════════════════════════════════════════════════════════════════ -->
     <div id="game-topbar-sticky">
 
-        <!-- Nav injetado dinamicamente do home.html via loadSharedNav().
-             Se o fetch falhar, um nav de fallback é inserido no lugar.   -->
         <div id="shared-nav-wrapper"></div>
 
-        <!-- Sub-barra do jogo: código da sala · compartilhar · sair.
-             id="topbar" mantido para setupTheme() e demais referências
-             do JS original — nenhuma linha do script foi alterada.        -->
         <div id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md text-white">
             <div class="max-w-md mx-auto flex justify-between items-center">
                 <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono">
@@ -119,8 +94,6 @@
         </div>
 
     </div>
-    <!-- ═══════════════════════════════════════════════════════════ -->
-
     <main class="flex-grow flex flex-col items-center justify-center p-3 w-full max-w-md mx-auto mb-12">
         
         <div id="screen-lobby" class="fixed inset-0 bg-slate-950/80 z-40 flex flex-col items-center justify-center p-6 text-center" style="top: 0;">
@@ -965,8 +938,6 @@
                 document.getElementById(`${p}avatar`).classList.remove('hidden');
                 document.getElementById(`${p}avatar-placeholder`).classList.add('hidden');
             });
-
-            // Removido o código que ocultava o placeholder do oponente
         }
 
         function updateRemainingCount() {
