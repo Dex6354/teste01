@@ -33,19 +33,18 @@
         }
         #home-navbar-container .nav-logo { text-decoration: none; color: inherit; display: block; }
         #home-navbar-container .logo-badge {
-            width: 120px;
-            height: 32px;
+            width: 160px; /* Aumentado para dar mais espaço lateral */
+            height: 40px; /* Ajustado para melhor proporção */
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            overflow: visible;
         }
         #home-navbar-container .logo-badge img {
-            height: 40px;
-            width: auto;
+            height: 100%;
+            width: 100%;
+            object-fit: contain; /* Estica até o limite das laterais sem distorcer */
             display: block;
-            margin-left: 38px;
         }
         #home-navbar-container .nav-lang {
             display: flex;
@@ -62,20 +61,20 @@
         }
         @media (max-width: 560px) {
             #home-navbar-container { padding: 0 14px; gap: 10px; }
-            #home-navbar-container .logo-badge img { margin-left: 0; }
+            #home-navbar-container .logo-badge { width: 130px; } /* Ajuste fino para telas pequenas */
         }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
-    <!-- Novo Bloco de Cabeçalhos Fixos (Home + Sala do Jogo) -->
+    <!-- Bloco de Cabeçalhos Fixos (Home + Sala do Jogo) -->
     <div class="sticky top-0 z-50 w-full flex flex-col shadow-md">
         <!-- Cabeçalho dinâmico injetado automaticamente a partir do Home -->
         <nav id="home-navbar-container">
             <div class="animate-pulse text-xs text-slate-500 pl-4">Carregando menu principal...</div>
         </nav>
         
-        <!-- Barra interna do Cara a Cara (Movida totalmente para baixo do menu principal) -->
+        <!-- Barra interna do Cara a Cara -->
         <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 transition-colors duration-500">
             <div class="max-w-md mx-auto">
                 <div class="flex justify-between items-center relative">
@@ -417,7 +416,7 @@
                 myRole = 'blue';
             }
 
-            fetchHomeNavbar(); // Executa a sincronização do menu automaticamente
+            fetchHomeNavbar(); 
             preRenderSelectGrid();
             loadGameState();
 
@@ -636,7 +635,6 @@
         function setupTheme() {
             UX_THEME_BG = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
 
-            // Altera apenas o sub-cabeçalho do jogo sem mexer no cabeçalho importado do home
             if (myRole === 'red') {
                 topbar.className = "bg-red-950 p-3 border-b-4 border-red-700 shadow-md text-white transition-colors duration-500";
             } else {
