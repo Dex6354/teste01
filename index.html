@@ -44,29 +44,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    .logo-badge {
-      width: 120px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      overflow: visible;
-    }
-
-    .logo-badge img {
-      height: 40px;
-      width: auto;
-      display: block;
-      margin-left: 38px;
-    }
-
-    .logo-badge2 img {
-      height: 40px;
-      width: auto;
-      display: block;
-     }
-
+    /* ── NAV REESTRUTURADO E SIMPLIFICADO ────────────────── */
     nav {
       position: sticky;
       top: 0;
@@ -76,24 +54,26 @@
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      justify-content: space-between;
       padding: 0 24px;
-      gap: 32px;
     }
 
-    .nav-lang {
+    .nav-logo {
       display: flex;
       align-items: center;
-      gap: 5px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 5px 10px;
-      color: var(--text-muted);
-      font-size: 13px;
-      font-family: var(--font);
-      cursor: pointer;
+      height: 40px;
     }
+
+    .nav-logo img {
+      height: 40px;
+      width: auto;
+      display: block;
+    }
+
+    .logo-badge2 img {
+      height: 40px;
+      width: auto;
+      display: block;
+     }
 
     .hero {
       text-align: center;
@@ -341,8 +321,7 @@
 
     /* ── RESPONSIVE ──────────────────────────────────────── */
     @media (max-width: 560px) {
-      nav                  { padding: 0 14px; gap: 10px; }
-      .nav-logo            { margin-left: 0; }
+      nav                  { padding: 0 14px; }
       .hero                { padding: 32px 14px 24px; }
       .filters             { padding: 0 14px 12px; }
       .search-container    { padding: 0 14px 20px; }
@@ -360,16 +339,11 @@
 </head>
 <body>
 
-<!-- ── NAVBAR ──────────────────────────────────────────────── -->
+<!-- ── NAVBAR SIMPLIFICADA ─────────────────────────────────── -->
 <nav>
   <a class="nav-logo" href="#">
-    <div class="logo-badge">
-      <img src="https://jogosdagalera.pages.dev/logo3.png" alt="Jogos da Galera">
-    </div>
+    <img src="https://jogosdagalera.pages.dev/logo3.png" alt="Jogos da Galera">
   </a>
-  <div>
-    <button class="nav-lang">🇧🇷 PT</button>
-  </div>
 </nav>
 
 <!-- ── HERO ────────────────────────────────────────────────── -->
