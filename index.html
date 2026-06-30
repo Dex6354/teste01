@@ -5,10 +5,6 @@
   <meta name="viewport" content="width=360, initial-scale=1, maximum-scale=5, user-scalable=1" />
   <title>Jogos da Galera</title>
 
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-
   <link rel="icon"     type="image/png" href="https://jogosdagalera.pages.dev/logowpp.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color"       content="#f1c40f">
@@ -381,7 +377,7 @@
     </div>
   </a>
   <div>
-    <a class="nav-lang" href="/">🏠 Home3</a>
+    <a class="nav-lang" href="/">🏠 Home</a>
   </div>
 </nav>
 
@@ -525,8 +521,7 @@
   /* ── LOAD GAMES ─────────────────────────────────────────── */
   async function loadGames() {
     try {
-      // Força a requisição da API a ignorar cache local usando timestamp
-      const res = await fetch(`/api/games?_=${new Date().getTime()}`);
+      const res = await fetch('/api/games');
       if (!res.ok) {
         const { error } = await res.json().catch(() => ({ error: `Status ${res.status}` }));
         throw new Error(error);
@@ -535,6 +530,7 @@
       const folders = await res.json();
       gameGrid.innerHTML = '';
 
+      // Carrega os metadados de todos os jogos em paralelo
       const gamesData = await Promise.all(folders.map(async ({ name }) => {
         const defaultMeta = {
           title:       name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' '),
@@ -547,16 +543,17 @@
 
         let meta = defaultMeta;
         try {
-          // Força a requisição do metadados a ignorar cache local
-          const metaRes = await fetch(`./${name}/metadata.json?_=${new Date().getTime()}`);
+          const metaRes = await fetch(`./${name}/metadata.json`);
           if (metaRes.ok) meta = { ...defaultMeta, ...await metaRes.json() };
         } catch (_) {}
 
         return { name, meta };
       }));
 
+      // Ordena em ordem alfabética pelo título correspondente
       gamesData.sort((a, b) => a.meta.title.localeCompare(b.meta.title, 'pt-BR'));
 
+      // Adiciona os elementos ordenados ao grid
       gamesData.forEach(({ name, meta }) => {
         gameGrid.appendChild(buildCard(name, meta));
       });
@@ -609,22 +606,7 @@
     loadGames();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').then(reg => {
-        // Verifica se há atualização no sw.js toda vez que a página carrega
-        reg.update();
-
-        reg.onupdatefound = () => {
-          const installingWorker = reg.installing;
-          if (installingWorker) {
-            installingWorker.onstatechange = () => {
-              if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // Nova versão instalada, recarrega para aplicar as mudanças
-                window.location.reload();
-              }
-            };
-          }
-        };
-      }).catch(err =>
+      navigator.serviceWorker.register('sw.js').catch(err =>
         console.log('Service Worker não registrado:', err.message)
       );
     }
