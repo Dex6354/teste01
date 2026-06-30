@@ -100,18 +100,19 @@
       padding: 5px 10px;
       color: var(--text-muted);
       font-size: 13px;
+      font-weight: 700;
       font-family: var(--font);
       cursor: pointer;
       text-decoration: none;
       transition: background .18s, border-color .18s, color .18s;
     }
 
-    /* Modificado para aplicar a cor amarela também no passar do mouse (:hover) */
+    /* Ajustado para ficar com as mesmas propriedades e cores idênticas do filtro */
     .nav-lang:hover,
     .nav-lang.active {
-      background: var(--yellow);
-      border-color: var(--yellow);
-      color: var(--bg);
+      background: var(--yellow) !important;
+      border-color: var(--yellow) !important;
+      color: var(--bg) !important;
     }
 
     .hero {
@@ -386,7 +387,7 @@
     </div>
   </a>
   <div>
-    <a class="filter-btn" href="/" id="homeBtn" onclick="filterGames('todos', this)">🏠 Home</a>
+    <a class="nav-lang active" href="#" id="homeBtn" onclick="filterGames('todos', this)">🏠 Home</a>
   </div>
 </nav>
 
