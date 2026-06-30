@@ -147,10 +147,85 @@
       font-weight: 700;
     }
 
+    /* ── SEÇÃO DA SALA MULTIPLAYER ───────────────────────── */
+    .room-section {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      border-top: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .room-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 14px;
+    }
+
+    .room-info strong {
+      color: var(--yellow);
+      font-family: monospace;
+      font-size: 16px;
+      background: var(--bg-input);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .room-online {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .online-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #2ecc71;
+      border-radius: 50%;
+      display: inline-block;
+      animation: pulse-dot 1.5s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.6; }
+    }
+
+    .room-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background .18s, border-color .18s, color .18s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .room-btn:hover {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: var(--bg);
+    }
+
     .filters {
       display: flex;
       gap: 8px;
-      padding: 0 24px 16px;
+      padding: 16px 24px 16px;
       overflow-x: auto;
       scrollbar-width: none;
     }
@@ -354,7 +429,8 @@
       nav                  { padding: 0 14px 0 8px; gap: 10px; }
       .logo-badge          { width: 200px; height: 40px; justify-content: flex-start; }
       .hero                { padding: 32px 14px 24px; }
-      .filters             { padding: 0 14px 12px; }
+      .room-section        { padding: 12px 14px; gap: 12px; justify-content: space-between; }
+      .filters             { padding: 12px 14px; }
       .search-container    { padding: 0 14px 20px; }
       .search-box          { max-width: 100%; }
       .grid                { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 14px 32px; }
@@ -391,6 +467,19 @@
     <span class="badge">🆓 100% Grátis</span>
   </div>
 </header>
+
+<div class="room-section">
+  <div class="room-info">
+    <span>Sala: <strong id="roomCodeDisplay">...</strong></span>
+    <div class="room-online">
+      <span class="online-dot"></span>
+      <span id="roomOnlineCount">1 Jogador online</span>
+    </div>
+  </div>
+  <button class="room-btn" onclick="copyRoomLink()">
+    📋 Compartilhar Sala
+  </button>
+</div>
 
 <div class="filters">
   <button class="filter-btn active" onclick="filterGames('todos', this)">Todos</button>
@@ -466,6 +555,36 @@
   let activeCategory = 'todos';
 
   const FALLBACK_IMG = 'https://jogosdagalera.pages.dev/logowpp.png';
+
+  /* ── ROOM MANAGEMENT ────────────────────────────────────── */
+  let roomCode = '';
+
+  function initRoomManagement() {
+    const urlParams = new URLSearchParams(window.location.search);
+    roomCode = urlParams.get('room');
+    const roomOnlineCount = document.getElementById('roomOnlineCount');
+
+    if (!roomCode) {
+      roomCode = 'GALERA-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+      const newUrl = window.location.origin + window.location.pathname + '?room=' + roomCode;
+      window.history.replaceState({ path: newUrl }, '', newUrl);
+      if (roomOnlineCount) roomOnlineCount.innerText = '1 Jogador online';
+    } else {
+      if (roomOnlineCount) roomOnlineCount.innerText = '2 Jogadores online';
+    }
+
+    const roomDisplay = document.getElementById('roomCodeDisplay');
+    if (roomDisplay) roomDisplay.innerText = roomCode;
+  }
+
+  function copyRoomLink() {
+    const shareLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
+    navigator.clipboard.writeText(shareLink).then(() => {
+      alert('Link da sala copiado com sucesso!');
+    }).catch(err => {
+      console.error('Erro ao copiar o link:', err);
+    });
+  }
 
   /* ── FILTER / SEARCH ────────────────────────────────────── */
   function updateGames() {
@@ -603,6 +722,7 @@
 
   /* ── INIT ───────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', () => {
+    initRoomManagement();
     loadGames();
 
     if ('serviceWorker' in navigator) {
