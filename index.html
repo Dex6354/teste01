@@ -369,7 +369,6 @@
 </head>
 <body>
 
-<!-- ── NAVBAR ──────────────────────────────────────────────── -->
 <nav>
   <a class="nav-logo" href="#">
     <div class="logo-badge">
@@ -381,7 +380,6 @@
   </div>
 </nav>
 
-<!-- ── HERO ────────────────────────────────────────────────── -->
 <header class="hero">
   <h1>Jogue <span>Grátis</span> com Amigos</h1>
   <p>Jogos multiplayer no navegador, sem cadastro. Convide amigos e jogue agora!</p>
@@ -393,7 +391,6 @@
   </div>
 </header>
 
-<!-- ── FILTERS ──────────────────────────────────────────────── -->
 <div class="filters">
   <button class="filter-btn active" onclick="filterGames('todos', this)">Todos</button>
   <button class="filter-btn" onclick="filterGames('palavras', this)">Palavras</button>
@@ -404,7 +401,6 @@
   <button class="filter-btn" onclick="filterGames('dados', this)">Dados</button>
 </div>
 
-<!-- ── SEARCH ───────────────────────────────────────────────── -->
 <div class="search-container">
   <div class="search-box">
     <span class="search-icon">🔍</span>
@@ -412,10 +408,8 @@
   </div>
 </div>
 
-<!-- ── GAME GRID ─────────────────────────────────────────────── -->
 <main class="grid" id="gameGrid"></main>
 
-<!-- ── PARTNERS ──────────────────────────────────────────────── -->
 <h2 class="section-title-bar" id="partnersTitle" style="display:none;">🎮 Outros Sites de Jogos</h2>
 
 <div class="grid" id="partnersGrid" style="display:none;">
@@ -448,7 +442,6 @@
   </a>
 </div>
 
-<!-- ── FOOTER ────────────────────────────────────────────────── -->
 <footer>
   <div class="logo-badge2">
     <img src="https://jogosdagalera.pages.dev/logo3.png" alt="Jogos da Galera">
@@ -536,7 +529,8 @@
       const folders = await res.json();
       gameGrid.innerHTML = '';
 
-      await Promise.all(folders.map(async ({ name }) => {
+      // Carrega os metadados de todos os jogos em paralelo
+      const gamesData = await Promise.all(folders.map(async ({ name }) => {
         const defaultMeta = {
           title:       name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' '),
           description: 'Jogue agora este jogo multiplayer no navegador.',
@@ -552,8 +546,16 @@
           if (metaRes.ok) meta = { ...defaultMeta, ...await metaRes.json() };
         } catch (_) {}
 
-        gameGrid.appendChild(buildCard(name, meta));
+        return { name, meta };
       }));
+
+      // Ordena em ordem alfabética pelo título correspondente
+      gamesData.sort((a, b) => a.meta.title.localeCompare(b.meta.title, 'pt-BR'));
+
+      // Adiciona os elementos ordenados ao grid
+      gamesData.forEach(({ name, meta }) => {
+        gameGrid.appendChild(buildCard(name, meta));
+      });
 
       updateGames();
       revealPartners();
