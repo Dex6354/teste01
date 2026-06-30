@@ -18,83 +18,114 @@
             filter: grayscale(100%) blur(1px);
             border-color: #334155 !important;
         }
-        /* Estilos herdados e isolados do Cabeçalho do Home para evitar quebras */
-        #home-navbar-container {
-            width: 100%;
-            height: 56px;
-            background: #0c151e;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            gap: 32px;
-            box-sizing: border-box;
+
+        /* ── NAVBAR STYLES FROM INDEX ───────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          --yellow:      #f1c40f;
+          --yellow-dark: #f39c12;
+          --yellow-glow: rgba(241, 196, 15, 0.18);
+          --bg:          #0f1923;
+          --bg-card:     #162230;
+          --bg-card-hov: #1c2d3f;
+          --bg-input:    #1a2635;
+          --border:      rgba(255, 255, 255, 0.07);
+          --text:        #e8edf2;
+          --text-muted:  #7a92a8;
+          --tag-bg:      rgba(241, 196, 15, 0.13);
+          --radius-card: 14px;
+          --font:        'Nunito', sans-serif;
         }
-        #home-navbar-container .nav-logo { text-decoration: none; color: inherit; display: block; }
-        #home-navbar-container .logo-badge {
-            width: 160px; /* Aumentado para dar mais espaço lateral */
-            height: 40px; /* Ajustado para melhor proporção */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+
+        html { scroll-behavior: smooth; }
+
+        .logo-badge {
+          width: 120px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          overflow: visible;
         }
-        #home-navbar-container .logo-badge img {
-            height: 100%;
-            width: 100%;
-            object-fit: contain; /* Estica até o limite das laterais sem distorcer */
-            display: block;
+
+        .logo-badge img {
+          height: 40px;
+          width: auto;
+          display: block;
+          margin-left: 38px;
         }
-        #home-navbar-container .nav-lang {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: #1a2635;
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 7px;
-            padding: 5px 10px;
-            color: #7a92a8;
-            font-size: 13px;
-            font-family: 'Nunito', sans-serif;
-            cursor: pointer;
+
+        nav {
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          height: 56px;
+          background: #0c151e;
+          border-bottom: 1px solid var(--border);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 24px;
+          gap: 32px;
         }
+
+        .nav-lang {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          background: var(--bg-input);
+          border: 1px solid var(--border);
+          border-radius: 7px;
+          padding: 5px 10px;
+          color: var(--text-muted);
+          font-size: 13px;
+          font-family: var(--font);
+          cursor: pointer;
+        }
+
+        /* Responsive adjustments for navbar */
         @media (max-width: 560px) {
-            #home-navbar-container { padding: 0 14px 0 0; gap: 10px; }
-            .nav-logo            { margin-left: 0; }
-            #home-navbar-container .logo-badge { 
-                width: 200px;
-                justify-content: flex-start;
-            }
+          nav { padding: 0 14px; gap: 10px; }
+          .nav-logo { margin-left: 0; }
         }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
 
-    <!-- Bloco de Cabeçalhos Fixos (Home + Sala do Jogo) -->
-    <div class="sticky top-0 z-50 w-full flex flex-col shadow-md">
-        <!-- Cabeçalho dinâmico injetado automaticamente a partir do Home -->
-        <nav id="home-navbar-container">
-            <div class="animate-pulse text-xs text-slate-500 pl-4">Carregando menu principal...</div>
-        </nav>
-        
-        <!-- Barra interna do Cara a Cara -->
-        <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 transition-colors duration-500">
-            <div class="max-w-md mx-auto">
-                <div class="flex justify-between items-center relative">
-                    <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono">
+    <!-- ── NAVBAR FROM INDEX (IDENTICAL) ───────────────────────────────── -->
+    <nav>
+      <a class="nav-logo" href="https://jogosdagalera.pages.dev">
+        <div class="logo-badge">
+          <img src="https://jogosdagalera.pages.dev/logo3.png" alt="Jogos da Galera">
+        </div>
+      </a>
+      <div>
+        <button class="nav-lang">🇧🇷 PT</button>
+      </div>
+    </nav>
+
+    <header id="topbar" class="bg-slate-800 p-3 border-b-4 border-slate-700 shadow-md sticky top-0 z-50">
+        <div class="max-w-md mx-auto">
+            <div class="flex justify-between items-center relative">
+                <div class="flex flex-col">
+                    <h1 class="font-extrabold text-sm tracking-wider">
+                        <img src="img/logo.jpg" class="w-20 h-6 object-cover object-center rounded-md" alt="Logo">
+                    </h1>
+                    <div class="flex items-center space-x-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
                         <span>Sala:<strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
                         <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition">
-                            📋Compartilhar
+                        📋Compartilhar
                         </button>
                     </div>
-                    <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow">
-                        ➡️ Sair
-                    </button>
                 </div>
+                <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow">
+                       ➡️ Sair
+                </button>
             </div>
-        </header>
-    </div>
+        </div>
+    </header>
 
     <main class="flex-grow flex flex-col items-center justify-center p-3 w-full max-w-md mx-auto mb-12">
         
@@ -326,24 +357,6 @@
         const screenGame = document.getElementById('screen-game');
         const topbar = document.getElementById('topbar');
 
-        // Função assíncrona para puxar automaticamente a estrutura e logo do Home (index.html)
-        async function fetchHomeNavbar() {
-            try {
-                const response = await fetch('../index.html');
-                if (response.ok) {
-                    const htmlText = await response.text();
-                    const parser = new DOMParser();
-                    const parsedDoc = parser.parseFromString(htmlText, 'text/html');
-                    const targetNav = parsedDoc.querySelector('nav');
-                    if (targetNav) {
-                        document.getElementById('home-navbar-container').innerHTML = targetNav.innerHTML;
-                    }
-                }
-            } catch (error) {
-                console.error("Falha ao sincronizar o cabeçalho do Home automaticamente:", error);
-            }
-        }
-
         function saveGameState() {
             if (!roomCode) return;
             localStorage.setItem(`cara_score_${roomCode}`, JSON.stringify(score));
@@ -420,7 +433,6 @@
                 myRole = 'blue';
             }
 
-            fetchHomeNavbar(); 
             preRenderSelectGrid();
             loadGameState();
 
@@ -640,9 +652,9 @@
             UX_THEME_BG = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
 
             if (myRole === 'red') {
-                topbar.className = "bg-red-950 p-3 border-b-4 border-red-700 shadow-md text-white transition-colors duration-500";
+                topbar.className = "bg-red-950 p-3 border-b-4 border-red-700 shadow-md sticky top-0 z-50 text-white";
             } else {
-                topbar.className = "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md text-white transition-colors duration-500";
+                topbar.className = "bg-blue-950 p-3 border-b-4 border-blue-700 shadow-md sticky top-0 z-50 text-white";
             }
             updateScoreboardVisual();
         }
@@ -814,6 +826,7 @@
         function syncPlacarVisuals(role, charUrl) {
             const myBgUrl = role === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
             const prefixos = role === 'red' ? ['p1-'] : ['p2-'];
+            const oponPrefixos = role === 'red' ? ['p2-'] : ['p1-'];
 
             prefixos.forEach(p => {
                 document.getElementById(`${p}avatar-bg`).style.backgroundImage = `url('${myBgUrl}')`;
@@ -821,6 +834,8 @@
                 document.getElementById(`${p}avatar`).classList.remove('hidden');
                 document.getElementById(`${p}avatar-placeholder`).classList.add('hidden');
             });
+
+            // Removido o código que ocultava o placeholder do oponente
         }
 
         function updateRemainingCount() {
