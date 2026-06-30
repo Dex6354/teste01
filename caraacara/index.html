@@ -59,6 +59,7 @@
             font-size: 13px;
             font-family: 'Nunito', sans-serif;
             cursor: pointer;
+            text-decoration: none;
         }
         @media (max-width: 560px) {
             #home-navbar-container { padding: 0 14px 0 8px; gap: 10px; }
@@ -74,7 +75,14 @@
 
     <div class="sticky top-0 z-50 w-full flex flex-col shadow-md">
         <nav id="home-navbar-container">
-            <div class="animate-pulse text-xs text-slate-500 pl-4">Carregando menu principal...</div>
+            <a class="nav-logo" href="/">
+                <div class="logo-badge">
+                    <img src="https://jogosdagalera.pages.dev/logo3.png" alt="Jogos da Galera">
+                </div>
+            </a>
+            <div>
+                <a class="nav-lang" href="/">🏠 Home</a>
+            </div>
         </nav>
         
         <header id="topbar" class="bg-slate-800 p-2.5 border-b-4 border-slate-700 transition-colors duration-500 max-w-full overflow-hidden">
@@ -327,23 +335,6 @@
         const screenGame = document.getElementById('screen-game');
         const topbar = document.getElementById('topbar');
 
-        async function fetchHomeNavbar() {
-            try {
-                const response = await fetch('../index.html');
-                if (response.ok) {
-                    const htmlText = await response.text();
-                    const parser = new DOMParser();
-                    const parsedDoc = parser.parseFromString(htmlText, 'text/html');
-                    const targetNav = parsedDoc.querySelector('nav');
-                    if (targetNav) {
-                        document.getElementById('home-navbar-container').innerHTML = targetNav.innerHTML;
-                    }
-                }
-            } catch (error) {
-                console.error("Falha ao sincronizar o cabeçalho do Home automaticamente:", error);
-            }
-        }
-
         function saveGameState() {
             if (!roomCode) return;
             localStorage.setItem(`cara_score_${roomCode}`, JSON.stringify(score));
@@ -420,7 +411,6 @@
                 myRole = 'blue';
             }
 
-            fetchHomeNavbar(); 
             preRenderSelectGrid();
             loadGameState();
 
@@ -1085,6 +1075,8 @@
 
             checkNextGameTransition();
         }
+
+        function font_bold() {} // Evita erros antigos de referência externa
 
         function checkNextGameTransition() {
             if (localPlayerReadyForNext && opponentReadyForNext) {
