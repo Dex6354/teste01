@@ -412,13 +412,21 @@
         let roomCode = urlParams.get('room');
 
         if (!roomCode) {
-            const generatedCode = 'CARA-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-            localStorage.setItem('hosted_room', generatedCode);
-            window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
+            // Sem código na URL: reaproveita o código de sala já gerado pelo hub (index.html)
+            // ao invés de criar um código novo só para o Cara a Cara.
+            roomCode = localStorage.getItem('jdg_room_code');
+            if (!roomCode) {
+                roomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
+            }
+            window.location.href = window.location.origin + window.location.pathname + '?room=' + roomCode;
         } else {
+            // Mantém o código de sala sincronizado com o hub, para o caso de o
+            // jogador ter chegado direto por um link (sem passar pelo index.html antes).
+            localStorage.setItem('jdg_room_code', roomCode);
+
             document.getElementById('topbar-room-id').innerText = roomCode;
             
-            if (roomCode === localStorage.getItem('hosted_room')) {
+            if (roomCode === localStorage.getItem('jdg_hosted_room')) {
                 myRole = 'red';
             } else {
                 myRole = 'blue';
@@ -625,7 +633,8 @@
                 localStorage.removeItem(`cara_flipped_${roomCode}`);
                 localStorage.removeItem(`cara_game_over_${roomCode}`);
             }
-            localStorage.removeItem('hosted_room');
+            localStorage.removeItem('jdg_hosted_room');
+            localStorage.removeItem('jdg_room_code');
             if (conn) conn.close();
             if (peer) peer.destroy();
             window.location.href = window.location.origin + window.location.pathname;
