@@ -484,7 +484,6 @@
   </div>
 </nav>
 
-<!-- Nova Seção de Geração de Sala Dinâmica -->
 <div class="topbar-room">
   <div class="topbar-room-container">
     <div class="topbar-room-flex">
@@ -759,37 +758,15 @@
     window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
   }
 
-  /* ── IDENTIDADE PERSISTENTE DO NAVEGADOR ───────────────── */
-  // Cada navegador ganha um ID único salvo no localStorage. É esse ID,
-  // e não a conexão em si, que identifica "1 jogador" — assim, ao
-  // recarregar a página, o mesmo navegador não é contado duas vezes
-  // nem perde a vaga que já tinha.
-  const CLIENT_ID_KEY = 'jdg_client_id';
-  let clientId = localStorage.getItem(CLIENT_ID_KEY);
-  if (!clientId) {
-    clientId = 'c-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9);
-    localStorage.setItem(CLIENT_ID_KEY, clientId);
-  }
-
   /* ── CONTAGEM DE JOGADORES ONLINE NA SALA (PeerJS) ─────── */
-  // O primeiro navegador a abrir a sala vira o "host" (dono do ID fixo
-  // da sala) e mantém um mapa clientId → conexão/vaga. Os demais
-  // entram como "guests". A contagem é sempre players.size + 1 (host),
-  // nunca a quantidade de conexões — isso evita contar duas vezes o
-  // mesmo navegador quando ele recarrega e reconecta.
   let presencePeer = null;
   let isPresenceHost = false;
-  let hostPlayers = new Map();  // clientId -> { conn, slot }
-  let hostNextSlot = 2;         // o host é sempre a vaga 1
-  let mySlot = 1;
+  let hostConnections = [];
   let guestConn = null;
-  let destroyingPresence = false;
-  let retryTimer = null;
-  let retryDelay = 800;
-  const RETRY_MAX_DELAY = 8000;
+  let reconnectTimer = null;
 
   function presenceHostId(code) {
-    return 'jdg-room-' + code;
+    return 'jdg-home-' + code;
   }
 
   function updateOnlineCount(n) {
@@ -797,148 +774,141 @@
     if (el) el.innerText = n;
   }
 
-  function clearPresenceRetry() {
-    if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
-  }
-
-  function retryPresence(fn, delay) {
-    clearPresenceRetry();
-    retryTimer = setTimeout(() => {
-      retryTimer = null;
-      if (!destroyingPresence) fn();
-    }, delay);
-  }
-
-  function cleanupPresencePeer() {
-    if (guestConn) { try { guestConn.close(); } catch (e) {} guestConn = null; }
-    if (presencePeer) { try { presencePeer.destroy(); } catch (e) {} presencePeer = null; }
-  }
-
   function broadcastCount() {
-    const count = hostPlayers.size + 1;
+    // Filtra limpando as conexões antigas ou instáveis antes de contar
+    hostConnections = hostConnections.filter(c => c.open);
+    const count = hostConnections.length + 1;
     updateOnlineCount(count);
-    hostPlayers.forEach(({ conn }) => {
-      if (conn.open) conn.send({ type: 'presence-count', count });
+    hostConnections.forEach(c => {
+      if (c.open) {
+        try {
+          c.send({ type: 'presence-count', count });
+        } catch (e) {}
+      }
     });
   }
 
-  function attemptHost(code) {
-    if (destroyingPresence) return;
-    cleanupPresencePeer();
+  function scheduleReconnect(code, delay = 2000) {
+    if (reconnectTimer) return;
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = null;
+      destroyPresencePeer();
+      initPresenceHost(code);
+    }, delay);
+  }
+
+  function initPresenceHost(code) {
+    if (presencePeer) destroyPresencePeer();
+
     presencePeer = new Peer(presenceHostId(code));
 
     presencePeer.on('open', () => {
-      retryDelay = 800;
       isPresenceHost = true;
-      mySlot = 1;
-      hostPlayers = new Map();
-      hostNextSlot = 2;
+      hostConnections = [];
       updateOnlineCount(1);
     });
 
     presencePeer.on('connection', (conn) => {
-      conn.on('data', (data) => {
-        if (!data || data.type !== 'hello') return;
-        let entry = hostPlayers.get(data.clientId);
-        if (!entry) {
-          entry = { conn, slot: hostNextSlot++ };
-          hostPlayers.set(data.clientId, entry);
-        } else {
-          entry.conn = conn; // mesmo navegador reconectando: mantém a mesma vaga
+      conn.on('open', () => {
+        if (!hostConnections.includes(conn)) {
+          hostConnections.push(conn);
         }
-        if (conn.open) conn.send({ type: 'welcome', slot: entry.slot });
         broadcastCount();
       });
 
       conn.on('close', () => {
-        for (const [id, entry] of hostPlayers) {
-          if (entry.conn === conn) { hostPlayers.delete(id); break; }
-        }
+        hostConnections = hostConnections.filter(c => c !== conn);
+        broadcastCount();
+      });
+
+      conn.on('error', () => {
+        hostConnections = hostConnections.filter(c => c !== conn);
         broadcastCount();
       });
     });
 
     presencePeer.on('disconnected', () => {
-      if (destroyingPresence) return;
-      try { presencePeer.reconnect(); } catch (e) { retryPresence(() => attemptHost(code), retryDelay); }
+      if (isPresenceHost) scheduleReconnect(code);
     });
 
     presencePeer.on('close', () => {
-      if (destroyingPresence) return;
-      retryPresence(() => attemptHost(code), retryDelay);
+      if (isPresenceHost) scheduleReconnect(code);
     });
 
     presencePeer.on('error', (err) => {
-      if (destroyingPresence) return;
-      if (err && err.type === 'unavailable-id') {
-        // Já existe um host para essa sala: entra como convidado
-        attemptGuest(code);
+      if (err.type === 'unavailable-id') {
+        // Remove os ouvintes deste peer problemático antes de instanciar como Guest
+        destroyPresencePeer();
+        initPresenceGuest(code);
       } else {
-        retryDelay = Math.min(retryDelay * 1.5, RETRY_MAX_DELAY);
-        retryPresence(() => attemptHost(code), retryDelay);
+        if (isPresenceHost) scheduleReconnect(code);
       }
     });
   }
 
-  function attemptGuest(code) {
-    if (destroyingPresence) return;
-    cleanupPresencePeer();
+  function initPresenceGuest(code) {
+    if (presencePeer) destroyPresencePeer();
+
     isPresenceHost = false;
     presencePeer = new Peer();
 
     presencePeer.on('open', () => {
-      retryDelay = 800;
-      guestConn = presencePeer.connect(presenceHostId(code), { reliable: true });
-
-      guestConn.on('open', () => {
-        guestConn.send({ type: 'hello', clientId });
-      });
+      guestConn = presencePeer.connect(presenceHostId(code));
 
       guestConn.on('data', (data) => {
-        if (!data) return;
-        if (data.type === 'welcome') mySlot = data.slot;
-        if (data.type === 'presence-count') updateOnlineCount(data.count);
+        if (data && data.type === 'presence-count') {
+          updateOnlineCount(data.count);
+        }
       });
 
       guestConn.on('close', () => {
-        if (destroyingPresence) return;
-        // O host sumiu (ex: atualizou a página): tenta assumir a sala ou reconectar
-        retryPresence(() => attemptHost(code), 500);
+        scheduleReconnect(code, 1500);
+      });
+
+      guestConn.on('error', () => {
+        scheduleReconnect(code, 1500);
       });
     });
 
     presencePeer.on('disconnected', () => {
-      if (destroyingPresence) return;
-      try { presencePeer.reconnect(); } catch (e) { retryPresence(() => attemptGuest(code), retryDelay); }
+      if (!isPresenceHost) scheduleReconnect(code, 1500);
+    });
+
+    presencePeer.on('close', () => {
+      if (!isPresenceHost) scheduleReconnect(code, 1500);
     });
 
     presencePeer.on('error', (err) => {
-      if (destroyingPresence) return;
-      if (err && err.type === 'peer-unavailable') {
-        // Host ainda não existe/sumiu: tenta virar host
-        retryPresence(() => attemptHost(code), 500);
-      } else {
-        retryDelay = Math.min(retryDelay * 1.5, RETRY_MAX_DELAY);
-        retryPresence(() => attemptGuest(code), retryDelay);
-      }
+      if (!isPresenceHost) scheduleReconnect(code, 1500);
     });
   }
 
-  function startPresence(code) {
-    destroyingPresence = false;
-    retryDelay = 800;
-    attemptHost(code);
-  }
-
   function destroyPresencePeer() {
-    destroyingPresence = true;
-    clearPresenceRetry();
-    cleanupPresencePeer();
-    hostPlayers = new Map();
+    if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+    if (guestConn) { 
+      try { guestConn.close(); } catch (e) {} 
+      guestConn = null;
+    }
+    if (hostConnections && hostConnections.length > 0) {
+      hostConnections.forEach(c => { try { c.close(); } catch (e) {} });
+      hostConnections = [];
+    }
+    if (presencePeer) {
+      try {
+        // Desativa explicitamente os ouvintes de evento para estancar o loop infinito de WebSockets
+        presencePeer.off('open');
+        presencePeer.off('connection');
+        presencePeer.off('disconnected');
+        presencePeer.off('close');
+        presencePeer.off('error');
+        presencePeer.destroy();
+      } catch (e) {}
+      presencePeer = null;
+    }
     isPresenceHost = false;
   }
 
-  startPresence(roomCode);
+  initPresenceHost(roomCode);
 
   window.addEventListener('beforeunload', () => {
     destroyPresencePeer();
