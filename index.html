@@ -105,6 +105,81 @@
       text-decoration: none;
     }
 
+    /* Estilos da Nova Seção de Sala (Inspirados na página Cara a Cara) */
+    .topbar-room {
+      background: #1e293b;
+      padding: 10px;
+      border-bottom: 4px solid #334155;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .topbar-room-container {
+      max-width: 448px;
+      margin: 0 auto;
+      padding: 0 4px;
+    }
+
+    .topbar-room-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .topbar-room-details {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    .topbar-room-id {
+      color: #818cf8;
+      font-weight: bold;
+    }
+
+    .topbar-room-online {
+      font-size: 10px;
+      color: #34d399;
+      font-weight: bold;
+    }
+
+    .btn-room {
+      background: #334155;
+      color: #fff;
+      border: none;
+      font-family: var(--font);
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-room-share {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+    }
+
+    .btn-room-share:hover {
+      background: #4f46e5;
+    }
+
+    .btn-room-leave {
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+    }
+
+    .btn-room-leave:hover {
+      background: #dc2626;
+    }
+
     .hero {
       text-align: center;
       padding: 48px 24px 36px;
@@ -381,6 +456,20 @@
   </div>
 </nav>
 
+<!-- Nova Seção de Geração de Sala Dinâmica -->
+<div class="topbar-room">
+  <div class="topbar-room-container">
+    <div class="topbar-room-flex">
+      <div class="topbar-room-details">
+        <span>Sala: <strong id="topbar-room-id" class="topbar-room-id">...</strong></span>
+        <span class="topbar-room-online">🟢 <span id="topbar-online-count">0</span> online</span>
+        <button onclick="copyRoomLink()" class="btn-room btn-room-share">📋 Compartilhar</button>
+      </div>
+      <button onclick="changeRoom()" class="btn-room btn-room-leave">🚪 Trocar Sala</button>
+    </div>
+  </div>
+</div>
+
 <header class="hero">
   <h1>Jogue <span>Grátis</span> com Amigos</h1>
   <p>Jogos multiplayer no navegador, sem cadastro. Convide amigos e jogue agora!</p>
@@ -600,6 +689,33 @@
       alert('ℹ️ Para adicionar um atalho, toque no menu (⋮ ou •••) do navegador e selecione "Adicionar à tela inicial".');
     }
   });
+
+  /* ── ROOM MANAGEMENT SYSTEM ─────────────────────────────── */
+  const urlParams = new URLSearchParams(window.location.search);
+  let roomCode = urlParams.get('room');
+
+  if (!roomCode) {
+    roomCode = 'SALA-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+    const newUrl = window.location.origin + window.location.pathname + '?room=' + roomCode;
+    window.history.replaceState({ path: newUrl }, '', newUrl);
+  }
+
+  document.getElementById('topbar-room-id').innerText = roomCode;
+
+  // Mock ou inicialização estática da contagem de jogadores (pode acoplar ao seu servidor futuramente)
+  document.getElementById('topbar-online-count').innerText = "1";
+
+  function copyRoomLink() {
+    const shareLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
+    navigator.clipboard.writeText(shareLink).then(() => {
+      alert('Link da sala copiado com sucesso!');
+    });
+  }
+
+  function changeRoom() {
+    const generatedCode = 'SALA-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+    window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
+  }
 
   /* ── INIT ───────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', () => {
