@@ -438,11 +438,89 @@
                     if (targetNav) {
                         document.getElementById('home-navbar-container').innerHTML = targetNav.innerHTML;
                     }
+                    syncRoomSectionFromHome(htmlText, parsedDoc);
                 }
             } catch (error) {
                 console.error("Falha ao sincronizar o cabeçalho do Home automaticamente:", error);
             }
         }
+
+        /* Sincroniza automaticamente a seção "Código da Sala" (HTML + CSS) com o index.html.
+           Qualquer alteração feita lá (texto, botão, cor, layout) é copiada para cá em tempo real,
+           sem precisar editar este arquivo manualmente. Se a busca falhar, mantém o layout fixo já
+           presente no HTML/CSS deste arquivo como fallback. */
+        function syncRoomSectionFromHome(rawHtml, parsedDoc) {
+            try {
+                // 1) HTML: copia o conteúdo interno real da seção de sala do index.html
+                //    (mantém o próprio elemento #topbar e sua classe de tema vermelho/azul intactos).
+                const homeRoomBlock = parsedDoc.querySelector('.topbar-room');
+                if (homeRoomBlock) {
+                    const container = homeRoomBlock.querySelector('.topbar-room-container') || homeRoomBlock;
+                    topbar.innerHTML = container.outerHTML;
+                }
+
+                // 2) CSS: copia dinamicamente as regras de estilo relacionadas à seção de sala
+                //    (.topbar-room*, .btn-room*, .online-dot, @keyframes) direto do <style> do index.html.
+                const styleTag = parsedDoc.querySelector('style');
+                if (!styleTag) return;
+                const cssText = styleTag.innerHTML;
+
+                const blocks = extractTopLevelCssBlocks(cssText);
+                const relevant = blocks.filter(b =>
+                    /^\.topbar-room/.test(b.selector) ||
+                    /^\.btn-room/.test(b.selector) ||
+                    /^\.online-dot/.test(b.selector) ||
+                    /^@keyframes\s+online-dot-pulse/.test(b.selector)
+                );
+
+                let syncedCss = '';
+                const rootBlock = blocks.find(b => b.selector === ':root');
+                if (rootBlock) {
+                    const vars = rootBlock.full.match(/--(?:yellow|font)[^:;]*:\s*[^;]+;/g);
+                    if (vars) syncedCss += ':root{' + vars.join('') + '}\n';
+                }
+                relevant.forEach(b => { syncedCss += b.full + '\n'; });
+
+                if (syncedCss) {
+                    let styleEl = document.getElementById('synced-room-style');
+                    if (!styleEl) {
+                        styleEl = document.createElement('style');
+                        styleEl.id = 'synced-room-style';
+                        document.head.appendChild(styleEl);
+                    }
+                    styleEl.textContent = syncedCss;
+                }
+            } catch (error) {
+                console.error("Falha ao sincronizar a seção de sala (usando layout fixo de fallback):", error);
+            }
+        }
+
+        // Quebra um texto CSS em blocos de nível superior { seletor -> { corpo } },
+        // respeitando chaves aninhadas (necessário para @keyframes e @media).
+        function extractTopLevelCssBlocks(css) {
+            const blocks = [];
+            let i = 0;
+            while (i < css.length) {
+                const braceIndex = css.indexOf('{', i);
+                if (braceIndex === -1) break;
+                const selector = css.slice(i, braceIndex).trim().replace(/\/\*[\s\S]*?\*\//g, '').trim();
+                let depth = 1, j = braceIndex + 1;
+                while (depth > 0 && j < css.length) {
+                    if (css[j] === '{') depth++;
+                    else if (css[j] === '}') depth--;
+                    j++;
+                }
+                const body = css.slice(braceIndex, j);
+                if (selector) blocks.push({ selector, full: selector + ' ' + body });
+                i = j;
+            }
+            return blocks;
+        }
+
+        // Aliases para os nomes de função usados nos botões do index.html,
+        // garantindo que o HTML importado funcione sem precisar ser reescrito.
+        function copyRoomLink() { copyLink(); }
+        function changeRoom() { leaveRoom(); }
 
         function saveGameState() {
             if (!roomCode) return;
