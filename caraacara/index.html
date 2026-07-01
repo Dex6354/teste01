@@ -932,12 +932,16 @@
                 localStorage.removeItem(`cara_flipped_${roomCode}`);
                 localStorage.removeItem(`cara_game_over_${roomCode}`);
             }
-            localStorage.removeItem('jdg_hosted_room');
-            localStorage.removeItem('jdg_room_code');
             if (conn) conn.close();
             if (peer) peer.destroy();
             destroyPresencePeer();
-            window.location.href = window.location.origin + window.location.pathname;
+
+            // Quem clica em "Trocar Sala" sempre nasce como Host (player 1 / vermelho)
+            // da nova sala, assim como no index.html.
+            const newRoomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
+            localStorage.setItem('jdg_room_code', newRoomCode);
+            localStorage.setItem('jdg_hosted_room', newRoomCode);
+            window.location.href = window.location.origin + window.location.pathname + '?room=' + newRoomCode;
         }
 
         function copyLink() {
