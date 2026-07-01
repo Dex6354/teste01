@@ -23,356 +23,925 @@
     :root {
       --yellow:      #f1c40f;
       --yellow-dark: #f39c12;
-      --bg-dark:     #121214;
-      --card-bg:     #1a1a1e;
-      --text-white:  #ffffff;
-      --text-gray:   #a0a0a5;
-      --border-color:#29292e;
+      --yellow-glow: rgba(241, 196, 15, 0.18);
+      --bg:          #0f1923;
+      --bg-card:     #162230;
+      --bg-card-hov: #1c2d3f;
+      --bg-input:    #1a2635;
+      --border:      rgba(255, 255, 255, 0.07);
+      --text:        #e8edf2;
+      --text-muted:  #7a92a8;
+      --tag-bg:      rgba(241, 196, 15, 0.13);
+      --radius-card: 14px;
+      --font:        'Nunito', sans-serif;
     }
+
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Nunito', sans-serif;
-      background-color: var(--bg-dark);
-      color: var(--text-white);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      padding: 20px;
+      -webkit-font-smoothing: antialiased;
     }
 
-    header {
-      width: 100%;
-      max-width: 500px;
+    .nav-logo {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      margin-left: 0;
+    }
+
+    .logo-badge {
+      width: 200px;
+      height: 40px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      margin-bottom: 25px;
+      justify-content: flex-start;
+      flex-shrink: 0;
     }
 
-    .logo-container {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 15px;
-    }
-
-    .logo-img {
-      width: 45px;
-      height: 45px;
-      border-radius: 10px;
-      object-fit: cover;
-    }
-
-    h1 {
-      font-size: 24px;
-      font-weight: 900;
-      color: var(--yellow);
-      letter-spacing: 0.5px;
-    }
-
-    /* Info da Sala */
-    .room-info {
+    .logo-badge img {
+      height: 100%;
       width: 100%;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 12px 16px;
+      object-fit: contain;
+      object-position: left;
+      display: block;
+    }
+
+    .logo-badge2 img {
+      height: 40px;
+      width: auto;
+      display: block;
+     }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      width: 100%;
+      height: 56px;
+      background: #0c151e;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 20px;
-    }
-    .room-info strong {
-      color: var(--yellow);
-      font-size: 16px;
-    }
-    #room-status {
-      color: var(--text-gray);
-      font-weight: 600;
-    }
-    .btn-exit {
-      background: #e74c3c;
-      color: #fff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 700;
-      font-size: 12px;
-      cursor: pointer;
+      padding: 0 24px 0 8px;
+      gap: 32px;
+      box-sizing: border-box;
     }
 
-    /* Grid de Jogos */
-    .games-grid {
-      width: 100%;
-      max-width: 500px;
+    .nav-lang {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 5px 10px;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-family: var(--font);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* Estilos da Nova Seção de Sala (Inspirados na página Cara a Cara) */
+    .topbar-room {
+      background: #1e293b;
+      padding: 10px;
+      border-bottom: 4px solid #334155;
+      max-width: 100%;
+      overflow: hidden;
+      position: sticky;
+      top: 56px;
+      z-index: 99;
+    }
+
+    .topbar-room-container {
+      max-width: 448px;
+      margin: 0 auto;
+      padding: 0 4px;
+    }
+
+    .topbar-room-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .topbar-room-details {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      align-items: center;
+      gap: 4px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #94a3b8;
+      text-align: center;
     }
 
-    .game-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
+    .topbar-room-id {
+      color: #818cf8;
+      font-weight: bold;
+    }
+
+    .topbar-room-online {
+      font-size: 10px;
+      color: #34d399;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .online-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #34d399;
+      margin-right: 3px;
+      vertical-align: middle;
+      animation: online-dot-pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes online-dot-pulse {
+      0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+      }
+      50% {
+        opacity: 0.55;
+        box-shadow: 0 0 0 4px rgba(52, 211, 153, 0);
+      }
+    }
+
+    .btn-room {
+      background: #334155;
+      color: #fff;
+      border: none;
+      font-family: var(--font);
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-room-share {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+    }
+
+    .btn-room-share:hover {
+      background: #4f46e5;
+    }
+
+    .btn-room-leave {
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+    }
+
+    .btn-room-leave:hover {
+      background: #dc2626;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 48px 24px 36px;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(241, 196, 15, 0.12) 0%, transparent 70%);
+    }
+
+    .hero h1 {
+      font-size: clamp(22px, 5vw, 34px);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    .hero h1 span { color: var(--yellow); }
+
+    .hero p {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto 24px;
+      line-height: 1.6;
+    }
+
+    .hero-badges {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .badge {
+      background: var(--tag-bg);
+      border: 1px solid rgba(241, 196, 15, 0.3);
+      color: var(--yellow);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      padding: 0 24px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .filters::-webkit-scrollbar { display: none; }
+
+    .filter-btn {
+      white-space: nowrap;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 7px 15px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background .18s, border-color .18s, color .18s;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: var(--bg);
+    }
+
+    .search-container {
+      padding: 0 24px 24px;
+    }
+
+    .search-box {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px 8px 38px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .search-input:focus     { border-color: var(--yellow); }
+    .search-input::placeholder { color: var(--text-muted); }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      padding: 0 24px 40px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: transform .18s, box-shadow .18s, border-color .18s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--yellow);
+      border-color: var(--yellow);
+    }
+
+    .card.hidden { display: none; }
+
+    .card-thumb {
+      width: 100%;
+      aspect-ratio: 16 / 9;
       overflow: hidden;
       display: flex;
       align-items: center;
-      padding: 12px;
-      text-decoration: none;
-      color: inherit;
-      transition: transform 0.2s, border-color 0.2s;
-      cursor: pointer;
-    }
-    .game-card:active {
-      transform: scale(0.98);
+      justify-content: center;
     }
 
-    .game-thumb {
-      width: 70px;
-      height: 70px;
-      border-radius: 12px;
+    .card-thumb img {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      margin-right: 16px;
-      background: #29292e;
+      display: block;
     }
 
-    .game-info {
-      flex: 1;
+    .card-body { padding: 12px 14px 14px; }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    /* ── TAGS ────────────────────────────────────────────── */
+    .tag {
+      background: var(--tag-bg);
+      border: 1px solid rgba(241, 196, 15, 0.2);
+      color: var(--yellow);
+      border-radius: 5px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .tag.gray {
+      background: rgba(122, 146, 168, 0.1);
+      border-color: rgba(122, 146, 168, 0.2);
+      color: var(--text-muted);
+    }
+
+    /* ── SECTION TITLE BAR ───────────────────────────────── */
+    .section-title-bar {
+      background: var(--yellow);
+      color: var(--bg);
+      border-radius: 8px;
+      margin: 20px 24px;
+      padding: 10px 18px;
+      font-size: clamp(15px, 4vw, 18px);
+      font-weight: 900;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(241, 196, 15, 0.15);
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 24px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      align-items: center;
+      gap: 14px;
+      text-align: center;
     }
 
-    .game-title {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--text-white);
+    .footer-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
-    .game-desc {
+    .footer-links a {
+      color: var(--text-muted);
       font-size: 13px;
-      color: var(--text-gray);
-      font-weight: 600;
-      line-height: 1.4;
+      text-decoration: none;
+      transition: color .15s;
     }
 
-    .hidden { display: none !important; }
+    .footer-links a:hover { color: var(--yellow); }
+
+    .footer-copy {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 560px) {
+      nav                  { padding: 0 14px 0 8px; gap: 10px; }
+      .logo-badge          { width: 200px; height: 40px; justify-content: flex-start; }
+      .hero                { padding: 32px 14px 24px; }
+      .filters             { padding: 0 14px 12px; }
+      .search-container    { padding: 0 14px 20px; }
+      .search-box          { max-width: 100%; }
+      .grid                { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 14px 32px; }
+      .section-title-bar   { margin: 10px 14px 16px; padding: 8px 14px; }
+    }
+
+    @media (max-width: 380px) {
+      .grid       { gap: 8px; }
+      .card-body  { padding: 8px 10px 10px; }
+      .card-title { font-size: 13px; }
+    }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo-container">
-      <img src="https://jogosdagalera.pages.dev/logowpp.png" alt="Logo" class="logo-img" />
-      <h1>Jogos da Galera</h1>
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="logo-badge">
+      <img src="https://jogosdagalera.pages.dev/logo3.png" alt="Jogos da Galera">
     </div>
+  </a>
+  <div>
+    <a class="nav-lang" href="/">🏠 Home</a>
+  </div>
+</nav>
 
-    <div id="room-info" class="room-info hidden">
-      <span>Sala: <strong id="room-code-val">-</strong></span>
-      <span id="room-status">1 jogador conectado</span>
-      <button class="btn-exit" onclick="exitRoom()">Sair</button>
+<div class="topbar-room">
+  <div class="topbar-room-container">
+    <div class="topbar-room-flex">
+      <div class="topbar-room-details">
+        <span>Sala: <strong id="topbar-room-id" class="topbar-room-id">...</strong> <span class="topbar-room-online">(<span class="online-dot"></span><span id="topbar-online-count">1</span> online)</span></span>
+        <button onclick="copyRoomLink()" class="btn-room btn-room-share">📋 Compartilhar</button>
+      </div>
+      <button onclick="changeRoom()" class="btn-room btn-room-leave">🚪 Trocar Sala</button>
     </div>
-  </header>
+  </div>
+</div>
 
-  <main class="games-grid" id="games-list">
-    </main>
+<header class="hero">
+  <h1>Jogue <span>Grátis</span> com Amigos</h1>
+  <p>Jogos multiplayer no navegador, sem cadastro. Convide amigos e jogue agora!</p>
+  <div class="hero-badges">
+    <span class="badge">✅ Sem Cadastro</span>
+    <span class="badge">🎮 Multiplayer</span>
+    <span class="badge">📥 Sem Download</span>
+    <span class="badge">🆓 100% Grátis</span>
+  </div>
+</header>
 
-  <script>
-    const GAMES_DATA = [
-      {
-        id: "caraacara",
-        title: "Cara a Cara",
-        desc: "Adivinhe o personagem secreto do seu oponente antes que ele adivinhe o seu!",
-        thumb: "https://caraacara.pages.dev/img/logowpp.jpg",
-        url: "https://caraacara.pages.dev/"
+<div class="filters">
+  <button class="filter-btn active" onclick="filterGames('todos', this)">Todos</button>
+  <button class="filter-btn" onclick="filterGames('palavras', this)">Palavras</button>
+  <button class="filter-btn" onclick="filterGames('sinuca', this)">Sinuca</button>
+  <button class="filter-btn" onclick="filterGames('tabuleiro', this)">Tabuleiro</button>
+  <button class="filter-btn" onclick="filterGames('acao', this)">Ação</button>
+  <button class="filter-btn" onclick="filterGames('quiz', this)">Quiz</button>
+  <button class="filter-btn" onclick="filterGames('dados', this)">Dados</button>
+</div>
+
+<div class="search-container">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" type="text" placeholder="Buscar jogo..." id="searchInput" />
+  </div>
+</div>
+
+<main class="grid" id="gameGrid"></main>
+
+<h2 class="section-title-bar" id="partnersTitle" style="display:none;">🎮 Outros Sites de Jogos</h2>
+
+<div class="grid" id="partnersGrid" style="display:none;">
+  <a class="card" href="https://bloob.io/pt" target="_blank" rel="noopener noreferrer">
+    <div class="card-thumb" style="background:linear-gradient(135deg,#1a2635,#0f1923);">
+      <img src="https://jogosdagalera.pages.dev/logowpp.png" alt="Bloob.io">
+    </div>
+    <div class="card-body">
+      <div class="card-title">Bloob.io</div>
+      <div class="card-desc">Jogue jogos multiplayer incríveis diretamente do seu navegador.</div>
+      <div class="card-tags">
+        <span class="tag">Parceiro</span>
+        <span class="tag gray">Web</span>
+      </div>
+    </div>
+  </a>
+
+  <a class="card" href="https://www.crazygames.com/br/" target="_blank" rel="noopener noreferrer">
+    <div class="card-thumb" style="background:linear-gradient(135deg,#1a2635,#0f1923);">
+      <img src="https://jogosdagalera.pages.dev/logowpp.png" alt="CrazyGames">
+    </div>
+    <div class="card-body">
+      <div class="card-title">CrazyGames</div>
+      <div class="card-desc">Uma enorme variedade de jogos online gratuitos para toda a galera.</div>
+      <div class="card-tags">
+        <span class="tag">Parceiro</span>
+        <span class="tag gray">Jogos</span>
+      </div>
+    </div>
+  </a>
+</div>
+
+<footer>
+  <div class="logo-badge2">
+    <img src="https://jogosdagalera.pages.dev/logo3.png" alt="Jogos da Galera">
+  </div>
+  <div class="footer-links">
+    <a href="#">Apoiar</a>
+    <a href="#">Pedir Jogo</a>
+    <a href="#">Sugestões</a>
+    <a href="#">Erros</a>
+    <a href="#" id="installAppBtn">Baixar</a>
+  </div>
+  <p class="footer-copy">© 2026 Jogos da Galera ♥️🎮</p>
+</footer>
+
+<script>
+  /* ── STATE ──────────────────────────────────────────────── */
+  const searchInput  = document.getElementById('searchInput');
+  const gameGrid     = document.getElementById('gameGrid');
+  const partnersTitle = document.getElementById('partnersTitle');
+  const partnersGrid  = document.getElementById('partnersGrid');
+  let activeCategory = 'todos';
+
+  const FALLBACK_IMG = 'https://jogosdagalera.pages.dev/logowpp.png';
+
+  /* ── FILTER / SEARCH ────────────────────────────────────── */
+  function updateGames() {
+    const query = searchInput.value.toLowerCase().trim();
+
+    gameGrid.querySelectorAll('.card').forEach(card => {
+      const matchCategory = activeCategory === 'todos' || card.dataset.category === activeCategory;
+      const matchSearch   = !query || (card.dataset.name || '').includes(query);
+      card.classList.toggle('hidden', !(matchCategory && matchSearch));
+    });
+  }
+
+  function filterGames(category, btn) {
+    activeCategory = category;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateGames();
+  }
+
+  searchInput.addEventListener('input', updateGames);
+
+  /* ── PARTNERS ───────────────────────────────────────────── */
+  function revealPartners() {
+    partnersTitle.style.display = 'flex';
+    partnersGrid.style.display  = 'grid';
+  }
+
+  /* ── CARD BUILDER ───────────────────────────────────────── */
+  function buildCard(folderName, meta) {
+    const tagsHTML = meta.tags
+      .map((tag, i) => `<span class="tag${i > 0 ? ' gray' : ''}">${tag}</span>`)
+      .join('');
+
+    const card = document.createElement('a');
+    card.className       = 'card';
+    card.href            = `./${folderName}/`;
+    card.dataset.category = meta.category;
+    card.dataset.name    = `${meta.title.toLowerCase()} ${folderName.toLowerCase()} ${meta.category}`;
+
+    card.innerHTML = `
+      <div class="card-thumb" style="background:${meta.background};">
+        <img src="${meta.icon}" alt="${meta.title}" onerror="this.src='${FALLBACK_IMG}'">
+      </div>
+      <div class="card-body">
+        <div class="card-title">${meta.title}</div>
+        <div class="card-desc">${meta.description}</div>
+        <div class="card-tags">${tagsHTML}</div>
+      </div>`;
+
+    return card;
+  }
+
+  /* ── LOAD GAMES ─────────────────────────────────────────── */
+  async function loadGames() {
+    try {
+      const res = await fetch('/api/games');
+      if (!res.ok) {
+        const { error } = await res.json().catch(() => ({ error: `Status ${res.status}` }));
+        throw new Error(error);
       }
-    ];
 
-    /* ── CONFIGURAÇÕES INICIAIS DA SALA ─────────────────────── */
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomCode = urlParams.get('room') ? urlParams.get('room').toUpperCase() : null;
+      const folders = await res.json();
+      gameGrid.innerHTML = '';
 
-    function loadGames() {
-      const container = document.getElementById('games-list');
-      container.innerHTML = "";
+      // Carrega os metadados de todos os jogos em paralelo
+      const gamesData = await Promise.all(folders.map(async ({ name }) => {
+        const defaultMeta = {
+          title:       name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' '),
+          description: 'Jogue agora este jogo multiplayer no navegador.',
+          category:    'acao',
+          image:       `./${name}/thumb.png`,
+          tags:        ['Multiplayer', 'Web'],
+          background:  'linear-gradient(135deg,#1a2635,#0f1923)',
+        };
 
-      GAMES_DATA.forEach(game => {
-        let finalUrl = game.url;
-        if (roomCode) {
-          finalUrl += `?room=${roomCode}`;
-        }
+        let meta = defaultMeta;
+        try {
+          const metaRes = await fetch(`./${name}/metadata.json`);
+          if (metaRes.ok) meta = { ...defaultMeta, ...await metaRes.json() };
+        } catch (_) {}
 
-        const card = document.createElement('a');
-        card.className = "game-card";
-        card.href = finalUrl;
+        return { name, meta };
+      }));
 
-        card.innerHTML = `
-          <img src="${game.thumb}" alt="${game.title}" class="game-thumb" />
-          <div class="game-info">
-            <div class="game-title">${game.title}</div>
-            <div class="game-desc">${game.desc}</div>
-          </div>
-        `;
-        container.appendChild(card);
+      // Ordena em ordem alfabética pelo título correspondente
+      gamesData.sort((a, b) => a.meta.title.localeCompare(b.meta.title, 'pt-BR'));
+
+      // Adiciona os elementos ordenados ao grid
+      gamesData.forEach(({ name, meta }) => {
+        gameGrid.appendChild(buildCard(name, meta));
       });
 
-      if (roomCode) {
-        document.getElementById('room-code-val').textContent = roomCode;
-        document.getElementById('room-info').classList.remove('hidden');
+      updateGames();
+      revealPartners();
+
+    } catch (err) {
+      console.error(err);
+      gameGrid.innerHTML = `
+        <p style="grid-column:1/-1;text-align:center;color:#ff4a4a;padding:20px;">
+          Erro: ${err.message}
+        </p>`;
+      revealPartners();
+    }
+  }
+
+  /* ── PWA ────────────────────────────────────────────────── */
+  let deferredPrompt;
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  document.getElementById('installAppBtn').addEventListener('click', async e => {
+    e.preventDefault();
+
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      try {
+        const { outcome } = await deferredPrompt.userChoice;
+        alert(outcome === 'accepted' ? '✅ App adicionado à tela inicial!' : '❌ Instalação cancelada.');
+      } catch (err) {
+        console.error('Erro aguardando userChoice:', err);
       }
+      deferredPrompt = null;
+      return;
     }
 
-    function exitRoom() {
-      window.location.href = window.location.origin + window.location.pathname;
+    if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+      alert('No Safari do iPhone: toque no botão "Compartilhar" e escolha "Adicionar à Tela de Início".');
+    } else {
+      alert('ℹ️ Para adicionar um atalho, toque no menu (⋮ ou •••) do navegador e selecione "Adicionar à tela inicial".');
     }
+  });
 
-    /* ── PRESENÇA EM SALA (PEERJS) ──────────────────────────── */
-    let presencePeer = null;
-    let isPresenceHost = false;
-    let hostConnections = [];
-    let guestConn = null;
-    let reconnectTimer = null;
+  /* ── ROOM MANAGEMENT SYSTEM ─────────────────────────────── */
+  const ROOM_STORAGE_KEY = 'jdg_room_code';
+  const HOSTED_ROOM_KEY  = 'jdg_hosted_room'; // guarda o código da sala que ESTE navegador criou (mesma ideia do caraacara.html)
 
-    function initPresenceHost(code) {
+  const urlParams = new URLSearchParams(window.location.search);
+  let roomCode = urlParams.get('room');
+  let isPresenceHostRole; // true = quem criou a sala (Host fixo) | false = quem entrou pelo link (Guest fixo)
+
+  if (roomCode) {
+    // Veio de um link compartilhado: adota esse código e passa a ser o código ativo.
+    // O papel (host/guest) é definido comparando com o código que ESTE navegador
+    // eventualmente já tenha criado antes — exatamente como no caraacara.html.
+    localStorage.setItem(ROOM_STORAGE_KEY, roomCode);
+    isPresenceHostRole = (roomCode === localStorage.getItem(HOSTED_ROOM_KEY));
+  } else {
+    // Sem parâmetro na URL: reaproveita o código salvo (mesma sala ao voltar de um jogo),
+    // ou gera um novo caso seja a primeira vez
+    roomCode = localStorage.getItem(ROOM_STORAGE_KEY);
+    if (!roomCode) {
+      roomCode = generateRoomCode();
+      localStorage.setItem(ROOM_STORAGE_KEY, roomCode);
+    }
+    // Este navegador é quem está "dono" da sala nesse fluxo (não veio de link de outra pessoa)
+    localStorage.setItem(HOSTED_ROOM_KEY, roomCode);
+    isPresenceHostRole = true;
+  }
+
+  const newUrl = window.location.origin + window.location.pathname + '?room=' + roomCode;
+  window.history.replaceState({ path: newUrl }, '', newUrl);
+
+  document.getElementById('topbar-room-id').innerText = roomCode;
+
+  function generateRoomCode() {
+    return Math.random().toString(36).substring(2, 7).toUpperCase();
+  }
+
+  function copyRoomLink() {
+    const shareLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
+    navigator.clipboard.writeText(shareLink).then(() => {
+      alert('Link da sala copiado com sucesso!');
+    });
+  }
+
+  function changeRoom() {
+    const generatedCode = generateRoomCode();
+    localStorage.setItem(ROOM_STORAGE_KEY, generatedCode);
+    localStorage.setItem(HOSTED_ROOM_KEY, generatedCode); // quem troca de sala sempre nasce como Host da nova sala
+    destroyPresencePeer();
+    window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
+  }
+
+  /* ── CONTAGEM DE JOGADORES ONLINE NA SALA (PeerJS) ─────── */
+  let presencePeer = null;
+  let isPresenceHost = false;
+  let hostConnections = [];
+  let guestConn = null;
+  let reconnectTimer = null;
+
+  function presenceHostId(code) {
+    return 'jdg-home-' + code;
+  }
+
+  function updateOnlineCount(n) {
+    const el = document.getElementById('topbar-online-count');
+    if (el) el.innerText = n;
+  }
+
+  function broadcastCount() {
+    // Filtra limpando as conexões antigas ou instáveis antes de contar
+    hostConnections = hostConnections.filter(c => c.open);
+    const count = hostConnections.length + 1;
+    updateOnlineCount(count);
+    hostConnections.forEach(c => {
+      if (c.open) {
+        try {
+          c.send({ type: 'presence-count', count });
+        } catch (e) {}
+      }
+    });
+  }
+
+  function scheduleReconnect(code, delay = 2000) {
+    if (reconnectTimer) return;
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = null;
       destroyPresencePeer();
-      presencePeer = new Peer('jogosdagalera-' + code);
+      if (isPresenceHostRole) {
+        initPresenceHost(code);
+      } else {
+        initPresenceGuest(code);
+      }
+    }, delay);
+  }
 
-      presencePeer.on('open', () => {
-        isPresenceHost = true;
-        updatePresenceUI(1);
-      });
+  function initPresenceHost(code) {
+    if (presencePeer) destroyPresencePeer();
 
-      presencePeer.on('connection', (conn) => {
-        if (!hostConnections.some(c => c.peer === conn.peer)) {
+    presencePeer = new Peer(presenceHostId(code));
+
+    presencePeer.on('open', () => {
+      isPresenceHost = true;
+      hostConnections = [];
+      updateOnlineCount(1);
+    });
+
+    presencePeer.on('connection', (conn) => {
+      conn.on('open', () => {
+        if (!hostConnections.includes(conn)) {
           hostConnections.push(conn);
         }
-        const totalPlayers = hostConnections.length + 1;
-        updatePresenceUI(totalPlayers);
-        broadcastCount(totalPlayers);
-
-        conn.on('close', () => {
-          hostConnections = hostConnections.filter(c => c.peer !== conn.peer);
-          const currentPlayers = hostConnections.length + 1;
-          updatePresenceUI(currentPlayers);
-          broadcastCount(currentPlayers);
-        });
-
-        conn.on('error', () => {
-          hostConnections = hostConnections.filter(c => c.peer !== conn.peer);
-          const currentPlayers = hostConnections.length + 1;
-          updatePresenceUI(currentPlayers);
-          broadcastCount(currentPlayers);
-        });
+        broadcastCount();
       });
 
-      presencePeer.on('error', (err) => {
-        if (err.type === 'unavailable-id') {
-          // ID ocupado: O primeiro navegador já é o Host, então este vira Guest
-          initPresenceGuest(code);
-        } else {
-          scheduleReconnect(code, 1500);
+      conn.on('close', () => {
+        hostConnections = hostConnections.filter(c => c !== conn);
+        broadcastCount();
+      });
+
+      conn.on('error', () => {
+        hostConnections = hostConnections.filter(c => c !== conn);
+        broadcastCount();
+      });
+    });
+
+    presencePeer.on('disconnected', () => {
+      scheduleReconnect(code);
+    });
+
+    presencePeer.on('close', () => {
+      scheduleReconnect(code);
+    });
+
+    presencePeer.on('error', (err) => {
+      // Mesmo em caso de ID indisponível (ex.: reconexão rápida deste mesmo navegador),
+      // o Host continua tentando ser Host — o papel nunca muda, igual ao caraacara.html.
+      scheduleReconnect(code);
+    });
+  }
+
+  function initPresenceGuest(code) {
+    if (presencePeer) destroyPresencePeer();
+
+    isPresenceHost = false;
+    presencePeer = new Peer();
+
+    presencePeer.on('open', () => {
+      guestConn = presencePeer.connect(presenceHostId(code));
+
+      guestConn.on('open', () => {
+        updateOnlineCount(2);
+      });
+
+      guestConn.on('data', (data) => {
+        if (data && data.type === 'presence-count') {
+          updateOnlineCount(data.count);
         }
       });
-    }
 
-    function initPresenceGuest(code) {
-      destroyPresencePeer();
-      // Instancia sem ID fixo para evitar conflitos
-      presencePeer = new Peer();
-
-      presencePeer.on('open', () => {
-        isPresenceHost = false;
-        guestConn = presencePeer.connect('jogosdagalera-' + code);
-
-        guestConn.on('data', (data) => {
-          if (data && data.type === 'COUNT') {
-            updatePresenceUI(data.count);
-          }
-        });
-
-        guestConn.on('close', () => {
-          scheduleReconnect(code, 1500);
-        });
-
-        guestConn.on('error', () => {
-          scheduleReconnect(code, 1500);
-        });
-      });
-
-      presencePeer.on('error', (err) => {
+      guestConn.on('close', () => {
         scheduleReconnect(code, 1500);
       });
-    }
 
-    function broadcastCount(count) {
-      hostConnections.forEach(conn => {
-        if (conn.open) {
-          conn.send({ type: 'COUNT', count: count });
-        }
+      guestConn.on('error', () => {
+        scheduleReconnect(code, 1500);
       });
-    }
-
-    function updatePresenceUI(count) {
-      const statusEl = document.getElementById('room-status');
-      if (statusEl) {
-        statusEl.textContent = `${count} ${count === 1 ? 'jogador conectado' : 'jogadores conectados'}`;
-      }
-    }
-
-    function scheduleReconnect(code, delay) {
-      if (reconnectTimer) return;
-      reconnectTimer = setTimeout(() => {
-        reconnectTimer = null;
-        if (roomCode) {
-          initPresenceHost(roomCode);
-        }
-      }, delay);
-    }
-
-    function destroyPresencePeer() {
-      if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
-      if (guestConn) { 
-        try { guestConn.close(); } catch (e) {} 
-        guestConn = null;
-      }
-      if (hostConnections && hostConnections.length > 0) {
-        hostConnections.forEach(c => { try { c.close(); } catch (e) {} });
-        hostConnections = [];
-      }
-      if (presencePeer) {
-        try {
-          presencePeer.off('open');
-          presencePeer.off('connection');
-          presencePeer.off('disconnected');
-          presencePeer.off('close');
-          presencePeer.off('error');
-          presencePeer.destroy();
-        } catch (e) {}
-        presencePeer = null;
-      }
-      isPresenceHost = false;
-    }
-
-    if (roomCode) {
-      initPresenceHost(roomCode);
-    }
-
-    window.addEventListener('beforeunload', () => {
-      destroyPresencePeer();
     });
 
-    /* ── INIT ───────────────────────────────────────────────── */
-    document.addEventListener('DOMContentLoaded', () => {
-      loadGames();
-
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
-      }
+    presencePeer.on('disconnected', () => {
+      scheduleReconnect(code, 1500);
     });
-  </script>
+
+    presencePeer.on('close', () => {
+      scheduleReconnect(code, 1500);
+    });
+
+    presencePeer.on('error', (err) => {
+      // O Guest também nunca vira Host: apenas tenta se reconectar ao Host da sala.
+      scheduleReconnect(code, 1500);
+    });
+  }
+
+  function destroyPresencePeer() {
+    if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+    if (guestConn) { 
+      try { guestConn.close(); } catch (e) {} 
+      guestConn = null;
+    }
+    if (hostConnections && hostConnections.length > 0) {
+      hostConnections.forEach(c => { try { c.close(); } catch (e) {} });
+      hostConnections = [];
+    }
+    if (presencePeer) {
+      try {
+        // Desativa explicitamente os ouvintes de evento para estancar o loop infinito de WebSockets
+        presencePeer.off('open');
+        presencePeer.off('connection');
+        presencePeer.off('disconnected');
+        presencePeer.off('close');
+        presencePeer.off('error');
+        presencePeer.destroy();
+      } catch (e) {}
+      presencePeer = null;
+    }
+    isPresenceHost = false;
+  }
+
+  if (isPresenceHostRole) {
+    initPresenceHost(roomCode);
+  } else {
+    initPresenceGuest(roomCode);
+  }
+
+  window.addEventListener('beforeunload', () => {
+    destroyPresencePeer();
+  });
+
+  /* ── INIT ───────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    loadGames();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(err =>
+        console.log('Service Worker não registrado:', err.message)
+      );
+    }
+  });
+</script>
 </body>
 </html>
