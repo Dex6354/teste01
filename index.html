@@ -718,13 +718,18 @@
 
   /* ── ROOM MANAGEMENT SYSTEM ─────────────────────────────── */
   const ROOM_STORAGE_KEY = 'jdg_room_code';
+  const HOSTED_ROOM_KEY  = 'jdg_hosted_room'; // guarda o código da sala que ESTE navegador criou (mesma ideia do caraacara.html)
 
   const urlParams = new URLSearchParams(window.location.search);
   let roomCode = urlParams.get('room');
+  let isPresenceHostRole; // true = quem criou a sala (Host fixo) | false = quem entrou pelo link (Guest fixo)
 
   if (roomCode) {
-    // Veio de um link compartilhado: adota esse código e passa a ser o código ativo
+    // Veio de um link compartilhado: adota esse código e passa a ser o código ativo.
+    // O papel (host/guest) é definido comparando com o código que ESTE navegador
+    // eventualmente já tenha criado antes — exatamente como no caraacara.html.
     localStorage.setItem(ROOM_STORAGE_KEY, roomCode);
+    isPresenceHostRole = (roomCode === localStorage.getItem(HOSTED_ROOM_KEY));
   } else {
     // Sem parâmetro na URL: reaproveita o código salvo (mesma sala ao voltar de um jogo),
     // ou gera um novo caso seja a primeira vez
@@ -733,6 +738,9 @@
       roomCode = generateRoomCode();
       localStorage.setItem(ROOM_STORAGE_KEY, roomCode);
     }
+    // Este navegador é quem está "dono" da sala nesse fluxo (não veio de link de outra pessoa)
+    localStorage.setItem(HOSTED_ROOM_KEY, roomCode);
+    isPresenceHostRole = true;
   }
 
   const newUrl = window.location.origin + window.location.pathname + '?room=' + roomCode;
@@ -754,6 +762,7 @@
   function changeRoom() {
     const generatedCode = generateRoomCode();
     localStorage.setItem(ROOM_STORAGE_KEY, generatedCode);
+    localStorage.setItem(HOSTED_ROOM_KEY, generatedCode); // quem troca de sala sempre nasce como Host da nova sala
     destroyPresencePeer();
     window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
   }
@@ -793,7 +802,11 @@
     reconnectTimer = setTimeout(() => {
       reconnectTimer = null;
       destroyPresencePeer();
-      initPresenceHost(code);
+      if (isPresenceHostRole) {
+        initPresenceHost(code);
+      } else {
+        initPresenceGuest(code);
+      }
     }, delay);
   }
 
@@ -828,21 +841,17 @@
     });
 
     presencePeer.on('disconnected', () => {
-      if (isPresenceHost) scheduleReconnect(code);
+      scheduleReconnect(code);
     });
 
     presencePeer.on('close', () => {
-      if (isPresenceHost) scheduleReconnect(code);
+      scheduleReconnect(code);
     });
 
     presencePeer.on('error', (err) => {
-      if (err.type === 'unavailable-id') {
-        // Remove os ouvintes deste peer problemático antes de instanciar como Guest
-        destroyPresencePeer();
-        initPresenceGuest(code);
-      } else {
-        if (isPresenceHost) scheduleReconnect(code);
-      }
+      // Mesmo em caso de ID indisponível (ex.: reconexão rápida deste mesmo navegador),
+      // o Host continua tentando ser Host — o papel nunca muda, igual ao caraacara.html.
+      scheduleReconnect(code);
     });
   }
 
@@ -854,6 +863,10 @@
 
     presencePeer.on('open', () => {
       guestConn = presencePeer.connect(presenceHostId(code));
+
+      guestConn.on('open', () => {
+        updateOnlineCount(2);
+      });
 
       guestConn.on('data', (data) => {
         if (data && data.type === 'presence-count') {
@@ -871,15 +884,16 @@
     });
 
     presencePeer.on('disconnected', () => {
-      if (!isPresenceHost) scheduleReconnect(code, 1500);
+      scheduleReconnect(code, 1500);
     });
 
     presencePeer.on('close', () => {
-      if (!isPresenceHost) scheduleReconnect(code, 1500);
+      scheduleReconnect(code, 1500);
     });
 
     presencePeer.on('error', (err) => {
-      if (!isPresenceHost) scheduleReconnect(code, 1500);
+      // O Guest também nunca vira Host: apenas tenta se reconectar ao Host da sala.
+      scheduleReconnect(code, 1500);
     });
   }
 
@@ -908,7 +922,11 @@
     isPresenceHost = false;
   }
 
-  initPresenceHost(roomCode);
+  if (isPresenceHostRole) {
+    initPresenceHost(roomCode);
+  } else {
+    initPresenceGuest(roomCode);
+  }
 
   window.addEventListener('beforeunload', () => {
     destroyPresencePeer();
