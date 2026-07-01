@@ -114,6 +114,9 @@
       border-bottom: 4px solid #334155;
       max-width: 100%;
       overflow: hidden;
+      position: sticky;
+      top: 56px;
+      z-index: 99;
     }
 
     .topbar-room-container {
@@ -761,10 +764,13 @@
   // O primeiro a abrir a sala vira o "host" (dono do ID fixo da sala) e
   // conta as conexões dos demais; os outros entram como "guests" e
   // recebem a contagem atualizada em tempo real via broadcast do host.
+  // Se alguém atualizar a página (host ou guest), todos reconectam
+  // automaticamente e a contagem volta a ficar correta sozinha.
   let presencePeer = null;
   let isPresenceHost = false;
   let hostConnections = [];
   let guestConn = null;
+  let reconnectTimer = null;
 
   function presenceHostId(code) {
     return 'jdg-home-' + code;
@@ -783,11 +789,21 @@
     });
   }
 
+  function scheduleReconnect(code, delay = 1000) {
+    if (reconnectTimer) return; // já existe uma tentativa agendada
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = null;
+      destroyPresencePeer();
+      initPresenceHost(code);
+    }, delay);
+  }
+
   function initPresenceHost(code) {
     presencePeer = new Peer(presenceHostId(code));
 
     presencePeer.on('open', () => {
       isPresenceHost = true;
+      hostConnections = [];
       updateOnlineCount(1);
     });
 
@@ -800,12 +816,28 @@
         hostConnections = hostConnections.filter(c => c !== conn);
         broadcastCount();
       });
+
+      conn.on('error', () => {
+        hostConnections = hostConnections.filter(c => c !== conn);
+        broadcastCount();
+      });
+    });
+
+    presencePeer.on('disconnected', () => {
+      // Perdeu a conexão com o servidor de sinalização, mas o peer ainda existe: tenta reconectar
+      try { presencePeer.reconnect(); } catch (e) { scheduleReconnect(code); }
+    });
+
+    presencePeer.on('close', () => {
+      scheduleReconnect(code);
     });
 
     presencePeer.on('error', (err) => {
       if (err.type === 'unavailable-id') {
         // Já existe um host para essa sala: entra como convidado
         initPresenceGuest(code);
+      } else {
+        scheduleReconnect(code);
       }
     });
   }
@@ -825,17 +857,27 @@
       });
 
       guestConn.on('close', () => {
-        updateOnlineCount(1);
+        // O host sumiu (ex: atualizou a página): tenta reconectar/assumir a sala automaticamente
+        scheduleReconnect(code, 500);
       });
+
+      guestConn.on('error', () => {
+        scheduleReconnect(code, 500);
+      });
+    });
+
+    presencePeer.on('disconnected', () => {
+      try { presencePeer.reconnect(); } catch (e) { scheduleReconnect(code, 500); }
     });
 
     presencePeer.on('error', () => {
       // Host indisponível (ex: acabou de sair): tenta assumir a sala
-      setTimeout(() => initPresenceHost(code), 800);
+      scheduleReconnect(code, 500);
     });
   }
 
   function destroyPresencePeer() {
+    if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
     if (guestConn) { try { guestConn.close(); } catch (e) {} }
     if (presencePeer) { try { presencePeer.destroy(); } catch (e) {} }
     presencePeer = null;
