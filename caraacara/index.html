@@ -72,6 +72,107 @@
                 justify-content: flex-start;
             }
         }
+
+        /* Seção do Código da Sala — copiada exatamente do index.html (mesma posição, valores, tamanhos, fontes e margens) */
+        .topbar-room {
+            background: #1e293b;
+            padding: 10px;
+            border-bottom: 4px solid #334155;
+            max-width: 100%;
+            overflow: hidden;
+            position: sticky;
+            top: 56px;
+            z-index: 99;
+        }
+
+        .topbar-room-container {
+            max-width: 448px;
+            margin: 0 auto;
+            padding: 0 4px;
+        }
+
+        .topbar-room-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-room-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        .topbar-room-id {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        .topbar-room-online {
+            font-size: 10px;
+            color: #34d399;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .online-dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #34d399;
+            margin-right: 3px;
+            vertical-align: middle;
+            animation: online-dot-pulse 1.4s ease-in-out infinite;
+        }
+
+        @keyframes online-dot-pulse {
+            0%, 100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+            }
+            50% {
+                opacity: 0.55;
+                box-shadow: 0 0 0 4px rgba(52, 211, 153, 0);
+            }
+        }
+
+        .btn-room {
+            background: #334155;
+            color: #fff;
+            border: none;
+            font-family: 'Nunito', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-room-share {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+
+        .btn-room-share:hover {
+            background: #4f46e5;
+        }
+
+        .btn-room-leave {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+        }
+
+        .btn-room-leave:hover {
+            background: #dc2626;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between transition-colors duration-500">
@@ -81,21 +182,14 @@
             <div class="animate-pulse text-xs text-slate-500 pl-4">Carregando menu principal...</div>
         </nav>
         
-        <header id="topbar" class="bg-slate-800 p-2.5 border-b-4 border-slate-700 transition-colors duration-500 max-w-full overflow-hidden">
-            <div class="max-w-md mx-auto px-1">
-                <div class="flex justify-between items-center relative gap-2">
-                    <h1 class="font-extrabold text-sm tracking-wider shrink-0">
-                        <img src="img/logo.jpg" class="w-20 h-6 object-cover object-center rounded-md" alt="Logo">
-                    </h1>
-                    <div class="flex flex-col items-center space-y-1 text-[11px] text-slate-400 font-mono shrink-0 text-center">
-                        <span>Sala: <strong id="topbar-room-id" class="text-indigo-400">...</strong></span>
-                        <button onclick="copyLink()" class="bg-slate-700 hover:bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold transition whitespace-nowrap">
-                            📋Compartilhar
-                        </button>
+        <header id="topbar" class="topbar-room">
+            <div class="topbar-room-container">
+                <div class="topbar-room-flex">
+                    <div class="topbar-room-details">
+                        <span>Sala: <strong id="topbar-room-id" class="topbar-room-id">...</strong> <span class="topbar-room-online">(<span class="online-dot"></span><span id="topbar-online-count">1</span> online)</span></span>
+                        <button onclick="copyLink()" class="btn-room btn-room-share">📋 Compartilhar</button>
                     </div>
-                    <button id="btn-leave" onclick="leaveRoom()" class="bg-slate-700 hover:bg-red-600 text-white text-[11px] font-bold py-1 px-2.5 rounded-lg transition shadow shrink-0 whitespace-nowrap">
-                        🚪 Trocar Sala
-                    </button>
+                    <button id="btn-leave" onclick="leaveRoom()" class="btn-room btn-room-leave">🚪 Trocar Sala</button>
                 </div>
             </div>
         </header>
@@ -443,15 +537,126 @@
 
             if (myRole === 'red') {
                 initHost(roomCode);
+                initPresenceHost(roomCode);
             } else {
                 initGuest(roomCode);
+                initPresenceGuest(roomCode);
             }
         }
 
         window.addEventListener('beforeunload', () => {
             if (conn) conn.close();
             if (peer) peer.destroy();
+            destroyPresencePeer();
         });
+
+        /* ── CONTAGEM DE JOGADORES ONLINE NA SALA (idêntico ao index.html) ─── */
+        let presencePeer = null;
+        let hostConnections = [];
+        let guestConn = null;
+        let reconnectTimer = null;
+
+        function presenceHostId(code) {
+            return 'jdg-home-' + code;
+        }
+
+        function updateOnlineCount(n) {
+            const el = document.getElementById('topbar-online-count');
+            if (el) el.innerText = n;
+        }
+
+        function broadcastCount() {
+            hostConnections = hostConnections.filter(c => c.open);
+            const count = hostConnections.length + 1;
+            updateOnlineCount(count);
+            hostConnections.forEach(c => {
+                if (c.open) {
+                    try { c.send({ type: 'presence-count', count }); } catch (e) {}
+                }
+            });
+        }
+
+        function scheduleReconnect(code, delay = 2000) {
+            if (reconnectTimer) return;
+            reconnectTimer = setTimeout(() => {
+                reconnectTimer = null;
+                destroyPresencePeer();
+                if (myRole === 'red') {
+                    initPresenceHost(code);
+                } else {
+                    initPresenceGuest(code);
+                }
+            }, delay);
+        }
+
+        function initPresenceHost(code) {
+            if (presencePeer) destroyPresencePeer();
+            presencePeer = new Peer(presenceHostId(code));
+
+            presencePeer.on('open', () => {
+                hostConnections = [];
+                updateOnlineCount(1);
+            });
+
+            presencePeer.on('connection', (conn2) => {
+                conn2.on('open', () => {
+                    if (!hostConnections.includes(conn2)) hostConnections.push(conn2);
+                    broadcastCount();
+                });
+                conn2.on('close', () => {
+                    hostConnections = hostConnections.filter(c => c !== conn2);
+                    broadcastCount();
+                });
+                conn2.on('error', () => {
+                    hostConnections = hostConnections.filter(c => c !== conn2);
+                    broadcastCount();
+                });
+            });
+
+            presencePeer.on('disconnected', () => scheduleReconnect(code));
+            presencePeer.on('close', () => scheduleReconnect(code));
+            presencePeer.on('error', () => scheduleReconnect(code));
+        }
+
+        function initPresenceGuest(code) {
+            if (presencePeer) destroyPresencePeer();
+            presencePeer = new Peer();
+
+            presencePeer.on('open', () => {
+                guestConn = presencePeer.connect(presenceHostId(code));
+
+                guestConn.on('open', () => updateOnlineCount(2));
+                guestConn.on('data', (data) => {
+                    if (data && data.type === 'presence-count') updateOnlineCount(data.count);
+                });
+                guestConn.on('close', () => scheduleReconnect(code, 1500));
+                guestConn.on('error', () => scheduleReconnect(code, 1500));
+            });
+
+            presencePeer.on('disconnected', () => scheduleReconnect(code, 1500));
+            presencePeer.on('close', () => scheduleReconnect(code, 1500));
+            presencePeer.on('error', () => scheduleReconnect(code, 1500));
+        }
+
+        function destroyPresencePeer() {
+            if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+            if (guestConn) { try { guestConn.close(); } catch (e) {} guestConn = null; }
+            if (hostConnections.length > 0) {
+                hostConnections.forEach(c => { try { c.close(); } catch (e) {} });
+                hostConnections = [];
+            }
+            if (presencePeer) {
+                try {
+                    presencePeer.off('open');
+                    presencePeer.off('connection');
+                    presencePeer.off('disconnected');
+                    presencePeer.off('close');
+                    presencePeer.off('error');
+                    presencePeer.destroy();
+                } catch (e) {}
+                presencePeer = null;
+            }
+        }
 
         function updatePresenceUI(p1Online, p2Online) {
             const dotP1 = document.getElementById('status-dot-p1');
@@ -637,6 +842,7 @@
             localStorage.removeItem('jdg_room_code');
             if (conn) conn.close();
             if (peer) peer.destroy();
+            destroyPresencePeer();
             window.location.href = window.location.origin + window.location.pathname;
         }
 
