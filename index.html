@@ -15,6 +15,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
 
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -105,7 +107,7 @@
       text-decoration: none;
     }
 
-    /* Estilos da Nova Seção de Sala */
+    /* Estilos da Nova Seção de Sala (Inspirados na página Cara a Cara) */
     .topbar-room {
       background: #1e293b;
       padding: 10px;
@@ -129,11 +131,13 @@
 
     .topbar-room-details {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 4px;
       font-family: monospace;
-      font-size: 12px;
+      font-size: 11px;
       color: #94a3b8;
+      text-align: center;
     }
 
     .topbar-room-id {
@@ -142,26 +146,32 @@
     }
 
     .topbar-room-online {
-      font-size: 11px;
+      font-size: 10px;
       color: #34d399;
       font-weight: bold;
-      display: inline-flex;
-      align-items: center;
+      white-space: nowrap;
     }
 
-    .blinking-dot {
+    .online-dot {
       display: inline-block;
-      width: 8px;
-      height: 8px;
-      background-color: #34d399;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      margin-right: 5px;
-      animation: roomBlink 1s infinite alternate;
+      background: #34d399;
+      margin-right: 3px;
+      vertical-align: middle;
+      animation: online-dot-pulse 1.4s ease-in-out infinite;
     }
 
-    @keyframes roomBlink {
-      from { opacity: 1; transform: scale(1); }
-      to { opacity: 0.2; transform: scale(0.8); }
+    @keyframes online-dot-pulse {
+      0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+      }
+      50% {
+        opacity: 0.55;
+        box-shadow: 0 0 0 4px rgba(52, 211, 153, 0);
+      }
     }
 
     .btn-room {
@@ -449,7 +459,6 @@
       .search-box          { max-width: 100%; }
       .grid                { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 14px 32px; }
       .section-title-bar   { margin: 10px 14px 16px; padding: 8px 14px; }
-      .topbar-room-flex    { flex-direction: column; gap: 10px; }
     }
 
     @media (max-width: 380px) {
@@ -472,11 +481,12 @@
   </div>
 </nav>
 
+<!-- Nova Seção de Geração de Sala Dinâmica -->
 <div class="topbar-room">
   <div class="topbar-room-container">
     <div class="topbar-room-flex">
       <div class="topbar-room-details">
-        <span>Sala: <strong id="topbar-room-id" class="topbar-room-id">...</strong> (<span class="topbar-room-online"><span class="blinking-dot"></span><span id="topbar-online-count">1</span> online</span>)</span>
+        <span>Sala: <strong id="topbar-room-id" class="topbar-room-id">...</strong> <span class="topbar-room-online">(<span class="online-dot"></span><span id="topbar-online-count">1</span> online)</span></span>
         <button onclick="copyRoomLink()" class="btn-room btn-room-share">📋 Compartilhar</button>
       </div>
       <button onclick="changeRoom()" class="btn-room btn-room-leave">🚪 Trocar Sala</button>
@@ -570,59 +580,6 @@
 
   const FALLBACK_IMG = 'https://jogosdagalera.pages.dev/logowpp.png';
 
-  /* ── ROOM MANAGEMENT SYSTEM ─────────────────────────────── */
-  const urlParams = new URLSearchParams(window.location.search);
-  let roomCode = urlParams.get('room');
-
-  // Recupera do localStorage se não estiver explicitamente na URL (mantém o código ativo)
-  if (!roomCode) {
-    roomCode = localStorage.getItem('jogosdagalera_room');
-  }
-
-  // Gera se não houver nenhuma salva (sem o prefixo "SALA-")
-  if (!roomCode || roomCode.startsWith('SALA-')) {
-    if (roomCode && roomCode.startsWith('SALA-')) {
-      roomCode = roomCode.replace('SALA-', '');
-    } else {
-      roomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
-    }
-  }
-
-  // Persiste no localStorage e atualiza a URL de forma limpa
-  localStorage.setItem('jogosdagalera_room', roomCode);
-  const newUrl = window.location.origin + window.location.pathname + '?room=' + roomCode;
-  window.history.replaceState({ path: newUrl }, '', newUrl);
-
-  document.getElementById('topbar-room-id').innerText = roomCode;
-
-  // Função para obter a contagem real de conexões/jogadores ativos via API
-  async function updateOnlineCount() {
-    try {
-      const res = await fetch(`/api/room?room=${roomCode}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data && typeof data.count !== 'undefined') {
-          document.getElementById('topbar-online-count').innerText = data.count;
-        }
-      }
-    } catch (err) {
-      console.error('Erro ao atualizar contador da sala:', err);
-    }
-  }
-
-  function copyRoomLink() {
-    const shareLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
-    navigator.clipboard.writeText(shareLink).then(() => {
-      alert('Link da sala copiado com sucesso!');
-    });
-  }
-
-  function changeRoom() {
-    const generatedCode = Math.random().toString(36).substring(2, 7).toUpperCase();
-    localStorage.setItem('jogosdagalera_room', generatedCode);
-    window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
-  }
-
   /* ── FILTER / SEARCH ────────────────────────────────────── */
   function updateGames() {
     const query = searchInput.value.toLowerCase().trim();
@@ -657,8 +614,7 @@
 
     const card = document.createElement('a');
     card.className       = 'card';
-    // Repassa dinamicamente o código correto da sala para a URL interna de cada jogo
-    card.href            = `./${folderName}/?room=${roomCode}`;
+    card.href            = `./${folderName}/`;
     card.dataset.category = meta.category;
     card.dataset.name    = `${meta.title.toLowerCase()} ${folderName.toLowerCase()} ${meta.category}`;
 
@@ -687,6 +643,7 @@
       const folders = await res.json();
       gameGrid.innerHTML = '';
 
+      // Carrega os metadados de todos os jogos em paralelo
       const gamesData = await Promise.all(folders.map(async ({ name }) => {
         const defaultMeta = {
           title:       name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' '),
@@ -706,8 +663,10 @@
         return { name, meta };
       }));
 
+      // Ordena em ordem alfabética pelo título correspondente
       gamesData.sort((a, b) => a.meta.title.localeCompare(b.meta.title, 'pt-BR'));
 
+      // Adiciona os elementos ordenados ao grid
       gamesData.forEach(({ name, meta }) => {
         gameGrid.appendChild(buildCard(name, meta));
       });
@@ -755,13 +714,145 @@
     }
   });
 
+  /* ── ROOM MANAGEMENT SYSTEM ─────────────────────────────── */
+  const ROOM_STORAGE_KEY = 'jdg_room_code';
+
+  const urlParams = new URLSearchParams(window.location.search);
+  let roomCode = urlParams.get('room');
+
+  if (roomCode) {
+    // Veio de um link compartilhado: adota esse código e passa a ser o código ativo
+    localStorage.setItem(ROOM_STORAGE_KEY, roomCode);
+  } else {
+    // Sem parâmetro na URL: reaproveita o código salvo (mesma sala ao voltar de um jogo),
+    // ou gera um novo caso seja a primeira vez
+    roomCode = localStorage.getItem(ROOM_STORAGE_KEY);
+    if (!roomCode) {
+      roomCode = generateRoomCode();
+      localStorage.setItem(ROOM_STORAGE_KEY, roomCode);
+    }
+  }
+
+  const newUrl = window.location.origin + window.location.pathname + '?room=' + roomCode;
+  window.history.replaceState({ path: newUrl }, '', newUrl);
+
+  document.getElementById('topbar-room-id').innerText = roomCode;
+
+  function generateRoomCode() {
+    return Math.random().toString(36).substring(2, 7).toUpperCase();
+  }
+
+  function copyRoomLink() {
+    const shareLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
+    navigator.clipboard.writeText(shareLink).then(() => {
+      alert('Link da sala copiado com sucesso!');
+    });
+  }
+
+  function changeRoom() {
+    const generatedCode = generateRoomCode();
+    localStorage.setItem(ROOM_STORAGE_KEY, generatedCode);
+    destroyPresencePeer();
+    window.location.href = window.location.origin + window.location.pathname + '?room=' + generatedCode;
+  }
+
+  /* ── CONTAGEM DE JOGADORES ONLINE NA SALA (PeerJS) ─────── */
+  // Mesma lógica usada em caraacara.html: cada navegador é um peer.
+  // O primeiro a abrir a sala vira o "host" (dono do ID fixo da sala) e
+  // conta as conexões dos demais; os outros entram como "guests" e
+  // recebem a contagem atualizada em tempo real via broadcast do host.
+  let presencePeer = null;
+  let isPresenceHost = false;
+  let hostConnections = [];
+  let guestConn = null;
+
+  function presenceHostId(code) {
+    return 'jdg-home-' + code;
+  }
+
+  function updateOnlineCount(n) {
+    const el = document.getElementById('topbar-online-count');
+    if (el) el.innerText = n;
+  }
+
+  function broadcastCount() {
+    const count = hostConnections.length + 1;
+    updateOnlineCount(count);
+    hostConnections.forEach(c => {
+      if (c.open) c.send({ type: 'presence-count', count });
+    });
+  }
+
+  function initPresenceHost(code) {
+    presencePeer = new Peer(presenceHostId(code));
+
+    presencePeer.on('open', () => {
+      isPresenceHost = true;
+      updateOnlineCount(1);
+    });
+
+    presencePeer.on('connection', (conn) => {
+      hostConnections.push(conn);
+
+      conn.on('open', () => broadcastCount());
+
+      conn.on('close', () => {
+        hostConnections = hostConnections.filter(c => c !== conn);
+        broadcastCount();
+      });
+    });
+
+    presencePeer.on('error', (err) => {
+      if (err.type === 'unavailable-id') {
+        // Já existe um host para essa sala: entra como convidado
+        initPresenceGuest(code);
+      }
+    });
+  }
+
+  function initPresenceGuest(code) {
+    if (presencePeer) { try { presencePeer.destroy(); } catch (e) {} }
+    isPresenceHost = false;
+    presencePeer = new Peer();
+
+    presencePeer.on('open', () => {
+      guestConn = presencePeer.connect(presenceHostId(code));
+
+      guestConn.on('data', (data) => {
+        if (data && data.type === 'presence-count') {
+          updateOnlineCount(data.count);
+        }
+      });
+
+      guestConn.on('close', () => {
+        updateOnlineCount(1);
+      });
+    });
+
+    presencePeer.on('error', () => {
+      // Host indisponível (ex: acabou de sair): tenta assumir a sala
+      setTimeout(() => initPresenceHost(code), 800);
+    });
+  }
+
+  function destroyPresencePeer() {
+    if (guestConn) { try { guestConn.close(); } catch (e) {} }
+    if (presencePeer) { try { presencePeer.destroy(); } catch (e) {} }
+    presencePeer = null;
+    guestConn = null;
+    hostConnections = [];
+    isPresenceHost = false;
+  }
+
+  initPresenceHost(roomCode);
+
+  window.addEventListener('beforeunload', () => {
+    destroyPresencePeer();
+  });
+
   /* ── INIT ───────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', () => {
     loadGames();
-    updateOnlineCount();
-    
-    // Mantém atualizando o contador de players periodicamente (a cada 5 segundos)
-    setInterval(updateOnlineCount, 5000);
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(err =>
