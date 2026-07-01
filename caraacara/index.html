@@ -422,6 +422,15 @@
         let localPlayerReadyForNext = false;
         let opponentReadyForNext = false;
 
+        // Declaradas aqui (antes de qualquer chamada) para evitar erro de
+        // "acesso antes da inicialização", já que são usadas por funções
+        // chamadas de forma síncrona logo no carregamento da página.
+        let presencePeer = null;
+        let hostConnections = [];
+        let guestConn = null;
+        let reconnectTimer = null;
+        let UX_THEME_BG = '';
+
         const screenLobby = document.getElementById('screen-lobby');
         const screenSelect = document.getElementById('screen-select');
         const screenGame = document.getElementById('screen-game');
@@ -456,7 +465,17 @@
                 const homeRoomBlock = parsedDoc.querySelector('.topbar-room');
                 if (homeRoomBlock) {
                     const container = homeRoomBlock.querySelector('.topbar-room-container') || homeRoomBlock;
+                    const currentOnline = document.getElementById('topbar-online-count');
+                    const onlineCount = currentOnline ? currentOnline.innerText : '1';
+
                     topbar.innerHTML = container.outerHTML;
+
+                    // A troca de HTML acima reseta os valores para o placeholder padrão;
+                    // reaplica o código da sala e a contagem online já conhecidos nesta página.
+                    const idEl = document.getElementById('topbar-room-id');
+                    if (idEl) idEl.innerText = roomCode || '...';
+                    const onlineEl = document.getElementById('topbar-online-count');
+                    if (onlineEl) onlineEl.innerText = onlineCount;
                 }
 
                 // 2) CSS: copia dinamicamente as regras de estilo relacionadas à seção de sala
@@ -631,11 +650,6 @@
         });
 
         /* ── CONTAGEM DE JOGADORES ONLINE NA SALA (idêntico ao index.html) ─── */
-        let presencePeer = null;
-        let hostConnections = [];
-        let guestConn = null;
-        let reconnectTimer = null;
-
         function presenceHostId(code) {
             return 'jdg-home-' + code;
         }
@@ -932,8 +946,6 @@
                 alert('Link da sala copiado com sucesso!');
             });
         }
-
-        let UX_THEME_BG = '';
 
         function setupTheme() {
             UX_THEME_BG = myRole === 'red' ? 'img/fundovermelho.png' : 'img/fundoazul.png';
