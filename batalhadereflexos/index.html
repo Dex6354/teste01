@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batalha de Reflexos P2P</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+</head>
+<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between select-none">
+
+    <div id="screen-tv" class="hidden flex-grow flex flex-col justify-between p-8 h-screen w-full max-w-5xl mx-auto">
+        <div class="flex justify-between items-center border-b-2 border-slate-700 pb-4">
+            <div>
+                <h1 class="text-4xl font-black tracking-wider text-rose-500">⚡ BATALHA DE REFLEXOS</h1>
+                <p class="text-slate-400 text-sm mt-1">Abra o link nos telemóveis para conectar</p>
+            </div>
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-right">
+                <span class="text-xs text-slate-400 font-mono block">SALA</span>
+                <span id="tv-room-code" class="text-3xl font-black text-indigo-400 tracking-widest">...</span>
+            </div>
+        </div>
+
+        <div class="flex-grow flex flex-col items-center justify-center my-6">
+            
+            <div id="tv-lobby" class="text-center space-y-6">
+                <h2 class="text-3xl font-bold animate-pulse text-amber-400">Aguardando Jogadores...</h2>
+                <div class="flex justify-center space-x-12">
+                    <div id="tv-p1-status" class="bg-slate-800 p-6 rounded-2xl border-2 border-dashed border-slate-600 w-52 text-slate-500 font-bold">Jogador 1<br><span class="text-xs font-normal">Desconectado</span></div>
+                    <div id="tv-p2-status" class="bg-slate-800 p-6 rounded-2xl border-2 border-dashed border-slate-600 w-52 text-slate-500 font-bold">Jogador 2<br><span class="text-xs font-normal">Desconectado</span></div>
+                </div>
+                <button id="btn-start" onclick="startGame()" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-3 rounded-xl text-lg font-black uppercase hidden shadow-lg transition">Iniciar Combate 🚀</button>
+            </div>
+
+            <div id="tv-gameplay" class="w-full hidden text-center space-y-8">
+                <div id="tv-target-box" class="w-full max-w-2xl mx-auto h-64 rounded-3xl flex items-center justify-center border-4 border-slate-700 shadow-2xl transition-all duration-200 bg-slate-800">
+                    <span id="tv-prompt-text" class="text-6xl font-black tracking-wide uppercase">Preparar...</span>
+                </div>
+            </div>
+
+            <div id="tv-results" class="w-full hidden text-center space-y-6">
+                <h2 id="tv-round-winner" class="text-5xl font-black text-emerald-400">--- VENCEU!</h2>
+                <div class="bg-slate-800 p-6 rounded-2xl max-w-md mx-auto border border-slate-700 shadow-xl space-y-4">
+                    <h3 class="text-lg font-bold uppercase text-slate-400 tracking-wider">Pontuação Global (Alvo: 5)</h3>
+                    <div class="flex justify-between text-xl font-mono border-b border-slate-700 pb-2">
+                        <span class="text-red-400 font-bold">🔴 JOGADOR 1:</span> <span id="tv-score-p1" class="font-black">0</span>
+                    </div>
+                    <div class="flex justify-between text-xl font-mono pt-1">
+                        <span class="text-blue-400 font-bold">🔵 JOGADOR 2:</span> <span id="tv-score-p2" class="font-black">0</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="screen-player" class="hidden flex-grow flex flex-col justify-between p-4 max-w-md mx-auto w-full h-screen">
+        <header class="bg-slate-800 p-3 rounded-xl border border-slate-700 flex justify-between items-center">
+            <span id="player-tag" class="text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-slate-700 text-slate-400">Conectando...</span>
+            <span id="player-score" class="font-black font-mono text-amber-400 text-sm">0 pts</span>
+        </header>
+
+        <div class="flex-grow flex flex-col items-center justify-center my-4 w-full">
+            <div id="player-wait" class="text-center space-y-2">
+                <span class="text-4xl block animate-pulse">⏳</span>
+                <h2 id="player-wait-title" class="text-lg font-bold">Olhe para a TV</h2>
+                <p class="text-xs text-slate-400 px-6">Os botões vão ativar assim que o sinal for dado no ecrã grande!</p>
+            </div>
+
+            <div id="player-gamepad" class="w-full h-full hidden grid grid-cols-2 grid-rows-2 gap-3 py-2">
+                <button onclick="pressColor('RED')" class="bg-red-600 active:scale-95 border-b-8 border-red-800 rounded-2xl transition text-white font-black text-xl">VERMELHO</button>
+                <button onclick="pressColor('BLUE')" class="bg-blue-600 active:scale-95 border-b-8 border-blue-800 rounded-2xl transition text-white font-black text-xl">AZUL</button>
+                <button onclick="pressColor('GREEN')" class="bg-emerald-600 active:scale-95 border-b-8 border-emerald-800 rounded-2xl transition text-white font-black text-xl">VERDE</button>
+                <button onclick="pressColor('YELLOW')" class="bg-amber-500 active:scale-95 border-b-8 border-amber-700 rounded-2xl transition text-white font-black text-xl">AMARELO</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let peer = null, conn = null, isTV = false, roomCode = '';
+        let players = [], scores = { p1: 0, p2: 0 };
+        let currentTargetColor = '', roundActive = false, canTap = false;
+        let pRole = 0; // 1 ou 2 para os telemóveis
+
+        const colors = ['RED', 'BLUE', 'GREEN', 'YELLOW'];
+        const colorClasses = {
+            RED: 'bg-red-600 border-red-400',
+            BLUE: 'bg-blue-600 border-blue-400',
+            GREEN: 'bg-emerald-600 border-emerald-400',
+            YELLOW: 'bg-amber-500 border-amber-300'
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        roomCode = urlParams.get('room');
+
+        if (!roomCode) {
+            isTV = true;
+            roomCode = 'TAP-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            document.getElementById('screen-tv').classList.remove('hidden');
+            document.getElementById('tv-room-code').innerText = roomCode;
+            initTV();
+        } else {
+            isTV = false;
+            document.getElementById('screen-player').classList.remove('hidden');
+            initPlayer(roomCode);
+        }
+
+        // --- ENGINE DA TV (HOST) ---
+        function initTV() {
+            peer = new Peer(roomCode);
+            peer.on('connection', (c) => {
+                if (players.length >= 2) { c.on('open', () => c.send({type:'FULL'})); setTimeout(() => c.close(), 500); return; }
+                players.push(c);
+                const role = players.length;
+                c.on('open', () => { c.send({ type: 'ROLE', role: role }); updateLobbyUI(); });
+                c.on('data', (data) => {
+                    if (data.type === 'TAP' && roundActive) {
+                        handlePlayerTap(role, data.color);
+                    }
+                });
+                c.on('close', () => { players = players.filter(x => x !== c); updateLobbyUI(); });
+            });
+        }
+
+        function updateLobbyUI() {
+            const p1 = document.getElementById('tv-p1-status'), p2 = document.getElementById('tv-p2-status'), btn = document.getElementById('btn-start');
+            p1.className = players[0] ? "bg-red-600 p-6 rounded-2xl text-white font-black shadow-lg" : "bg-slate-800 p-6 rounded-2xl border-2 border-dashed border-slate-600 w-52 text-slate-500 font-bold";
+            p1.innerHTML = players[0] ? "🔴 JOGADOR 1<br><span class='text-xs font-normal'>Pronto</span>" : "Jogador 1<br><span class='text-xs font-normal'>Desconectado</span>";
+            p2.className = players[1] ? "bg-blue-600 p-6 rounded-2xl text-white font-black shadow-lg" : "bg-slate-800 p-6 rounded-2xl border-2 border-dashed border-slate-600 w-52 text-slate-500 font-bold";
+            p2.innerHTML = players[1] ? "🔵 JOGADOR 2<br><span class='text-xs font-normal'>Pronto</span>" : "Jogador 2<br><span class='text-xs font-normal'>Desconectado</span>";
+            players.length > 0 ? btn.classList.remove('hidden') : btn.classList.add('hidden');
+        }
+
+        function startGame() {
+            document.getElementById('tv-lobby').classList.add('hidden');
+            document.getElementById('tv-gameplay').classList.remove('hidden');
+            players.forEach(p => p.send({ type: 'START' }));
+            nextRound();
+        }
+
+        function nextRound() {
+            roundActive = true;
+            canTap = false;
+            document.getElementById('tv-results').classList.add('hidden');
+            document.getElementById('tv-gameplay').classList.remove('hidden');
+            
+            const targetBox = document.getElementById('tv-target-box');
+            const promptText = document.getElementById('tv-prompt-text');
+            
+            targetBox.className = "w-full max-w-2xl mx-auto h-64 rounded-3xl flex items-center justify-center border-4 border-slate-700 shadow-2xl bg-slate-800";
+            promptText.innerText = "Preparar...";
+            players.forEach(p => p.send({ type: 'LOCK' }));
+
+            // Tempo aleatório entre 2 e 5 segundos para disparar o gatilho
+            setTimeout(() => {
+                if (!roundActive) return;
+                currentTargetColor = colors[Math.floor(Math.random() * colors.length)];
+                canTap = true;
+                
+                targetBox.className = `w-full max-w-2xl mx-auto h-64 rounded-3xl flex items-center justify-center border-4 shadow-2xl transition-all duration-100 ${colorClasses[currentTargetColor]}`;
+                promptText.innerText = `CLICA EM: ${currentTargetColor}`;
+                
+                players.forEach(p => p.send({ type: 'UNLOCK' }));
+            }, 2000 + Math.random() * 3000);
+        }
+
+        function handlePlayerTap(playerNum, color) {
+            if (!canTap) return; // Penalização se clicar antes do tempo (Fake start)
+            
+            roundActive = false;
+            canTap = false;
+
+            if (color === currentTargetColor) {
+                scores[`p${playerNum}`]++;
+                document.getElementById('tv-round-winner').innerText = `JOGADOR ${playerNum} FOI MAIS RÁPIDO!`;
+                document.getElementById('tv-round-winner').className = playerNum === 1 ? "text-5xl font-black text-red-500" : "text-5xl font-black text-blue-500";
+            } else {
+                // Errou a cor: Ponto para o adversário
+                const adv = playerNum === 1 ? 2 : 1;
+                scores[`p${adv}`]++;
+                document.getElementById('tv-round-winner').innerText = `JOGADOR ${playerNum} ERROU A COR!`;
+                document.getElementById('tv-round-winner').className = "text-5xl font-black text-amber-500";
+            }
+
+            document.getElementById('tv-score-p1').innerText = scores.p1;
+            document.getElementById('tv-score-p2').innerText = scores.p2;
+            
+            if (players[0]) players[0].send({ type: 'SYNC_SCORE', score: scores.p1 });
+            if (players[1]) players[1].send({ type: 'SYNC_SCORE', score: scores.p2 });
+
+            document.getElementById('tv-gameplay').classList.add('hidden');
+            document.getElementById('tv-results').classList.remove('hidden');
+
+            if (scores.p1 >= 5 || scores.p2 >= 5) {
+                const finalWinner = scores.p1 >= 5 ? "🔴 JOGADOR 1 VENCEU O JOGO!" : "🔵 JOGADOR 2 VENCEU O JOGO!";
+                document.getElementById('tv-results').innerHTML = `<h2 class='text-6xl font-black text-amber-400 my-8'>${finalWinner}</h2><button onclick='window.location.reload()' class='bg-indigo-600 px-8 py-3 rounded-xl font-bold uppercase'>Novo Jogo</button>`;
+                players.forEach(p => p.send({ type: 'END' }));
+            } else {
+                setTimeout(nextRound, 2500);
+            }
+        }
+
+        // --- ENGINE DO JOGADOR (CLIENTE) ---
+        function initPlayer(code) {
+            peer = new Peer();
+            peer.on('open', () => {
+                conn = peer.connect(code);
+                conn.on('data', (data) => {
+                    if (data.type === 'ROLE') {
+                        pRole = data.role;
+                        const tag = document.getElementById('player-tag');
+                        tag.innerText = `JOGADOR ${pRole}`;
+                        tag.className = pRole === 1 ? "text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-red-600 text-white shadow" : "text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-blue-600 text-white shadow";
+                    } else if (data.type === 'START' || data.type === 'LOCK') {
+                        document.getElementById('player-wait').classList.remove('hidden');
+                        document.getElementById('player-gamepad').classList.add('hidden');
+                    } else if (data.type === 'UNLOCK') {
+                        document.getElementById('player-wait').classList.add('hidden');
+                        document.getElementById('player-gamepad').classList.remove('hidden');
+                    } else if (data.type === 'SYNC_SCORE') {
+                        document.getElementById('player-score').innerText = `${data.score} pts`;
+                    } else if (data.type === 'FULL') {
+                        alert('Sala cheia!');
+                        window.location.href = window.location.origin + window.location.pathname;
+                    } else if (data.type === 'END') {
+                        document.getElementById('player-gamepad').classList.add('hidden');
+                        document.getElementById('player-wait').classList.remove('hidden');
+                        document.getElementById('player-wait-title').innerText = "Fim de Jogo!";
+                    }
+                });
+            });
+        }
+
+        function pressColor(colorName) {
+            document.getElementById('player-gamepad').classList.add('hidden');
+            document.getElementById('player-wait').classList.remove('hidden');
+            if (conn && conn.open) {
+                conn.send({ type: 'TAP', color: colorName });
+            }
+        }
+
+        function copyLink() {
+            const shareLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
+            navigator.clipboard.writeText(shareLink).then(() => alert('Link copiado! Envie para os comandos.'));
+        }
+
+        window.addEventListener('beforeunload', () => { if (conn) conn.close(); if (peer) peer.destroy(); });
+    </script>
+</body>
+</html>
