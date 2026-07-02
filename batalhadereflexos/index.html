@@ -10,7 +10,7 @@
     <meta property="og:image" content="https://jogosdagalera.pages.dev/logowpp.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Bangers&display=swap" rel="stylesheet" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -110,6 +110,32 @@
             border-radius: 6px;
         }
 
+        .topbar-room-logo-text {
+            font-family: 'Bangers', 'Nunito', cursive, sans-serif;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            line-height: 1;
+            color: #1e293b;
+            background: linear-gradient(90deg, #fde047, #facc15, #fde047);
+            background-size: 300% 100%;
+            padding: 5px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+            text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
+            animation: logo-shine 3s linear infinite, logo-pop 1.6s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes logo-shine {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        @keyframes logo-pop {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+
         .topbar-room-details {
             display: flex;
             flex-direction: column;
@@ -207,7 +233,7 @@
             <div class="topbar-room-container">
                 <div class="topbar-room-flex">
                     <div class="topbar-room-logo">
-                        <img src="logo.png" alt="Batalha de Reflexos">
+                        <span class="topbar-room-logo-text">Batalha de Reflexos</span>
                     </div>
                     <div class="topbar-room-details">
                         <span>Sala: <strong id="topbar-room-id" class="topbar-room-id">...</strong> <span class="topbar-room-online">(<span class="online-dot"></span><span id="topbar-online-count">1</span> online)</span></span>
