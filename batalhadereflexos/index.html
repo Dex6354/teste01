@@ -112,10 +112,9 @@
 
         .topbar-room-logo-text {
             font-family: 'Bangers', 'Nunito', cursive, sans-serif;
-            font-size: 17px;
             letter-spacing: 0.3px;
             width: 80px;
-            min-height: 30px;
+            height: 30px;
             color: #1e293b;
             background: linear-gradient(90deg, #fde047, #facc15, #fde047);
             padding: 2px;
@@ -123,6 +122,7 @@
             white-space: normal;
             word-wrap: break-word;
             overflow-wrap: break-word;
+            overflow: hidden;
             text-align: center;
             line-height: 1.05;
             text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
@@ -325,6 +325,17 @@
         };
 
         /* ── NAVBAR + SEÇÃO DE SALA SINCRONIZADAS COM O HOME (idêntico ao caraacara.html) ─── */
+        // Reduz o font-size do texto do logo até caber dentro do fundo amarelo (80x30), sem estourar largura/altura
+        function fitTextToBox(el, maxFont = 17, minFont = 6) {
+            if (!el) return;
+            let fontSize = maxFont;
+            el.style.fontSize = fontSize + 'px';
+            while (fontSize > minFont && (el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth)) {
+                fontSize -= 0.5;
+                el.style.fontSize = fontSize + 'px';
+            }
+        }
+
         async function fetchHomeNavbar() {
             try {
                 const response = await fetch('../index.html');
@@ -368,12 +379,14 @@
                     if (roomLogoBlock) {
                         const roomLogoImg = roomLogoBlock.querySelector('img');
                         if (roomLogoImg) roomLogoImg.remove();
-                        if (!roomLogoBlock.querySelector('.topbar-room-logo-text')) {
-                            const textSpan = document.createElement('span');
+                        let textSpan = roomLogoBlock.querySelector('.topbar-room-logo-text');
+                        if (!textSpan) {
+                            textSpan = document.createElement('span');
                             textSpan.className = 'topbar-room-logo-text';
                             textSpan.textContent = 'Batalha de Reflexos';
                             roomLogoBlock.appendChild(textSpan);
                         }
+                        fitTextToBox(textSpan);
                     }
                 }
 
@@ -552,6 +565,7 @@
             document.getElementById('screen-tv').classList.remove('hidden');
             document.getElementById('topbar-room-id').innerText = roomCode;
 
+            fitTextToBox(document.querySelector('.topbar-room-logo-text'));
             fetchHomeNavbar();
             initTV();
             initPresenceHost(roomCode);
@@ -564,6 +578,7 @@
             document.getElementById('screen-player').classList.remove('hidden');
             document.getElementById('topbar-room-id').innerText = roomCode;
 
+            fitTextToBox(document.querySelector('.topbar-room-logo-text'));
             fetchHomeNavbar();
             initPlayer(roomCode);
             initPresenceGuest(roomCode);
