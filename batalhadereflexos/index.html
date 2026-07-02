@@ -112,31 +112,21 @@
 
         .topbar-room-logo-text {
             font-family: 'Bangers', 'Nunito', cursive, sans-serif;
-            font-size: 26px;
-            letter-spacing: 0.5px;
-            line-height: 30px;
+            font-size: 7px;
+            letter-spacing: 0.3px;
+            width: 80px;
             height: 30px;
             color: #1e293b;
             background: linear-gradient(90deg, #fde047, #facc15, #fde047);
-            background-size: 300% 100%;
-            padding: 0 8px;
+            padding: 0;
             border-radius: 6px;
             white-space: nowrap;
+            overflow: hidden;
             text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
-            animation: logo-shine 3s linear infinite, logo-pop 1.6s ease-in-out infinite;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             box-sizing: border-box;
-        }
-
-        @keyframes logo-shine {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-
-        @keyframes logo-pop {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.06); }
         }
 
         .topbar-room-details {
