@@ -100,7 +100,6 @@
             display: flex;
             align-items: center;
             flex-shrink: 0;
-            min-height: 30px;
         }
 
         .topbar-room-logo img {
@@ -113,20 +112,20 @@
 
         .topbar-room-logo-text {
             font-family: 'Bangers', 'Nunito', cursive, sans-serif;
-            font-size: 20px;
+            font-size: 26px;
             letter-spacing: 0.5px;
-            line-height: 1;
+            line-height: 30px;
+            height: 30px;
             color: #1e293b;
             background: linear-gradient(90deg, #fde047, #facc15, #fde047);
             background-size: 300% 100%;
-            padding: 6px 8px;
+            padding: 0 8px;
             border-radius: 6px;
             white-space: nowrap;
             text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
             animation: logo-shine 3s linear infinite, logo-pop 1.6s ease-in-out infinite;
             display: inline-flex;
             align-items: center;
-            min-height: 30px;
             box-sizing: border-box;
         }
 
@@ -372,9 +371,16 @@
                     const onlineEl = document.getElementById('topbar-online-count');
                     if (onlineEl) onlineEl.innerText = onlineCount;
 
-                    const roomLogoEl = topbar.querySelector('.topbar-room-logo');
-                    if (roomLogoEl) {
-                        roomLogoEl.innerHTML = '<span class="topbar-room-logo-text">Batalha de Reflexos</span>';
+                    const roomLogoBlock = topbar.querySelector('.topbar-room-logo');
+                    if (roomLogoBlock) {
+                        const roomLogoImg = roomLogoBlock.querySelector('img');
+                        if (roomLogoImg) roomLogoImg.remove();
+                        if (!roomLogoBlock.querySelector('.topbar-room-logo-text')) {
+                            const textSpan = document.createElement('span');
+                            textSpan.className = 'topbar-room-logo-text';
+                            textSpan.textContent = 'Batalha de Reflexos';
+                            roomLogoBlock.appendChild(textSpan);
+                        }
                     }
                 }
 
