@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Batalha de Reflexos P2P</title>
+    <title>Batalha de Reflexos</title>
+    <link rel="icon" type="image/png" href="https://jogosdagalera.pages.dev/logowpp.png">
+
+    <meta property="og:title" content="Jogue Batalha de Reflexos Online">
+    <meta property="og:image" content="https://jogosdagalera.pages.dev/logowpp.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <style>
@@ -11,340 +19,648 @@
         #home-navbar-container {
             width: 100%;
             height: 56px;
+            background: #0c151e;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px 0 8px;
+            gap: 32px;
+            box-sizing: border-box;
+        }
+        #home-navbar-container .nav-logo { text-decoration: none; color: inherit; display: block; margin-left: 0; }
+        #home-navbar-container .logo-badge {
+            width: 200px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            flex-shrink: 0;
+        }
+        #home-navbar-container .logo-badge img {
+            height: 100%;
+            width: 100%;
+            object-fit: contain;
+            object-position: left;
+            display: block;
+        }
+        #home-navbar-container .nav-lang {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #1a2635;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 7px;
+            padding: 5px 10px;
+            color: #7a92a8;
+            font-size: 13px;
+            font-family: 'Nunito', sans-serif;
+            line-height: normal;
+            cursor: pointer;
+        }
+        #home-navbar-container .nav-lang:hover {
+            background: #dc2626;
+            color: #fff;
+        }
+        @media (max-width: 560px) {
+            #home-navbar-container { padding: 0 14px 0 8px; gap: 10px; }
+            #home-navbar-container .logo-badge {
+                width: 200px;
+                height: 40px;
+                justify-content: flex-start;
+            }
+        }
+
+        /* Seção do Código da Sala — copiada exatamente do index.html (mesma posição, valores, tamanhos, fontes e margens) */
+        .topbar-room {
+            background: #1e293b;
+            padding: 10px;
+            border-bottom: 4px solid #334155;
+            max-width: 100%;
+            overflow: hidden;
+            position: sticky;
+            top: 56px;
+            z-index: 99;
+        }
+
+        .topbar-room-container {
+            max-width: 448px;
+            margin: 0 auto;
+            padding: 0 4px;
+        }
+
+        .topbar-room-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-room-logo {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .topbar-room-logo img {
+            width: 80px;
+            height: 30px;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 6px;
+        }
+
+        .topbar-room-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            line-height: normal;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        .topbar-room-id {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        .topbar-room-online {
+            font-size: 10px;
+            color: #34d399;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .online-dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #34d399;
+            margin-right: 3px;
+            vertical-align: middle;
+            animation: online-dot-pulse 1.4s ease-in-out infinite;
+        }
+
+        @keyframes online-dot-pulse {
+            0%, 100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+            }
+            50% {
+                opacity: 0.55;
+                box-shadow: 0 0 0 4px rgba(52, 211, 153, 0);
+            }
+        }
+
+        .btn-room {
+            background: #334155;
+            color: #fff;
+            border: none;
+            font-family: 'Nunito', sans-serif;
+            font-weight: bold;
+            line-height: normal;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-room-share {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+
+        .btn-room-share:hover {
+            background: #4f46e5;
+        }
+
+        .btn-room-leave {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+        }
+
+        .btn-room-leave:hover {
+            background: #dc2626;
         }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between select-none">
 
-    <div id="home-navbar-container" class="w-full"></div>
-
-    <div id="screen-lobby" class="flex-grow flex flex-col justify-center items-center p-4">
-        <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 w-full max-w-md shadow-2xl text-center">
-            <h2 class="text-2xl font-black text-indigo-400 mb-6 tracking-wide">🎮 ENTRAR NA BATALHA</h2>
-            
-            <div class="mb-6">
-                <input type="text" id="input-room-code" placeholder="Código da Sala" class="w-full bg-slate-900 border-2 border-slate-700 rounded-xl px-4 py-3 text-center text-xl font-bold tracking-widest uppercase focus:outline-none focus:border-indigo-500 transition-colors placeholder:text-slate-600">
-            </div>
-
-            <div class="space-y-3">
-                <button onclick="initPlayer()" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/30 tracking-wide text-sm">
-                    📱 ENTRAR COMO COMANDO
-                </button>
-                <div class="flex items-center my-4 text-slate-500 text-xs font-bold">
-                    <div class="flex-grow h-px bg-slate-700"></div>
-                    <span class="px-3 tracking-widest">OU</span>
-                    <div class="flex-grow h-px bg-slate-700"></div>
+    <div class="sticky top-0 z-50 w-full flex flex-col shadow-md">
+        <nav id="home-navbar-container">
+            <a class="nav-logo" href="/">
+                <div class="logo-badge">
+                    <img src="https://jogosdagalera.pages.dev/logo3.png" alt="Jogos da Galera">
                 </div>
-                <button onclick="initTV()" class="w-full bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 font-bold py-3.5 rounded-xl transition-all border border-slate-600 tracking-wide text-sm">
-                    📺 CRIAR TELA (TV)
-                </button>
+            </a>
+            <div>
+                <a class="nav-lang" href="/">Sair</a>
             </div>
-        </div>
+        </nav>
+
+        <header id="topbar" class="topbar-room">
+            <div class="topbar-room-container">
+                <div class="topbar-room-flex">
+                    <div class="topbar-room-logo">
+                        <img src="https://jogosdagalera.pages.dev/logowpp.png" alt="Batalha de Reflexos">
+                    </div>
+                    <div class="topbar-room-details">
+                        <span>Sala: <strong id="topbar-room-id" class="topbar-room-id">...</strong> <span class="topbar-room-online">(<span class="online-dot"></span><span id="topbar-online-count">1</span> online)</span></span>
+                        <button onclick="copyLink()" class="btn-room btn-room-share">📋 Compartilhar</button>
+                    </div>
+                    <button id="btn-leave" onclick="leaveRoom()" class="btn-room btn-room-leave">🚪 Trocar Sala</button>
+                </div>
+            </div>
+        </header>
     </div>
 
-    <div id="screen-tv" class="hidden flex-grow flex flex-col justify-between p-8 h-screen w-full max-w-5xl mx-auto">
+    <div id="screen-tv" class="hidden flex-grow flex flex-col justify-between p-8 w-full max-w-5xl mx-auto">
         <div class="flex justify-between items-center border-b-2 border-slate-700 pb-4">
             <div>
                 <h1 class="text-4xl font-black tracking-wider text-rose-500">⚡ BATALHA DE REFLEXOS</h1>
                 <p class="text-slate-400 text-sm mt-1">Abra o link nos telemóveis para conectar</p>
             </div>
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-right">
-                <span class="text-xs text-slate-400 font-mono block">SALA</span>
-                <span id="tv-room-code" class="text-3xl font-black text-indigo-400 tracking-widest">----</span>
-            </div>
         </div>
 
-        <div class="flex-grow flex items-center justify-center my-8 gap-12">
-            <div id="tv-p1" class="bg-slate-800/50 border-2 border-slate-700/50 rounded-3xl p-8 w-80 text-center transition-all">
-                <div class="text-xs text-slate-500 font-mono tracking-widest mb-2 uppercase">Jogador 1</div>
-                <div id="tv-p1-status" class="text-xl font-bold text-slate-400">Aguardando...</div>
-                <div id="tv-p1-score" class="text-6xl font-black text-white mt-4 hidden">0</div>
+        <div class="flex-grow flex flex-col items-center justify-center my-6">
+
+            <div id="tv-lobby" class="text-center space-y-6">
+                <h2 class="text-3xl font-bold animate-pulse text-amber-400">Aguardando Jogadores...</h2>
+                <div class="flex justify-center space-x-12">
+                    <div id="tv-p1-status" class="bg-slate-800 p-6 rounded-2xl border-2 border-dashed border-slate-600 w-52 text-slate-500 font-bold">Jogador 1<br><span class="text-xs font-normal">Desconectado</span></div>
+                    <div id="tv-p2-status" class="bg-slate-800 p-6 rounded-2xl border-2 border-dashed border-slate-600 w-52 text-slate-500 font-bold">Jogador 2<br><span class="text-xs font-normal">Desconectado</span></div>
+                </div>
+                <button id="btn-start" onclick="startGame()" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-3 rounded-xl text-lg font-black uppercase hidden shadow-lg transition">Iniciar Combate 🚀</button>
             </div>
 
-            <div class="text-center px-4">
-                <div id="game-status" class="text-2xl font-bold text-amber-400 animate-pulse">AGUARDANDO JOGADORES</div>
-                <div id="game-countdown" class="text-8xl font-black text-white mt-4 hidden">3</div>
-                <button id="btn-start" onclick="startGame()" class="mt-6 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black px-8 py-4 rounded-xl text-lg tracking-wide shadow-lg shadow-emerald-600/20 transition-all hidden">
-                    💥 INICIAR PARTIDA
-                </button>
+            <div id="tv-gameplay" class="w-full hidden text-center space-y-8">
+                <div id="tv-target-box" class="w-full max-w-2xl mx-auto h-64 rounded-3xl flex items-center justify-center border-4 border-slate-700 shadow-2xl transition-all duration-200 bg-slate-800">
+                    <span id="tv-prompt-text" class="text-6xl font-black tracking-wide uppercase">Preparar...</span>
+                </div>
             </div>
 
-            <div id="tv-p2" class="bg-slate-800/50 border-2 border-slate-700/50 rounded-3xl p-8 w-80 text-center transition-all">
-                <div class="text-xs text-slate-500 font-mono tracking-widest mb-2 uppercase">Jogador 2</div>
-                <div id="tv-p2-status" class="text-xl font-bold text-slate-400">Aguardando...</div>
-                <div id="tv-p2-score" class="text-6xl font-black text-white mt-4 hidden">0</div>
+            <div id="tv-results" class="w-full hidden text-center space-y-6">
+                <h2 id="tv-round-winner" class="text-5xl font-black text-emerald-400">--- VENCEU!</h2>
+                <div class="bg-slate-800 p-6 rounded-2xl max-w-md mx-auto border border-slate-700 shadow-xl space-y-4">
+                    <h3 class="text-lg font-bold uppercase text-slate-400 tracking-wider">Pontuação Global (Alvo: 5)</h3>
+                    <div class="flex justify-between text-xl font-mono border-b border-slate-700 pb-2">
+                        <span class="text-red-400 font-bold">🔴 JOGADOR 1:</span> <span id="tv-score-p1" class="font-black">0</span>
+                    </div>
+                    <div class="flex justify-between text-xl font-mono pt-1">
+                        <span class="text-blue-400 font-bold">🔵 JOGADOR 2:</span> <span id="tv-score-p2" class="font-black">0</span>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="flex justify-between items-center border-t border-slate-800 pt-4 text-xs text-slate-500 font-mono">
-            <div>PEER-TO-PEER MULTIPLAYER</div>
-            <button onclick="copyLink()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg border border-slate-700 transition-colors">
-                📋 Copiar Link de Convite
-            </button>
         </div>
     </div>
 
-    <div id="screen-player" class="hidden flex-grow flex flex-col justify-between p-4 h-screen w-full max-w-md mx-auto">
-        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-            <div>
-                <div id="player-role-title" class="text-sm font-black tracking-wider text-indigo-400">CONECTANDO...</div>
-                <div id="player-score" class="text-xs text-slate-400 font-mono mt-0.5">0 pts</div>
-            </div>
-            <div id="player-status-dot" class="w-3 height-3 rounded-full bg-amber-500 animate-ping"></div>
-        </div>
-
-        <div class="flex-grow flex items-center justify-center my-4">
-            <div id="player-wait" class="text-center p-6 bg-slate-800 rounded-2xl border border-slate-700 w-full">
-                <h3 id="player-wait-title" class="text-xl font-bold text-amber-400 mb-2">Conectando ao Peer...</h3>
-                <p id="player-wait-desc" class="text-slate-400 text-sm">Aguarde a validação da tela principal.</p>
+    <div id="screen-player" class="hidden flex-grow flex flex-col justify-between p-4 max-w-md mx-auto w-full">
+        <div class="flex-grow flex flex-col items-center justify-center my-4 w-full">
+            <div id="player-wait" class="text-center space-y-2">
+                <span class="text-4xl block animate-pulse">⏳</span>
+                <h2 id="player-wait-title" class="text-lg font-bold">Olhe para a TV</h2>
+                <p class="text-xs text-slate-400 px-6">Os botões vão ativar assim que o sinal for dado no ecrã grande!</p>
+                <span id="player-tag" class="inline-block mt-2 text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-slate-700 text-slate-400">Conectando...</span>
             </div>
 
-            <div id="player-gamepad" class="hidden w-full h-full flex items-center justify-center">
-                <button onclick="pressColor('TAP')" class="w-full h-48 bg-rose-600 active:bg-rose-700 active:scale-95 text-white font-black text-4xl rounded-3xl shadow-2xl shadow-rose-600/30 transition-all tracking-widest">
-                    💥 APERTE!
-                </button>
+            <div id="player-gamepad" class="w-full h-full hidden grid grid-cols-2 grid-rows-2 gap-3 py-2">
+                <button onclick="pressColor('RED')" class="bg-red-600 active:scale-95 border-b-8 border-red-800 rounded-2xl transition text-white font-black text-xl">VERMELHO</button>
+                <button onclick="pressColor('BLUE')" class="bg-blue-600 active:scale-95 border-b-8 border-blue-800 rounded-2xl transition text-white font-black text-xl">AZUL</button>
+                <button onclick="pressColor('GREEN')" class="bg-emerald-600 active:scale-95 border-b-8 border-emerald-800 rounded-2xl transition text-white font-black text-xl">VERDE</button>
+                <button onclick="pressColor('YELLOW')" class="bg-amber-500 active:scale-95 border-b-8 border-amber-700 rounded-2xl transition text-white font-black text-xl">AMARELO</button>
             </div>
         </div>
 
-        <div class="text-center text-[10px] text-slate-600 font-mono uppercase tracking-widest pb-2">
-            Controle P2P Ativo
-        </div>
+        <footer class="text-center text-[11px] text-slate-500 py-2">
+            <span id="player-score" class="font-black font-mono text-amber-400">0 pts</span>
+        </footer>
     </div>
 
     <script>
-        let peer = null;
-        let conn = null;
-        let roomCode = '';
-        let role = ''; 
-        let players = {}; 
-        let gameActive = false;
-        let currentRoundColor = '';
-        let roundStartTime = 0;
+        let peer = null, conn = null, isTV = false, roomCode = '';
+        let players = [], scores = { p1: 0, p2: 0 };
+        let currentTargetColor = '', roundActive = false, canTap = false;
+        let pRole = 0; // 1 ou 2 para os telemóveis
 
-        // URL Room Parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const roomParam = urlParams.get('room');
-        if (roomParam) {
-            document.getElementById('input-room-code').value = roomParam.toUpperCase();
-        }
+        // Peer separado, dedicado apenas à contagem de jogadores online na sala (idêntico ao index.html/caraacara.html)
+        let presencePeer = null;
+        let hostConnections = [];
+        let guestConn = null;
+        let reconnectTimer = null;
 
-        // Carrega cabeçalho dinamicamente da index.html (Lógica idêntica ao caraacara)
-        fetch('index.html')
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const indexDoc = parser.parseFromString(html, 'text/html');
-                const navbar = indexDoc.getElementById('home-navbar-container');
-                if (navbar) {
-                    document.getElementById('home-navbar-container').innerHTML = navbar.innerHTML;
+        const colors = ['RED', 'BLUE', 'GREEN', 'YELLOW'];
+        const colorClasses = {
+            RED: 'bg-red-600 border-red-400',
+            BLUE: 'bg-blue-600 border-blue-400',
+            GREEN: 'bg-emerald-600 border-emerald-400',
+            YELLOW: 'bg-amber-500 border-amber-300'
+        };
+
+        /* ── NAVBAR + SEÇÃO DE SALA SINCRONIZADAS COM O HOME (idêntico ao caraacara.html) ─── */
+        async function fetchHomeNavbar() {
+            try {
+                const response = await fetch('../index.html');
+                if (response.ok) {
+                    const htmlText = await response.text();
+                    const parser = new DOMParser();
+                    const parsedDoc = parser.parseFromString(htmlText, 'text/html');
+                    const targetNav = parsedDoc.querySelector('nav');
+                    if (targetNav) {
+                        document.getElementById('home-navbar-container').innerHTML = targetNav.innerHTML;
+
+                        const navLangLink = document.querySelector('#home-navbar-container .nav-lang');
+                        if (navLangLink) {
+                            navLangLink.textContent = 'Sair';
+                        }
+                    }
+                    syncRoomSectionFromHome(htmlText, parsedDoc);
                 }
-            })
-            .catch(err => console.error('Erro ao carregar cabeçalho:', err));
-
-        function generateRoomCode() {
-            return Math.random().toString(36).substring(2, 6).toUpperCase();
+            } catch (error) {
+                console.error("Falha ao sincronizar o cabeçalho do Home automaticamente:", error);
+            }
         }
 
-        function initTV() {
-            role = 'tv';
-            roomCode = generateRoomCode();
-            
-            document.getElementById('screen-lobby').classList.add('hidden');
-            if (document.getElementById('home-navbar-container')) {
-                document.getElementById('home-navbar-container').classList.add('hidden');
+        function syncRoomSectionFromHome(rawHtml, parsedDoc) {
+            try {
+                const homeRoomBlock = parsedDoc.querySelector('.topbar-room');
+                if (homeRoomBlock) {
+                    const container = homeRoomBlock.querySelector('.topbar-room-container') || homeRoomBlock;
+                    const currentOnline = document.getElementById('topbar-online-count');
+                    const onlineCount = currentOnline ? currentOnline.innerText : '1';
+
+                    const topbar = document.getElementById('topbar');
+                    topbar.innerHTML = container.outerHTML;
+
+                    const idEl = document.getElementById('topbar-room-id');
+                    if (idEl) idEl.innerText = roomCode || '...';
+                    const onlineEl = document.getElementById('topbar-online-count');
+                    if (onlineEl) onlineEl.innerText = onlineCount;
+
+                    const roomLogoImg = topbar.querySelector('.topbar-room-logo img');
+                    if (roomLogoImg) {
+                        roomLogoImg.src = 'https://jogosdagalera.pages.dev/logowpp.png';
+                        roomLogoImg.alt = 'Batalha de Reflexos';
+                    }
+                }
+
+                const styleTag = parsedDoc.querySelector('style');
+                if (!styleTag) return;
+                const cssText = styleTag.innerHTML;
+
+                const blocks = extractTopLevelCssBlocks(cssText);
+                const relevant = blocks.filter(b =>
+                    /^\.topbar-room/.test(b.selector) ||
+                    /^\.btn-room/.test(b.selector) ||
+                    /^\.online-dot/.test(b.selector) ||
+                    /^@keyframes\s+online-dot-pulse/.test(b.selector)
+                );
+
+                let syncedCss = '';
+                const rootBlock = blocks.find(b => b.selector === ':root');
+                if (rootBlock) {
+                    const vars = rootBlock.full.match(/--(?:yellow|font)[^:;]*:\s*[^;]+;/g);
+                    if (vars) syncedCss += ':root{' + vars.join('') + '}\n';
+                }
+                relevant.forEach(b => { syncedCss += b.full + '\n'; });
+
+                if (syncedCss) {
+                    let styleEl = document.getElementById('synced-room-style');
+                    if (!styleEl) {
+                        styleEl = document.createElement('style');
+                        styleEl.id = 'synced-room-style';
+                        document.head.appendChild(styleEl);
+                    }
+                    styleEl.textContent = syncedCss;
+                }
+            } catch (error) {
+                console.error("Falha ao sincronizar a seção de sala (usando layout fixo de fallback):", error);
             }
-            document.getElementById('screen-tv').classList.remove('hidden');
-            document.getElementById('tv-room-code').innerText = roomCode;
+        }
 
-            peer = new Peer('BR-' + roomCode);
+        function extractTopLevelCssBlocks(css) {
+            const blocks = [];
+            let i = 0;
+            while (i < css.length) {
+                const braceIndex = css.indexOf('{', i);
+                if (braceIndex === -1) break;
+                const selector = css.slice(i, braceIndex).trim().replace(/\/\*[\s\S]*?\*\//g, '').trim();
+                let depth = 1, j = braceIndex + 1;
+                while (depth > 0 && j < css.length) {
+                    if (css[j] === '{') depth++;
+                    else if (css[j] === '}') depth--;
+                    j++;
+                }
+                const body = css.slice(braceIndex, j);
+                if (selector) blocks.push({ selector, full: selector + ' ' + body });
+                i = j;
+            }
+            return blocks;
+        }
 
-            peer.on('open', () => {
-                console.log('TV Peer criado: ' + peer.id);
+        /* ── CONTAGEM DE JOGADORES ONLINE NA SALA (idêntico ao index.html/caraacara.html) ─── */
+        function presenceHostId(code) {
+            return 'jdg-home-' + code;
+        }
+
+        function updateOnlineCount(n) {
+            const el = document.getElementById('topbar-online-count');
+            if (el) el.innerText = n;
+        }
+
+        function broadcastCount() {
+            hostConnections = hostConnections.filter(c => c.open);
+            const count = hostConnections.length + 1;
+            updateOnlineCount(count);
+            hostConnections.forEach(c => {
+                if (c.open) {
+                    try { c.send({ type: 'presence-count', count }); } catch (e) {}
+                }
+            });
+        }
+
+        function scheduleReconnect(code, delay = 2000) {
+            if (reconnectTimer) return;
+            reconnectTimer = setTimeout(() => {
+                reconnectTimer = null;
+                destroyPresencePeer();
+                if (isTV) {
+                    initPresenceHost(code);
+                } else {
+                    initPresenceGuest(code);
+                }
+            }, delay);
+        }
+
+        function initPresenceHost(code) {
+            if (presencePeer) destroyPresencePeer();
+            presencePeer = new Peer(presenceHostId(code));
+
+            presencePeer.on('open', () => {
+                hostConnections = [];
+                updateOnlineCount(1);
             });
 
-            peer.on('connection', (connection) => {
-                if (Object.keys(players).length >= 2) {
-                    connection.on('open', () => {
-                        connection.send({ type: 'FULL' });
-                        setTimeout(() => connection.close(), 500);
-                    });
-                    return;
-                }
-
-                let pId = Object.keys(players).length === 0 ? 'p1' : 'p2';
-                players[pId] = { conn: connection, score: 0 };
-
-                connection.on('open', () => {
-                    connection.send({ type: 'WELCOME', player: pId });
-                    updateTVPlayersUI();
+            presencePeer.on('connection', (conn2) => {
+                conn2.on('open', () => {
+                    if (!hostConnections.includes(conn2)) hostConnections.push(conn2);
+                    broadcastCount();
                 });
+                conn2.on('close', () => {
+                    hostConnections = hostConnections.filter(c => c !== conn2);
+                    broadcastCount();
+                });
+                conn2.on('error', () => {
+                    hostConnections = hostConnections.filter(c => c !== conn2);
+                    broadcastCount();
+                });
+            });
 
-                connection.on('data', (data) => {
-                    if (data.type === 'TAP' && gameActive) {
-                        handleTap(pId);
+            presencePeer.on('disconnected', () => scheduleReconnect(code));
+            presencePeer.on('close', () => scheduleReconnect(code));
+            presencePeer.on('error', () => scheduleReconnect(code));
+        }
+
+        function initPresenceGuest(code) {
+            if (presencePeer) destroyPresencePeer();
+            presencePeer = new Peer();
+
+            presencePeer.on('open', () => {
+                guestConn = presencePeer.connect(presenceHostId(code));
+
+                guestConn.on('open', () => {});
+                guestConn.on('data', (data) => {
+                    if (data && data.type === 'presence-count') updateOnlineCount(data.count);
+                });
+                guestConn.on('close', () => scheduleReconnect(code, 1500));
+                guestConn.on('error', () => scheduleReconnect(code, 1500));
+            });
+
+            presencePeer.on('disconnected', () => scheduleReconnect(code, 1500));
+            presencePeer.on('close', () => scheduleReconnect(code, 1500));
+            presencePeer.on('error', () => scheduleReconnect(code, 1500));
+        }
+
+        function destroyPresencePeer() {
+            if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+            if (guestConn) { try { guestConn.close(); } catch (e) {} guestConn = null; }
+            if (hostConnections.length > 0) {
+                hostConnections.forEach(c => { try { c.close(); } catch (e) {} });
+                hostConnections = [];
+            }
+            if (presencePeer) {
+                try {
+                    presencePeer.off('open');
+                    presencePeer.off('connection');
+                    presencePeer.off('disconnected');
+                    presencePeer.off('close');
+                    presencePeer.off('error');
+                    presencePeer.destroy();
+                } catch (e) {}
+                presencePeer = null;
+            }
+        }
+
+        /* ── SALA: reaproveita o código já gerado pelo hub (index.html) ─── */
+        const urlParams = new URLSearchParams(window.location.search);
+        roomCode = urlParams.get('room');
+
+        if (!roomCode) {
+            isTV = true;
+            // Sem código na URL: reaproveita o código de sala já gerado pelo hub,
+            // ao invés de criar um código totalmente novo só para a Batalha.
+            roomCode = localStorage.getItem('jdg_room_code');
+            if (!roomCode) {
+                roomCode = 'TAP-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            }
+            localStorage.setItem('jdg_room_code', roomCode);
+            localStorage.setItem('jdg_hosted_room', roomCode);
+
+            document.getElementById('screen-tv').classList.remove('hidden');
+            document.getElementById('topbar-room-id').innerText = roomCode;
+
+            fetchHomeNavbar();
+            initTV();
+            initPresenceHost(roomCode);
+        } else {
+            isTV = false;
+            // Mantém o código de sala sincronizado com o hub, para o caso de o
+            // jogador ter chegado direto por um link (sem passar pelo index.html antes).
+            localStorage.setItem('jdg_room_code', roomCode);
+
+            document.getElementById('screen-player').classList.remove('hidden');
+            document.getElementById('topbar-room-id').innerText = roomCode;
+
+            fetchHomeNavbar();
+            initPlayer(roomCode);
+            initPresenceGuest(roomCode);
+        }
+
+        /* ── SAIR / TROCAR SALA ─── */
+        function leaveRoom() {
+            if (conn) conn.close();
+            if (peer) peer.destroy();
+            destroyPresencePeer();
+            window.location.href = window.location.origin + '/';
+        }
+
+        // --- ENGINE DA TV (HOST) ---
+        function initTV() {
+            peer = new Peer(roomCode);
+            peer.on('connection', (c) => {
+                if (players.length >= 2) { c.on('open', () => c.send({type:'FULL'})); setTimeout(() => c.close(), 500); return; }
+                players.push(c);
+                const role = players.length;
+                c.on('open', () => { c.send({ type: 'ROLE', role: role }); updateLobbyUI(); });
+                c.on('data', (data) => {
+                    if (data.type === 'TAP' && roundActive) {
+                        handlePlayerTap(role, data.color);
                     }
                 });
-
-                connection.on('close', () => {
-                    delete players[pId];
-                    updateTVPlayersUI();
-                    resetGameTV();
-                });
+                c.on('close', () => { players = players.filter(x => x !== c); updateLobbyUI(); });
             });
         }
 
-        function updateTVPlayersUI() {
-            if (players.p1) {
-                document.getElementById('tv-p1-status').innerText = "PRONTO";
-                document.getElementById('tv-p1-status').className = "text-xl font-bold text-emerald-400";
-                document.getElementById('tv-p1-score').classList.remove('hidden');
-                document.getElementById('tv-p1').classList.add('border-emerald-500/30', 'bg-emerald-950/10');
-            } else {
-                document.getElementById('tv-p1-status').innerText = "Aguardando...";
-                document.getElementById('tv-p1-status').className = "text-xl font-bold text-slate-400";
-                document.getElementById('tv-p1-score').classList.add('hidden');
-                document.getElementById('tv-p1').className = "bg-slate-800/50 border-2 border-slate-700/50 rounded-3xl p-8 w-80 text-center transition-all";
-            }
-
-            if (players.p2) {
-                document.getElementById('tv-p2-status').innerText = "PRONTO";
-                document.getElementById('tv-p2-status').className = "text-xl font-bold text-emerald-400";
-                document.getElementById('tv-p2-score').classList.remove('hidden');
-                document.getElementById('tv-p2').classList.add('border-emerald-500/30', 'bg-emerald-950/10');
-            } else {
-                document.getElementById('tv-p2-status').innerText = "Aguardando...";
-                document.getElementById('tv-p2-status').className = "text-xl font-bold text-slate-400";
-                document.getElementById('tv-p2-score').classList.add('hidden');
-                document.getElementById('tv-p2').className = "bg-slate-800/50 border-2 border-slate-700/50 rounded-3xl p-8 w-80 text-center transition-all";
-            }
-
-            if (Object.keys(players).length === 2) {
-                document.getElementById('game-status').innerText = "SALA PRONTA";
-                document.getElementById('btn-start').classList.remove('hidden');
-            } else {
-                document.getElementById('game-status').innerText = "AGUARDANDO JOGADORES";
-                document.getElementById('btn-start').classList.add('hidden');
-            }
+        function updateLobbyUI() {
+            const p1 = document.getElementById('tv-p1-status'), p2 = document.getElementById('tv-p2-status'), btn = document.getElementById('btn-start');
+            p1.className = players[0] ? "bg-red-600 p-6 rounded-2xl text-white font-black shadow-lg" : "bg-slate-800 p-6 rounded-2xl border-2 border-dashed border-slate-600 w-52 text-slate-500 font-bold";
+            p1.innerHTML = players[0] ? "🔴 JOGADOR 1<br><span class='text-xs font-normal'>Pronto</span>" : "Jogador 1<br><span class='text-xs font-normal'>Desconectado</span>";
+            p2.className = players[1] ? "bg-blue-600 p-6 rounded-2xl text-white font-black shadow-lg" : "bg-slate-800 p-6 rounded-2xl border-2 border-dashed border-slate-600 w-52 text-slate-500 font-bold";
+            p2.innerHTML = players[1] ? "🔵 JOGADOR 2<br><span class='text-xs font-normal'>Pronto</span>" : "Jogador 2<br><span class='text-xs font-normal'>Desconectado</span>";
+            players.length > 0 ? btn.classList.remove('hidden') : btn.classList.add('hidden');
         }
 
         function startGame() {
-            document.getElementById('btn-start').classList.add('hidden');
-            document.getElementById('game-status').innerText = "PREPARE-SE...";
-            
-            let count = 3;
-            const countdownEl = document.getElementById('game-countdown');
-            countdownEl.classList.remove('hidden');
-            countdownEl.innerText = count;
-
-            let interval = setInterval(() => {
-                count--;
-                if (count > 0) {
-                    countdownEl.innerText = count;
-                } else {
-                    clearInterval(interval);
-                    countdownEl.classList.add('hidden');
-                    triggerSignal();
-                }
-            }, 1000);
+            document.getElementById('tv-lobby').classList.add('hidden');
+            document.getElementById('tv-gameplay').classList.remove('hidden');
+            players.forEach(p => p.send({ type: 'START' }));
+            nextRound();
         }
 
-        function triggerSignal() {
-            let randomDelay = Math.random() * 3000 + 1500; 
-            document.getElementById('game-status').innerText = "ESPERE...";
-            document.body.className = "bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between select-none transition-colors duration-200";
+        function nextRound() {
+            roundActive = true;
+            canTap = false;
+            document.getElementById('tv-results').classList.add('hidden');
+            document.getElementById('tv-gameplay').classList.remove('hidden');
 
+            const targetBox = document.getElementById('tv-target-box');
+            const promptText = document.getElementById('tv-prompt-text');
+
+            targetBox.className = "w-full max-w-2xl mx-auto h-64 rounded-3xl flex items-center justify-center border-4 border-slate-700 shadow-2xl bg-slate-800";
+            promptText.innerText = "Preparar...";
+            players.forEach(p => p.send({ type: 'LOCK' }));
+
+            // Tempo aleatório entre 2 e 5 segundos para disparar o gatilho
             setTimeout(() => {
-                if (Object.keys(players).length < 2) return; 
-                gameActive = true;
-                roundStartTime = Date.now();
-                document.getElementById('game-status').innerText = "APERTE AGORA!";
-                document.body.classList.replace('bg-slate-900', 'bg-amber-500');
+                if (!roundActive) return;
+                currentTargetColor = colors[Math.floor(Math.random() * colors.length)];
+                canTap = true;
 
-                Object.values(players).forEach(p => {
-                    p.conn.send({ type: 'START' });
-                });
-            }, randomDelay);
+                targetBox.className = `w-full max-w-2xl mx-auto h-64 rounded-3xl flex items-center justify-center border-4 shadow-2xl transition-all duration-100 ${colorClasses[currentTargetColor]}`;
+                promptText.innerText = `CLICA EM: ${currentTargetColor}`;
+
+                players.forEach(p => p.send({ type: 'UNLOCK' }));
+            }, 2000 + Math.random() * 3000);
         }
 
-        function handleTap(playerId) {
-            gameActive = false;
-            let responseTime = Date.now() - roundStartTime;
-            
-            players[playerId].score += 1;
-            document.getElementById(`tv-${playerId}-score`).innerText = players[playerId].score;
+        function handlePlayerTap(playerNum, color) {
+            if (!canTap) return; // Penalização se clicar antes do tempo (Fake start)
 
-            let winnerName = playerId === 'p1' ? 'JOGADOR 1' : 'JOGADOR 2';
-            document.getElementById('game-status').innerText = `${winnerName} VENCEU A RODADA! (${responseTime}ms)`;
-            
-            document.body.className = "bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between select-none transition-colors duration-200";
+            roundActive = false;
+            canTap = false;
 
-            Object.keys(players).forEach(id => {
-                players[id].conn.send({ type: 'SYNC_SCORE', score: players[id].score });
-                players[id].conn.send({ type: 'ROUND_OVER' });
-            });
-
-            if (players[playerId].score >= 5) {
-                document.getElementById('game-status').innerText = `🏆 ${winnerName} GANHOU O JOGO!`;
-                Object.values(players).forEach(p => p.conn.send({ type: 'END' }));
-                resetGameData();
+            if (color === currentTargetColor) {
+                scores[`p${playerNum}`]++;
+                document.getElementById('tv-round-winner').innerText = `JOGADOR ${playerNum} FOI MAIS RÁPIDO!`;
+                document.getElementById('tv-round-winner').className = playerNum === 1 ? "text-5xl font-black text-red-500" : "text-5xl font-black text-blue-500";
             } else {
-                setTimeout(() => {
-                    if (Object.keys(players).length === 2) startGame();
-                }, 2500);
+                // Errou a cor: Ponto para o adversário
+                const adv = playerNum === 1 ? 2 : 1;
+                scores[`p${adv}`]++;
+                document.getElementById('tv-round-winner').innerText = `JOGADOR ${playerNum} ERROU A COR!`;
+                document.getElementById('tv-round-winner').className = "text-5xl font-black text-amber-500";
+            }
+
+            document.getElementById('tv-score-p1').innerText = scores.p1;
+            document.getElementById('tv-score-p2').innerText = scores.p2;
+
+            if (players[0]) players[0].send({ type: 'SYNC_SCORE', score: scores.p1 });
+            if (players[1]) players[1].send({ type: 'SYNC_SCORE', score: scores.p2 });
+
+            document.getElementById('tv-gameplay').classList.add('hidden');
+            document.getElementById('tv-results').classList.remove('hidden');
+
+            if (scores.p1 >= 5 || scores.p2 >= 5) {
+                const finalWinner = scores.p1 >= 5 ? "🔴 JOGADOR 1 VENCEU O JOGO!" : "🔵 JOGADOR 2 VENCEU O JOGO!";
+                document.getElementById('tv-results').innerHTML = `<h2 class='text-6xl font-black text-amber-400 my-8'>${finalWinner}</h2><button onclick='window.location.reload()' class='bg-indigo-600 px-8 py-3 rounded-xl font-bold uppercase'>Novo Jogo</button>`;
+                players.forEach(p => p.send({ type: 'END' }));
+            } else {
+                setTimeout(nextRound, 2500);
             }
         }
 
-        function resetGameTV() {
-            gameActive = false;
-            document.body.className = "bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between select-none";
-            document.getElementById('game-countdown').classList.add('hidden');
-            resetGameData();
-        }
-
-        function resetGameData() {
-            Object.keys(players).forEach(id => {
-                players[id].score = 0;
-                document.getElementById(`tv-${id}-score`).innerText = '0';
-            });
-            updateTVPlayersUI();
-        }
-
-        function initPlayer() {
-            const inputCode = document.getElementById('input-room-code').value.trim().toUpperCase();
-            if (!inputCode) { alert('Digite o código da sala!'); return; }
-
-            roomCode = inputCode;
-            role = 'player';
-
-            document.getElementById('screen-lobby').classList.add('hidden');
-            if (document.getElementById('home-navbar-container')) {
-                document.getElementById('home-navbar-container').classList.add('hidden');
-            }
-            document.getElementById('screen-player').classList.remove('hidden');
-
+        // --- ENGINE DO JOGADOR (CLIENTE) ---
+        function initPlayer(code) {
             peer = new Peer();
-
             peer.on('open', () => {
-                conn = peer.connect('BR-' + roomCode);
-
-                conn.on('open', () => {
-                    document.getElementById('player-status-dot').className = "w-3 h-3 rounded-full bg-emerald-500";
-                });
-
+                conn = peer.connect(code);
                 conn.on('data', (data) => {
-                    if (data.type === 'WELCOME') {
-                        let formattedRole = data.player === 'p1' ? 'JOGADOR 1' : 'JOGADOR 2';
-                        document.getElementById('player-role-title').innerText = formattedRole;
-                        document.getElementById('player-wait-title').innerText = "Conectado!";
-                        document.getElementById('player-wait-desc').innerText = "Aguardando o mestre iniciar o round.";
-                    } else if (data.type === 'START') {
+                    if (data.type === 'ROLE') {
+                        pRole = data.role;
+                        const tag = document.getElementById('player-tag');
+                        tag.innerText = `JOGADOR ${pRole}`;
+                        tag.className = pRole === 1 ? "inline-block mt-2 text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-red-600 text-white shadow" : "inline-block mt-2 text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-blue-600 text-white shadow";
+                    } else if (data.type === 'START' || data.type === 'LOCK') {
+                        document.getElementById('player-wait').classList.remove('hidden');
+                        document.getElementById('player-gamepad').classList.add('hidden');
+                    } else if (data.type === 'UNLOCK') {
                         document.getElementById('player-wait').classList.add('hidden');
                         document.getElementById('player-gamepad').classList.remove('hidden');
-                    } else if (data.type === 'ROUND_OVER') {
-                        document.getElementById('player-gamepad').classList.add('hidden');
-                        document.getElementById('player-wait').classList.remove('hidden');
-                        document.getElementById('player-wait-title').innerText = "Round Finalizado";
-                        document.getElementById('player-wait-desc').innerText = "Preparando próximo round...";
                     } else if (data.type === 'SYNC_SCORE') {
                         document.getElementById('player-score').innerText = `${data.score} pts`;
                     } else if (data.type === 'FULL') {
@@ -372,7 +688,11 @@
             navigator.clipboard.writeText(shareLink).then(() => alert('Link copiado! Envie para os comandos.'));
         }
 
-        window.addEventListener('beforeunload', () => { if (conn) conn.close(); if (peer) peer.destroy(); });
+        window.addEventListener('beforeunload', () => {
+            if (conn) conn.close();
+            if (peer) peer.destroy();
+            destroyPresencePeer();
+        });
     </script>
 </body>
 </html>
