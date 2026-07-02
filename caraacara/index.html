@@ -98,6 +98,20 @@
             gap: 8px;
         }
 
+        .topbar-room-logo {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .topbar-room-logo img {
+            width: 80px;
+            height: 30px;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 6px;
+        }
+
         .topbar-room-details {
             display: flex;
             flex-direction: column;
@@ -181,12 +195,22 @@
 
     <div class="sticky top-0 z-50 w-full flex flex-col shadow-md">
         <nav id="home-navbar-container">
-            <div class="animate-pulse text-xs text-slate-500 pl-4"></div>
+            <a class="nav-logo" href="/">
+                <div class="logo-badge">
+                    <img src="https://jogosdagalera.pages.dev/logo3.png" alt="Jogos da Galera">
+                </div>
+            </a>
+            <div>
+                <a class="nav-lang" href="/">Sair</a>
+            </div>
         </nav>
         
         <header id="topbar" class="topbar-room">
             <div class="topbar-room-container">
                 <div class="topbar-room-flex">
+                    <div class="topbar-room-logo">
+                        <img src="img/logo.jpg" alt="Cara a Cara">
+                    </div>
                     <div class="topbar-room-details">
                         <span>Sala: <strong id="topbar-room-id" class="topbar-room-id">...</strong> <span class="topbar-room-online">(<span class="online-dot"></span><span id="topbar-online-count">1</span> online)</span></span>
                         <button onclick="copyLink()" class="btn-room btn-room-share">📋 Compartilhar</button>
@@ -490,7 +514,7 @@
                     // a mesma estrutura/tamanho (.topbar-room-logo img).
                     const roomLogoImg = topbar.querySelector('.topbar-room-logo img');
                     if (roomLogoImg) {
-                        roomLogoImg.src = 'img/logo.jpg';
+                        roomLogoImg.src = 'img/logo.png';
                         roomLogoImg.alt = 'Cara a Cara';
                     }
                 }
