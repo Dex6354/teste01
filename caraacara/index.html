@@ -446,6 +446,14 @@
                     const targetNav = parsedDoc.querySelector('nav');
                     if (targetNav) {
                         document.getElementById('home-navbar-container').innerHTML = targetNav.innerHTML;
+
+                        // Nesta página (dentro da sala), o link da navbar deixa de ser "🏠 Home"
+                        // e passa a funcionar como "Sair", mantendo a mesma classe/estilo (.nav-lang)
+                        // e todo o CSS herdado do Home.
+                        const navLangLink = document.querySelector('#home-navbar-container .nav-lang');
+                        if (navLangLink) {
+                            navLangLink.textContent = 'Sair';
+                        }
                     }
                     syncRoomSectionFromHome(htmlText, parsedDoc);
                 }
@@ -476,6 +484,15 @@
                     if (idEl) idEl.innerText = roomCode || '...';
                     const onlineEl = document.getElementById('topbar-online-count');
                     if (onlineEl) onlineEl.innerText = onlineCount;
+
+                    // O logo copiado do Home é o genérico (escolhaumjogo.png); aqui na sala do
+                    // Cara a Cara ele é substituído pelo logo específico deste jogo, mantendo
+                    // a mesma estrutura/tamanho (.topbar-room-logo img).
+                    const roomLogoImg = topbar.querySelector('.topbar-room-logo img');
+                    if (roomLogoImg) {
+                        roomLogoImg.src = 'img/logo.png';
+                        roomLogoImg.alt = 'Cara a Cara';
+                    }
                 }
 
                 // 2) CSS: copia dinamicamente as regras de estilo relacionadas à seção de sala
